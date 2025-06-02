@@ -1,4 +1,5 @@
 ---
+
 # best_price:
 #   module: best_energy_price
 #   class: BestPrice
