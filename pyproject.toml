@@ -17,7 +17,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 
 [tool.autopep8]
-max_line_length = 98
+max_line_length = 112
 in-place = true
 recursive = true
 aggressive = 2
@@ -30,7 +30,7 @@ ignore = [
 exclude = ['*.py']
 
 [tool.black]
-line-length = 120
+line-length = 112
 target-version = ["py312"]
 exclude = '''
 /(
@@ -44,7 +44,7 @@ profile = "black"
 py_version="auto"
 
 [tool.flake8]
-max_line_length = 98
+max_line_length = 112
 ignore = [
     # function too complex: is what we do ;-)
     "C901",
@@ -92,7 +92,7 @@ add-ignore = "D"
 [tool.ruff]
 fix = true
 indent-width = 4
-line-length = 98
+line-length = 112
 output-format = "concise"
 include = ["pyproject.toml", "**/*.py"]
 exclude = [
