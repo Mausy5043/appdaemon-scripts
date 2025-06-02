@@ -1,0 +1,7 @@
+---
+# listen_cpuload:
+#   module: qlisten
+#   class: QListen
+#   listen_for: sensor.system_monitor_load_1_min
+#   attribute: state
+#   priority: 100

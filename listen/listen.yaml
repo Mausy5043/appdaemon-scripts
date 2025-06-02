@@ -1,0 +1,19 @@
+---
+# listen_pwr:
+#   module: listen
+#   class: Listen
+#   listen_for: input_boolean.evneedspwr
+#   attribute: state
+#   event: ""
+# listen_ev:
+#   module: listen
+#   class: Listen
+#   listen_for: lock.volvo_ex40_lock
+#   attribute: state
+#   event: ""
+# listen_cpuload:
+#   module: listen
+#   class: Listen
+#   listen_for: sensor.system_monitor_load_1_min
+#   attribute: state
+#   event: ""

@@ -1,0 +1,5 @@
+---
+# batman:
+#   module: batman
+#   class: BatMan
+#   priority: 100

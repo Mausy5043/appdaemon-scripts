@@ -1,0 +1,122 @@
+# Project: homeassistant
+
+# when changing dependencies also check `environment.yml`
+
+[project]
+name = "appdaemon-apps"
+version = "0.0.0"   # rolling release has no version
+description = "AppDaemon apps for Home Assistant"
+dependencies = [
+    "pip",
+    ]
+license = {file = "LICENSE"}
+authors = [
+  { name="Mausy5043" },
+  ]
+readme = "README.md"
+requires-python = ">=3.12"
+
+[tool.autopep8]
+max_line_length = 98
+in-place = true
+recursive = true
+aggressive = 2
+ignore = [
+    # whitespace before ':': is enforced by black
+    "E203"
+    ]
+
+[tool.bandit]
+exclude = ['*.py']
+
+[tool.black]
+line-length = 120
+target-version = ["py312"]
+exclude = '''
+/(
+    legacy/|
+    \.local/
+)
+'''
+
+[tool.isort]
+profile = "black"
+py_version="auto"
+
+[tool.flake8]
+max_line_length = 98
+ignore = [
+    # function too complex: is what we do ;-)
+    "C901",
+    # whitespace before ':': is enforced by black
+    "E203",
+    # module level import not at top of file
+    "E402",
+    # line too long: is checked by pylint
+    "E501",
+    # do not use bare 'except':  don't care
+    "E722",
+    # line break before binary: is against policy.
+    "W503",
+    ]
+exclude = [
+    "legacy/",
+    ".local/"
+]
+
+[tool.mypy]
+exclude = [
+    "legacy/",
+    ".local/"
+]
+# ignore_errors = true
+strict = false
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+strict_equality = true
+check_untyped_defs = true
+disallow_subclassing_any = true
+disallow_untyped_decorators = true
+# disallow_untyped_calls = true
+no_implicit_reexport = true
+extra_checks = true
+
+[tool.pydocstyle]
+inherit = false
+convention = "google"
+match = ".*\\.py"
+add-ignore = "D"
+
+[tool.ruff]
+fix = true
+indent-width = 4
+line-length = 98
+output-format = "concise"
+include = ["pyproject.toml", "**/*.py"]
+exclude = [
+    "legacy/",
+    ".local/",
+]
+
+[tool.ruff.format]
+indent-style = "space"
+line-ending = "auto"
+quote-style = "preserve"
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "SIM", "UP", "W"]
+ignore = [
+    # line too long: formatter is leading
+    "E501"
+    ]
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# pylint is controlled by .pylintrc
+
+
+[tool.pyright]
+reportAttributeAccessIssue="none"

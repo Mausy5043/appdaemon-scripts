@@ -1,0 +1,19 @@
+# conda -v env update --file environment.yml
+---
+name: appdaemon
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.12.10
+  - pip
+  - pip:
+      - appdaemon
+
+  # for development
+  - pipdeptree
+  - pre-commit
+  - black
+  - isort
