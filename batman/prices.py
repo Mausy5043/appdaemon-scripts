@@ -1,5 +1,3 @@
-import appdaemon.plugins.hass.hassapi as hass  # pyright: ignore[reportMissingImports]
-
 import datetime as dt
 
 import const as cs
@@ -85,4 +83,3 @@ def total_price(pricelist: list[float]) -> list[float]:
     # add BTW = 21%
     _p = [round(i * 1.21, 5) for i in _p]
     return _p
-

@@ -1,11 +1,9 @@
 import appdaemon.plugins.hass.hassapi as hass  # pyright: ignore[reportMissingImports]
-
-import const as cs
-import utils as ut
-
 import batteries
+import const as cs
 import prices
 import strategies
+import utils as ut
 
 """BatMan App
 Listen to changes in the battery state and control the charging/discharging based on energy prices and strategies.
@@ -30,13 +28,23 @@ class BatMan(hass.Hass):
 
         # Initialize today's and tomorrow's prices and strategies
         prices.lst_changed(
-            self, entity=cs.ENT_PRICE, attribute=cs.CUR_PRICE_ATTR, old=self.todays_prices, new="new", kwargs=None
+            self,
+            entity=cs.ENT_PRICE,
+            attribute=cs.CUR_PRICE_ATTR,
+            old=self.todays_prices,
+            new="new",
+            kwargs=None,
         )
         self.log(f"\n*** Today's prices:\n{self.todays_prices}\n.")
         self.log(f"\n*** Tomorrow's prices:\n{self.tomorrows_prices}\n .")
 
         strategies.lst_changed(
-            self, entity=cs.ENT_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR, old="none", new="new", kwargs=None
+            self,
+            entity=cs.ENT_STRATEGY,
+            attribute=cs.CUR_STRATEGY_ATTR,
+            old="none",
+            new="new",
+            kwargs=None,
         )
         self.log(f"Today's strategy:\n{self.todays_strategy}")
         self.log(f"Charging   : {ut.sort_index(self.todays_strategy)[-3:]}")
@@ -76,4 +84,3 @@ class BatMan(hass.Hass):
     def strategy_list_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for strategy list change."""
         strategies.lst_changed(self, entity, attribute, old, new, kwargs)
-

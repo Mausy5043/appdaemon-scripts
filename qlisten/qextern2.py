@@ -2,7 +2,6 @@ import appdaemon.plugins.hass.hassapi as hass
 
 
 class QExtern2(hass.Hass):
-    
     def initialize(self):
         pass
 

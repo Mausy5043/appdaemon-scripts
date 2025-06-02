@@ -1,8 +1,3 @@
-import appdaemon.plugins.hass.hassapi as hass  # pyright: ignore[reportMissingImports]
-
-import const as cs
-import utils as ut
-
 # goto = "nom"
 # self.log(f"\nset battery to {goto}\n")
 # self.set_state(cs.ENT_BAT1_STRATEGY, f"{goto}")

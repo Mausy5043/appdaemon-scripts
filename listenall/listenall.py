@@ -1,5 +1,3 @@
-import datetime
-
 import appdaemon.plugins.hass.hassapi as hass  # pyright: ignore[reportMissingImports]
 
 """ListenAll App
