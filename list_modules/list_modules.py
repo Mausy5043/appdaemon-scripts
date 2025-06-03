@@ -2,7 +2,7 @@ import os
 import platform
 import sys
 
-import appdaemon.plugins.hass.hassapi as hass  # pyright: ignore[reportMissingImports]
+import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 from pip._internal.operations.freeze import freeze as pip_freeze
 
 """List Modules App
@@ -13,7 +13,7 @@ Args:
 """
 
 
-class ListModules(hass.Hass):
+class ListModules(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         self.list_modules()
         self.list_system_details()

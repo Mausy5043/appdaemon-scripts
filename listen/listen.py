@@ -1,4 +1,4 @@
-import appdaemon.plugins.hass.hassapi as hass  # pyright: ignore[reportMissingImports]
+import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 
 """Listen App
 Listen to changes in an entity's state or attribute, or to a specific event.
@@ -10,7 +10,7 @@ Args:
 """
 
 
-class Listen(hass.Hass):
+class Listen(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         self.set_namespace("listen")
         entity = self.args.get("listen_for")

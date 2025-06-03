@@ -1,4 +1,4 @@
-import appdaemon.plugins.hass.hassapi as hass  # pyright: ignore[reportMissingImports]
+import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import batteries
 import const as cs
 import prices
@@ -10,7 +10,7 @@ Listen to changes in the battery state and control the charging/discharging base
 """
 
 
-class BatMan(hass.Hass):
+class BatMan(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
         # initialize the prices and strategies

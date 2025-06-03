@@ -1,6 +1,6 @@
 import datetime
 
-import appdaemon.plugins.hass.hassapi as hass  # pyright: ignore[reportMissingImports]
+import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 
 """Listen App
 Listen to changes in an entity's state or attribute, or to a specific event.
@@ -12,7 +12,7 @@ Args:
 """
 
 
-class BestPrice(hass.Hass):
+class BestPrice(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
         # Define the entities and attributes to listen to

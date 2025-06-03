@@ -1,7 +1,7 @@
-import appdaemon.plugins.hass.hassapi as hass
+import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 
 
-class QListen2(hass.Hass):
+class QListen2(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         entity = self.args.get("listen_for")
         attribute = self.args.get("attribute")
