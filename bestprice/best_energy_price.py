@@ -134,7 +134,7 @@ class BestPrice(hass.Hass):  # type: ignore[misc]
         if isinstance(date, datetime.date):
             date_str: str = date.strftime("%Y-%m-%d")
             attr: dict = self.get_state(entity_id=self.entity_strategy, attribute=self.attr_strategy)
-            return attr.get(date_str, no_strategy)
+            return list(map(int, attr.get(date_str, no_strategy)))
         else:
             self.log(f"Invalid date: {date}", level="ERROR")
             return no_strategy

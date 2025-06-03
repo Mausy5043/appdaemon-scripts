@@ -28,7 +28,7 @@ def get_strategy(haas, datum) -> list[int]:
     if isinstance(datum, dt.date):
         date_str: str = datum.strftime("%Y-%m-%d")
         attr: dict = haas.get_state(entity_id=cs.ENT_STRATEGY, attribute=cs.LST_STRATEGY_ATTR)
-        return attr.get(date_str, no_strategy)
+        return list(map(int, attr.get(date_str, no_strategy)))
     else:
         haas.log(f"Invalid date: {datum}", level="ERROR")
         return no_strategy
