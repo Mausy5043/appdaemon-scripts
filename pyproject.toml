@@ -94,7 +94,7 @@ fix = true
 indent-width = 4
 line-length = 112
 output-format = "concise"
-include = ["pyproject.toml", "**/*.py"]
+include = ["pyproject.toml", "git-apps/**/*.py"]
 exclude = [
     "legacy/",
     ".local/",
