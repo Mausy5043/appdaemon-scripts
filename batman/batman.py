@@ -14,12 +14,12 @@ class BatMan(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
         # initialize the prices and strategies
-        self.todays_prices = []
-        self.tomorrows_prices = []
-        self.todays_strategy = []
-        self.tomorrows_strategy = []
-        self.now_price = cs.ACT_PRICE
-        self.now_strategy = cs.ACT_STRATEGY
+        self.todays_prices: list[float] = []
+        self.tomorrows_prices: list[float] = []
+        self.todays_strategy: list[int] = []
+        self.tomorrows_strategy: list[int] = []
+        self.now_price: float = cs.ACT_PRICE
+        self.now_strategy: int = cs.ACT_STRATEGY
 
         # Log the version and entity attributes
         self.log(f"=== BatMan v{cs.VERSION} ===")
