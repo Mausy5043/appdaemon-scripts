@@ -17,9 +17,9 @@ def lst_changed(haas, entity, attribute, old, new, **kwargs) -> None:
     # Update today's and tomorrow's strategies
     today = dt.date.today()
     tomorrow = today + dt.timedelta(days=1)
-    haas.todays_strategy = get_strategy(hass, today)
+    haas.todays_strategy = get_strategy(haas, today)
 
-    haas.tomorrows_strategy = get_strategy(hass, tomorrow)
+    haas.tomorrows_strategy = get_strategy(haas, tomorrow)
 
 
 def get_strategy(haas, datum) -> list[int]:
