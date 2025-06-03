@@ -71,16 +71,16 @@ class BatMan(hass.Hass):  # type: ignore[misc]
 
     def price_current_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for current price change."""
-        prices.now_change(self, entity, attribute, old, new, kwargs)
+        prices.now_change(self, entity, attribute, old, new, **kwargs)
 
     def price_list_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for price list change."""
-        prices.lst_changed(self, entity, attribute, old, new, kwargs)
+        prices.lst_changed(self, entity, attribute, old, new, **kwargs)
 
     def strategy_current_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for current strategy change."""
-        strategies.now_change(self, entity, attribute, old, new, kwargs)
+        strategies.now_change(self, entity, attribute, old, new, **kwargs)
 
     def strategy_list_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for strategy list change."""
-        strategies.lst_changed(self, entity, attribute, old, new, kwargs)
+        strategies.lst_changed(self, entity, attribute, old, new, **kwargs)
