@@ -50,14 +50,14 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         self.tomorrows_strategies = self.get_strategies(tomorrow)
         self.log(f"Tomorrow's strategies:\n{self.tomorrows_strategies}\n .")
 
-    def get_strategies(self, date) -> list[float]:
+    def get_strategies(self, date) -> list[int]:
         """Get the energy strategies for a specific date."""
-        no_strategies: list[float] = [0.0] * 24
-        _p: list[float] = no_strategies
+        no_strategies: list[float] = [0] * 24
+        _s: list[int] = no_strategies
         if isinstance(date, dt.date):
             date_str: str = date.strftime("%Y-%m-%d")
             attr: dict = self.get_state(entity_id=self.entity_strategies, attribute=self.attr_strategies)
-            _p = attr.get(date_str, no_strategies)
+            _s = attr.get(date_str, no_strategies)
         else:
             self.log(f"Invalid date: {date}", level="ERROR")
-        return self.total_strategy(strategylist=_p)
+        return _s
