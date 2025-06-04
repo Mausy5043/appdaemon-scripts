@@ -1,34 +1,63 @@
 import datetime as dt
+from typing import Any
 
+import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import const as cs
 
-"""Handle power strategies for Batman app."""
+"""Handle battery charge/discharge strategies for Batman app."""
 
 
-def now_change(haas, entity, attribute, old, new, **kwargs) -> None:
-    """Log change of current strategy."""
-    haas.log(f"State changed for {entity} ({attribute}): {old} -> {new}")
-    haas.now_strategy = int(new)
+class Strategies(hass.Hass):  # type: ignore[misc]
+    def initialize(self):
+        """Initialize the app."""
+        # Define the entities and attributes to listen to
+        self.entity_strategies: str = cs.ENT_STRATEGY
+        self.attr_state: str = cs.CUR_STRATEGY_ATTR
+        self.attr_strategies: str = cs.LST_STRATEGY_ATTR
+        # when debugging & first run: log everything
+        _e: dict[str, Any] = self.get_state(entity_id=self.entity_strategies, attribute="all")
+        for _k, _v in _e.items():
+            self.log(f"____{_k}: {_v}", level="INFO")
+        # Initialize today's and tomorrow's strategies
+        self.strategies_changed("strategies", "", "none", "new", None)
+        self.strategy_changed(
+            "strategy",
+            self.attr_state,
+            "none",
+            self.get_state(entity_id=self.entity_strategies, attribute=self.attr_state),
+            None,
+        )
 
+    def strategy_changed(self, entity, attribute, old, new, kwargs):
+        """Log change of current strategy."""
+        try:
+            old = f"{int(old)}"
+            new = f"{int(new)}"
+        except (ValueError, TypeError):
+            pass
+        self.log(f"State changed for {entity} ({attribute}): {old} -> {new}")
+        self.now_strategy = int(new)
+        self.log(f"New strategy = {self.now_strategy}")
 
-def lst_changed(haas, entity, attribute, old, new, **kwargs) -> None:
-    """Handle changes in the power strategy."""
-    haas.log(f"Strategies changed: {old} -> {new}")
-    # Update today's and tomorrow's strategies
-    today = dt.date.today()
-    tomorrow = today + dt.timedelta(days=1)
-    haas.todays_strategy = get_strategy(haas, today)
+    def strategies_changed(self, entity, attribute, old, new, kwargs):
+        """Handle changes in the energy strategies."""
+        self.log(f"strategies changed: {old} -> {new}")
+        # Update today's and tomorrow's strategies
+        today = dt.date.today()
+        tomorrow = today + dt.timedelta(days=1)
+        self.todays_strategies = self.get_strategies(today)
+        self.log(f"Today's strategies:\n{self.todays_strategies}")
+        self.tomorrows_strategies = self.get_strategies(tomorrow)
+        self.log(f"Tomorrow's strategies:\n{self.tomorrows_strategies}\n .")
 
-    haas.tomorrows_strategy = get_strategy(haas, tomorrow)
-
-
-def get_strategy(haas, datum) -> list[int]:
-    """Get the power strategy for a specific date."""
-    no_strategy: list[int] = [0] * 24
-    if isinstance(datum, dt.date):
-        date_str: str = datum.strftime("%Y-%m-%d")
-        attr: dict = haas.get_state(entity_id=cs.ENT_STRATEGY, attribute=cs.LST_STRATEGY_ATTR)
-        return list(map(int, attr.get(date_str, no_strategy)))
-    else:
-        haas.log(f"Invalid date: {datum}", level="ERROR")
-        return no_strategy
+    def get_strategies(self, date) -> list[float]:
+        """Get the energy strategies for a specific date."""
+        no_strategies: list[float] = [0.0] * 24
+        _p: list[float] = no_strategies
+        if isinstance(date, dt.date):
+            date_str: str = date.strftime("%Y-%m-%d")
+            attr: dict = self.get_state(entity_id=self.entity_strategies, attribute=self.attr_strategies)
+            _p = attr.get(date_str, no_strategies)
+        else:
+            self.log(f"Invalid date: {date}", level="ERROR")
+        return self.total_strategy(strategylist=_p)

@@ -5,10 +5,10 @@
 #   class: BatMan
 #   priority: 80
 
-# strategies:
-#   module: strategies
-#   class: BatMan
-#   priority: 81
+strategies:
+  module: strategies
+  class: Strategies
+  priority: 81
 
 prices:
   module: prices
