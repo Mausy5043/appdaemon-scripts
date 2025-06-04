@@ -58,3 +58,10 @@ LOG_LEVEL_DEBUG = "DEBUG"
 LOG_MSG_LISTENING = "\n\t*** Listening to entity: {}, attribute: {}"
 # Default values for price and strategy change log messages
 LOG_MSG_ENTITY = "____{}: {}"
+
+
+# add opslag=0.021 + extra=2.000 + taxes=10.15 = 12.171
+PRICE_HIKE = 0.021
+PRICE_XTRA = 2.0
+PRICE_TAXS = 10.15
+PRICE_BTW = 1.21

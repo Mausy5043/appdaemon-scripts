@@ -1,6 +1,5 @@
 ---
 
-
 # batman:
 #   module: batman
 #   class: BatMan
@@ -11,10 +10,10 @@
 #   class: BatMan
 #   priority: 81
 
-# prices:
-#   module: prices
-#   class: BatMan
-#   priority: 82
+prices:
+  module: prices
+  class: Prices
+  priority: 82
 
 # batteries:
 #   module: batteries
