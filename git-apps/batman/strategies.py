@@ -20,13 +20,8 @@ class Strategies(hass.Hass):  # type: ignore[misc]
             self.log(f"____{_k}: {_v}", level="INFO")
         # Initialize today's and tomorrow's strategies
         self.strategies_changed("strategies", "", "none", "new", None)
-        self.strategy_changed(
-            "strategy",
-            self.attr_state,
-            "none",
-            self.get_state(entity_id=self.entity_strategies, attribute=self.attr_state),
-            None,
-        )
+        _s = self.get_state(entity_id=self.entity_strategies, attribute=self.attr_state)
+        self.strategy_changed("strategy", self.attr_state, "none", _s, None)
 
     def strategy_changed(self, entity, attribute, old, new, kwargs):
         """Log change of current strategy."""

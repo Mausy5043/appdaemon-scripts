@@ -20,13 +20,8 @@ class Prices(hass.Hass):  # type: ignore[misc]
             self.log(f"____{_k}: {_v}", level="INFO")
         # Initialize today's and tomorrow's prices
         self.prices_changed("prices", "", "none", "new", None)
-        self.price_changed(
-            "price",
-            self.attr_state,
-            "none",
-            self.get_state(entity_id=self.entity_prices, attribute=self.attr_state),
-            None,
-        )
+        _p = self.get_state(entity_id=self.entity_prices, attribute=self.attr_state)
+        self.price_changed("price", self.attr_state, "none", _p, None)
 
     def price_changed(self, entity, attribute, old, new, kwargs):
         """Log change of current price."""
