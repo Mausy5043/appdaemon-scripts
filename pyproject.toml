@@ -120,3 +120,4 @@ unfixable = []
 
 [tool.pyright]
 reportAttributeAccessIssue="none"
+reportAssignmentType = "none"
