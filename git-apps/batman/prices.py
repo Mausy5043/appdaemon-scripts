@@ -18,7 +18,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
         _e: dict[str, Any] = self.get_state(entity_id=self.entity_prices, attribute="all")
         for _k, _v in _e.items():
             self.log(f"____{_k}: {_v}", level="INFO")
-        # Initialize today's and tomorrow's prices and strategies
+        # Initialize today's and tomorrow's prices
         self.prices_changed("prices", "", "none", "new", None)
         self.price_changed(
             "price",
