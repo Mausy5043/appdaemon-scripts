@@ -1,11 +1,11 @@
----
-qlisten:
-  module: qlisten2
-  class: QListen2
-  listen_for: sensor.system_monitor_load_1_min
-  attribute: state
-  priority: 100
+# ---
+# qlisten:
+#   module: qlisten2
+#   class: QListen2
+#   listen_for: sensor.system_monitor_load_1_min
+#   attribute: state
+#   priority: 100
 
-qextern:
-  module: qextern2
-  class: QExtern2
+# qextern:
+#   module: qextern2
+#   class: QExtern2
