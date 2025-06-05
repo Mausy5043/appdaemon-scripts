@@ -60,7 +60,7 @@ class Strategies(hass.Hass):  # type: ignore[misc]
 
     def get_strategies(self, date) -> list[int]:
         """Get the energy strategies for a specific date."""
-        no_strategies: list[float] = [0] * 24
+        no_strategies: list[int] = [0] * 24
         _s: list[int] = no_strategies
         if isinstance(date, dt.date):
             date_str: str = date.strftime("%Y-%m-%d")
