@@ -76,4 +76,4 @@ class Strategies(hass.Hass):  # type: ignore[misc]
 
     def strategy_list_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for strategy list change."""
-        self.strategies_changed(self, entity, attribute, old, new, **kwargs)
+        self.strategies_changed(entity, attribute, old, new, **kwargs)
