@@ -18,12 +18,12 @@ class Prices(hass.Hass):  # type: ignore[misc]
         self.tomorrows_prices: list[float] = []
         self.log(f"=== Prices v{cs.VERSION} ===")
         # when debugging & first run: log everything
-        _e: dict[str, Any] = self.get_state(entity_id=self.entity_prices, attribute="all")
+        _e: dict[str, Any] = self.get_state(entity_id=cs.ENT_PRICE, attribute="all")
         for _k, _v in _e.items():
             self.log(f"____{_k}: {_v}", level="INFO")
         # Update today's and tomorrow's prices
         self.prices_changed("prices", "", "none", "new")
-        _p = self.get_state(entity_id=cs.ENT_PRICE, attribute=cs.LST_PRICE_ATTR)
+        _p = self.get_state(entity_id=cs.ENT_PRICE, attribute=cs.CUR_PRICE_ATTR)
         self.price_changed("price", cs.CUR_PRICE_ATTR, "none", _p)
         # Set-up callbacks for price changes
         self.listen_state(self.price_list_cb, cs.ENT_PRICE, attribute=cs.LST_PRICE_ATTR)
@@ -67,7 +67,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
         _p: list[float] = no_prices
         if isinstance(date, dt.date):
             date_str: str = date.strftime("%Y-%m-%d")
-            attr: dict = self.get_state(entity_id=self.entity_prices, attribute=self.attr_prices)
+            attr: dict = self.get_state(entity_id=cs.ENT_PRICE, attribute=cs.LST_PRICE_ATTR)
             _p = attr.get(date_str, no_prices)
         else:
             self.log(f"Invalid date: {date}", level="ERROR")

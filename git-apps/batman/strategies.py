@@ -17,9 +17,9 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         for _k, _v in _e.items():
             self.log(f"____{_k}: {_v}", level="INFO")
         # Initialize today's and tomorrow's strategies
-        self.strategies_changed("strategies", "", "none", "new", None)
+        self.strategies_changed("strategies", "", "none", "new")
         _s = self.get_state(entity_id=cs.ENT_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
-        self.strategy_changed("strategy", cs.CUR_STRATEGY_ATTR, "none", _s, None)
+        self.strategy_changed("strategy", cs.CUR_STRATEGY_ATTR, "none", _s)
 
         self.listen_state(self.strategy_current_cb, cs.ENT_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
         self.listen_state(self.strategy_list_cb, cs.ENT_STRATEGY, attribute=cs.LST_STRATEGY_ATTR)
