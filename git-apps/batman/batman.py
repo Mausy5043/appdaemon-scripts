@@ -1,8 +1,6 @@
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import batteries
 import const as cs
-import prices
-import strategies
 import utils as ut
 
 """BatMan App
@@ -26,26 +24,9 @@ class BatMan(hass.Hass):  # type: ignore[misc]
         ut.log_entity_attr(self, cs.ENT_PRICE, level="DEBUG")
         ut.log_entity_attr(self, cs.ENT_STRATEGY, level="DEBUG")
 
-        # Initialize today's and tomorrow's prices and strategies
-        prices.lst_changed(
-            self,
-            entity=cs.ENT_PRICE,
-            attribute=cs.CUR_PRICE_ATTR,
-            old=self.todays_prices,
-            new="new",
-            kwargs=None,
-        )
         self.log(f"\n*** Today's prices:\n{self.todays_prices}\n.")
         self.log(f"\n*** Tomorrow's prices:\n{self.tomorrows_prices}\n .")
 
-        strategies.lst_changed(
-            self,
-            entity=cs.ENT_STRATEGY,
-            attribute=cs.CUR_STRATEGY_ATTR,
-            old="none",
-            new="new",
-            kwargs=None,
-        )
         self.log(f"Today's strategy:\n{self.todays_strategy}")
         self.log(f"Charging   : {ut.sort_index(self.todays_strategy)[-3:]}")
         self.log(f"Discharging: {ut.sort_index(self.todays_strategy)[:3]}")
