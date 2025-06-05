@@ -13,6 +13,11 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         self.callback_handles: list[Any] = []
         # Define the entities and attributes to listen to
         #
+        # Initialize current strategy and today's and tomorrow's list of strategies
+        self.now_strategy: int = cs.ACT_STRATEGY
+        self.todays_strategies: list[int] = []
+        self.tomorrows_strategies: list[int] = []
+        self.log(f"================================= Strategies v{cs.VERSION} ====")
         # when debugging & first run: log everything
         _e: dict[str, Any] = self.get_state(entity_id=cs.ENT_STRATEGY, attribute="all")
         for _k, _v in _e.items():
@@ -69,6 +74,8 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         else:
             self.log(f"Invalid date: {date}", level="ERROR")
         return _s
+
+    # CALLBACKS
 
     def strategy_current_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for current strategy change."""

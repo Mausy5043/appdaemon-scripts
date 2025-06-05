@@ -17,7 +17,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
         self.now_price: float = cs.ACT_PRICE
         self.todays_prices: list[float] = []
         self.tomorrows_prices: list[float] = []
-        self.log(f"=== Prices v{cs.VERSION} ===")
+        self.log(f"===================================== Prices v{cs.VERSION} ====")
         # when debugging & first run: log everything
         _e: dict[str, Any] = self.get_state(entity_id=cs.ENT_PRICE, attribute="all")
         for _k, _v in _e.items():
@@ -90,6 +90,8 @@ class Prices(hass.Hass):  # type: ignore[misc]
         # add BTW
         _p = [round(i * cs.PRICE_BTW, 5) for i in _p]
         return _p
+
+    # CALLBACKS
 
     def price_current_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for current price change."""
