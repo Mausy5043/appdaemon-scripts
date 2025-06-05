@@ -11,19 +11,32 @@ class Prices(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
         # Define the entities and attributes to listen to
-        self.entity_prices: str = cs.ENT_PRICE
-        self.attr_state: str = cs.CUR_PRICE_ATTR
-        self.attr_prices: str = cs.LST_PRICE_ATTR
+        #
+        # Initialize current price and today's and tomorrow's pricelist
+        self.now_price: float = cs.ACT_PRICE
+        self.todays_prices: list[float] = []
+        self.tomorrows_prices: list[float] = []
+        self.log(f"=== Prices v{cs.VERSION} ===")
         # when debugging & first run: log everything
         _e: dict[str, Any] = self.get_state(entity_id=self.entity_prices, attribute="all")
         for _k, _v in _e.items():
             self.log(f"____{_k}: {_v}", level="INFO")
-        # Initialize today's and tomorrow's prices
-        self.prices_changed("prices", "", "none", "new", None)
-        _p = self.get_state(entity_id=self.entity_prices, attribute=self.attr_state)
-        self.price_changed("price", self.attr_state, "none", _p, None)
+        # Update today's and tomorrow's prices
+        self.prices_changed("prices", "", "none", "new")
+        _p = self.get_state(entity_id=cs.ENT_PRICE, attribute=cs.LST_PRICE_ATTR)
+        self.price_changed("price", cs.CUR_PRICE_ATTR, "none", _p)
+        # Set-up callbacks for price changes
+        self.listen_state(self.price_list_cb, cs.ENT_PRICE, attribute=cs.LST_PRICE_ATTR)
+        self.listen_state(self.price_current_cb, cs.ENT_PRICE, attribute=cs.CUR_PRICE_ATTR)
 
-    def price_changed(self, entity, attribute, old, new, kwargs):
+    def terminate(self):
+        """Clean up app."""
+        self.log("Terminating Prices...")
+        # some cleanup code goes here
+        # -
+        self.log("...terminated Prices.")
+
+    def price_changed(self, entity, attribute, old, new, **kwargs):
         """Log change of current price."""
         try:
             old = f"{float(old):.5f}"
@@ -35,14 +48,16 @@ class Prices(hass.Hass):  # type: ignore[misc]
         self.now_price = self.total_price(_p)[0]
         self.log(f"New price = {self.now_price}")
 
-    def prices_changed(self, entity, attribute, old, new, kwargs):
+    def prices_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy prices."""
         self.log(f"Prices changed: {old} -> {new}")
         # Update today's and tomorrow's prices
         today = dt.date.today()
         tomorrow = today + dt.timedelta(days=1)
+        # update list of prices for today
         self.todays_prices = self.get_prices(today)
         self.log(f"Today's prices:\n{self.todays_prices}")
+        # update list of prices for tomorrow
         self.tomorrows_prices = self.get_prices(tomorrow)
         self.log(f"Tomorrow's prices:\n{self.tomorrows_prices}\n .")
 
@@ -67,3 +82,11 @@ class Prices(hass.Hass):  # type: ignore[misc]
         # add BTW
         _p = [round(i * cs.PRICE_BTW, 5) for i in _p]
         return _p
+
+    def price_current_cb(self, entity, attribute, old, new, **kwargs):
+        """Callback for current price change."""
+        self.price_changed(entity, attribute, old, new, **kwargs)
+
+    def price_list_cb(self, entity, attribute, old, new, **kwargs):
+        """Callback for price list change."""
+        self.prices_changed(entity, attribute, old, new, **kwargs)

@@ -53,13 +53,7 @@ class BatMan(hass.Hass):  # type: ignore[misc]
         self.log(f"Charging   : {ut.sort_index(self.tomorrows_strategy)[-3:]}")
         self.log(f"Discharging: {ut.sort_index(self.tomorrows_strategy)[:3]}")
 
-        # Set-up callbacks for price and strategy changes
-        self.listen_state(self.price_current_cb, cs.ENT_PRICE, attribute=cs.CUR_PRICE_ATTR)
-        # self.listen_state(prices.price_current_cb, cs.ENT_PRICE, attribute=cs.CUR_PRICE_ATTR)
-        self.listen_state(self.price_list_cb, cs.ENT_PRICE, attribute=cs.LST_PRICE_ATTR)
         # self.listen_state(prices.price_list_cb, cs.ENT_PRICE, attribute=cs.LST_PRICE_ATTR)
-        self.listen_state(self.strategy_current_cb, cs.ENT_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
-        self.listen_state(self.strategy_list_cb, cs.ENT_STRATEGY, attribute=cs.LST_STRATEGY_ATTR)
         batteries.ramp(self, "ramping...")
 
     def terminate(self):
@@ -68,19 +62,3 @@ class BatMan(hass.Hass):  # type: ignore[misc]
         # some cleanup code goes here
         # - set batteries to NOM strategy
         self.log("...terminated BatMan.")
-
-    def price_current_cb(self, entity, attribute, old, new, **kwargs):
-        """Callback for current price change."""
-        prices.now_change(self, entity, attribute, old, new, **kwargs)
-
-    def price_list_cb(self, entity, attribute, old, new, **kwargs):
-        """Callback for price list change."""
-        prices.lst_changed(self, entity, attribute, old, new, **kwargs)
-
-    def strategy_current_cb(self, entity, attribute, old, new, **kwargs):
-        """Callback for current strategy change."""
-        strategies.now_change(self, entity, attribute, old, new, **kwargs)
-
-    def strategy_list_cb(self, entity, attribute, old, new, **kwargs):
-        """Callback for strategy list change."""
-        strategies.lst_changed(self, entity, attribute, old, new, **kwargs)

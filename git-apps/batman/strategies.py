@@ -11,19 +11,27 @@ class Strategies(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
         # Define the entities and attributes to listen to
-        self.entity_strategies: str = cs.ENT_STRATEGY
-        self.attr_state: str = cs.CUR_STRATEGY_ATTR
-        self.attr_strategies: str = cs.LST_STRATEGY_ATTR
+        #
         # when debugging & first run: log everything
-        _e: dict[str, Any] = self.get_state(entity_id=self.entity_strategies, attribute="all")
+        _e: dict[str, Any] = self.get_state(entity_id=cs.ENT_STRATEGY, attribute="all")
         for _k, _v in _e.items():
             self.log(f"____{_k}: {_v}", level="INFO")
         # Initialize today's and tomorrow's strategies
         self.strategies_changed("strategies", "", "none", "new", None)
-        _s = self.get_state(entity_id=self.entity_strategies, attribute=self.attr_state)
-        self.strategy_changed("strategy", self.attr_state, "none", _s, None)
+        _s = self.get_state(entity_id=cs.ENT_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
+        self.strategy_changed("strategy", cs.CUR_STRATEGY_ATTR, "none", _s, None)
 
-    def strategy_changed(self, entity, attribute, old, new, kwargs):
+        self.listen_state(self.strategy_current_cb, cs.ENT_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
+        self.listen_state(self.strategy_list_cb, cs.ENT_STRATEGY, attribute=cs.LST_STRATEGY_ATTR)
+
+    def terminate(self):
+        """Clean up app."""
+        self.log("Terminating Strategies...")
+        # some cleanup code goes here
+        # -
+        self.log("...terminated Strategies.")
+
+    def strategy_changed(self, entity, attribute, old, new, **kwargs):
         """Log change of current strategy."""
         try:
             old = f"{int(old)}"
@@ -34,7 +42,7 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         self.now_strategy = int(new)
         self.log(f"New strategy = {self.now_strategy}")
 
-    def strategies_changed(self, entity, attribute, old, new, kwargs):
+    def strategies_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy strategies."""
         self.log(f"strategies changed: {old} -> {new}")
         # Update today's and tomorrow's strategies
@@ -51,8 +59,16 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         _s: list[int] = no_strategies
         if isinstance(date, dt.date):
             date_str: str = date.strftime("%Y-%m-%d")
-            attr: dict = self.get_state(entity_id=self.entity_strategies, attribute=self.attr_strategies)
+            attr: dict = self.get_state(entity_id=cs.ENT_STRATEGY, attribute=cs.LST_STRATEGY_ATTR)
             _s = attr.get(date_str, no_strategies)
         else:
             self.log(f"Invalid date: {date}", level="ERROR")
         return _s
+
+    def strategy_current_cb(self, entity, attribute, old, new, **kwargs):
+        """Callback for current strategy change."""
+        self.strategy_changed(entity, attribute, old, new, **kwargs)
+
+    def strategy_list_cb(self, entity, attribute, old, new, **kwargs):
+        """Callback for strategy list change."""
+        self.strategies_changed(self, entity, attribute, old, new, **kwargs)
