@@ -58,7 +58,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
 
     def prices_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy prices."""
-        self.log(f"Prices changed: {old} -> {new} for {entity} ({attribute})")
+        self.log(f"Prices changed: {old} -> {new}")
         # Update today's and tomorrow's prices
         today = dt.date.today()
         tomorrow = today + dt.timedelta(days=1)

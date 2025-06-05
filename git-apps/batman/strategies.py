@@ -49,7 +49,7 @@ class Strategies(hass.Hass):  # type: ignore[misc]
 
     def strategies_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy strategies."""
-        self.log(f"strategies changed: {old} -> {new} for {entity} ({attribute})")
+        self.log(f"Strategies changed: {old} -> {new}")
         # Update today's and tomorrow's strategies
         today = dt.date.today()
         tomorrow = today + dt.timedelta(days=1)
