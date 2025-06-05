@@ -10,6 +10,7 @@ import const as cs
 class Prices(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
+        self.callback_handles: list[Any] = []
         # Define the entities and attributes to listen to
         #
         # Initialize current price and today's and tomorrow's pricelist
@@ -26,14 +27,21 @@ class Prices(hass.Hass):  # type: ignore[misc]
         _p = self.get_state(entity_id=cs.ENT_PRICE, attribute=cs.CUR_PRICE_ATTR)
         self.price_changed("price", cs.CUR_PRICE_ATTR, "none", _p)
         # Set-up callbacks for price changes
-        self.listen_state(self.price_list_cb, cs.ENT_PRICE, attribute=cs.LST_PRICE_ATTR)
-        self.listen_state(self.price_current_cb, cs.ENT_PRICE, attribute=cs.CUR_PRICE_ATTR)
+        self.callback_handles.append(
+            self.listen_state(self.price_list_cb, cs.ENT_PRICE, attribute=cs.LST_PRICE_ATTR)
+        )
+        self.callback_handles.append(
+            self.listen_state(self.price_current_cb, cs.ENT_PRICE, attribute=cs.CUR_PRICE_ATTR)
+        )
 
     def terminate(self):
         """Clean up app."""
         self.log("Terminating Prices...")
         # some cleanup code goes here
-        # -
+        # Cancel all registered callbacks
+        for handle in self.callback_handles:
+            self.cancel_listen_state(handle)
+        self.callback_handles.clear()
         self.log("...terminated Prices.")
 
     def price_changed(self, entity, attribute, old, new, **kwargs):
@@ -50,7 +58,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
 
     def prices_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy prices."""
-        self.log(f"Prices changed: {old} -> {new}")
+        self.log(f"Prices changed: {old} -> {new} for {entity} ({attribute})")
         # Update today's and tomorrow's prices
         today = dt.date.today()
         tomorrow = today + dt.timedelta(days=1)

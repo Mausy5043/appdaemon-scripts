@@ -10,6 +10,7 @@ import const as cs
 class Strategies(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
+        self.callback_handles: list[Any] = []
         # Define the entities and attributes to listen to
         #
         # when debugging & first run: log everything
@@ -21,8 +22,12 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         _s = self.get_state(entity_id=cs.ENT_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
         self.strategy_changed("strategy", cs.CUR_STRATEGY_ATTR, "none", _s)
 
-        self.listen_state(self.strategy_current_cb, cs.ENT_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
-        self.listen_state(self.strategy_list_cb, cs.ENT_STRATEGY, attribute=cs.LST_STRATEGY_ATTR)
+        self.callback_handles.append(
+            self.listen_state(self.strategy_current_cb, cs.ENT_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
+        )
+        self.callback_handles.append(
+            self.listen_state(self.strategy_list_cb, cs.ENT_STRATEGY, attribute=cs.LST_STRATEGY_ATTR)
+        )
 
     def terminate(self):
         """Clean up app."""
@@ -44,7 +49,7 @@ class Strategies(hass.Hass):  # type: ignore[misc]
 
     def strategies_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy strategies."""
-        self.log(f"strategies changed: {old} -> {new}")
+        self.log(f"strategies changed: {old} -> {new} for {entity} ({attribute})")
         # Update today's and tomorrow's strategies
         today = dt.date.today()
         tomorrow = today + dt.timedelta(days=1)
