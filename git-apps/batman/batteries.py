@@ -26,7 +26,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
             self.log(f"2____{_k}: {_v}", level="INFO")
         # Set previous SoC and current SoC to actual values
         self.soc_prev, self.bat_state = self.get_soc()
-        self.soc_now: float = self.soc_prev.copy()
+        self.soc_now: float = self.soc_prev
         # self.batteries_changed("batteries", "", "none", "new")
         _s1 = self.get_state(entity_id=cs.ENT_SOC1, attribute=cs.CUR_SOC_ATTR)
         # Update in half an hour
