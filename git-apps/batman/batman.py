@@ -35,7 +35,7 @@ class BatMan(hass.Hass):  # type: ignore[misc]
         self.log(f"Discharging: {ut.sort_index(self.tomorrows_strategy)[:3]}")
 
         # self.listen_state(prices.price_list_cb, cs.ENT_PRICE, attribute=cs.LST_PRICE_ATTR)
-        batteries.ramp(self, "ramping...")
+        # batteries.ramp(self, "ramping...")
 
     def terminate(self):
         """Clean up app."""
