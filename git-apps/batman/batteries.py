@@ -71,7 +71,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.soc_speeds.append((self.soc_now - self.soc_prev) / (cs.POLL_SOC / 60))
         self.soc_speed = sum(self.soc_speeds) / len(self.soc_speeds) if self.soc_speeds else 0.0
         # Keep only the last 6 speeds
-        if len(self.soc_speeds) > 6:
+        if len(self.soc_speeds) > 3:
             self.soc_speeds.pop(0)
         self.log(f"Speed of change: {self.soc_speed:.2f} %/h")
         # Update in half an hour
