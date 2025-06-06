@@ -1,6 +1,0 @@
----
-
-# Note: to enable remove comments from the lines below.
-# listen_all:
-#   module: listenall
-#   class: ListenAll
