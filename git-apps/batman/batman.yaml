@@ -15,7 +15,7 @@ prices:
   class: Prices
   priority: 82
 
-# batteries:
-#   module: batteries
-#   class: BatMan
-#   priority: 83
+batteries:
+  module: batteries
+  class: Batteries
+  priority: 83
