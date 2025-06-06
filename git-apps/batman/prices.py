@@ -10,6 +10,7 @@ import const as cs
 class Prices(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
+        # Keep track of active callbacks
         self.callback_handles: list[Any] = []
         # Define the entities and attributes to listen to
         #
