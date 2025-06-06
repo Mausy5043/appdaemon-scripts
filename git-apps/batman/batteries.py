@@ -53,7 +53,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
                 soc_list.append(0.0)
         self.log(f"Current SoCs : {soc_list} %")
         soc_now: float = sum(soc_list) / len(soc_list) if soc_list else 0.0
-        self.log(f"Total SoC    : {self.soc_now} %")
+        self.log(f"Total SoC    : {soc_now} %")
         return soc_now, soc_list
 
     def get_soc_cb(self, entity: str, attribute: str, old: Any, new: Any, kwargs: dict[str, Any] | None = None):
