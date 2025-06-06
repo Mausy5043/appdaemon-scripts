@@ -35,7 +35,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         # )
         # self.callback_handles.append(
         #     self.listen_state(self.soc_current_cb, cs.ENT_PRICE, attribute=cs.CUR_PRICE_ATTR)
-        )
+        #)
 
     def terminate(self):
         """Clean up app."""
@@ -46,4 +46,3 @@ class Batteries(hass.Hass):  # type: ignore[misc]
             self.cancel_listen_state(handle)
         self.callback_handles.clear()
         self.log("...terminated Batteries.")
-
