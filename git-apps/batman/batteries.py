@@ -34,7 +34,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         seconds_to_next_half_hour = (cs.POLL_SOC - now.minute % cs.POLL_SOC) * 60 - now.second
         self.log(f"Next update in {seconds_to_next_half_hour} seconds")
         # Update in half an hour
-        self.run_in(self.get_soc_cb, dt.timedelta(seconds=seconds_to_next_half_hour))
+        self.run_in(self.update_soc_cb, dt.timedelta(seconds=seconds_to_next_half_hour))
 
     def terminate(self):
         """Clean up app."""
@@ -55,19 +55,20 @@ class Batteries(hass.Hass):  # type: ignore[misc]
                 soc_list.append(float(_soc))
             else:
                 soc_list.append(0.0)
-        self.log(f"Current SoCs : {soc_list} %")
         soc_now: float = sum(soc_list) / len(soc_list) if soc_list else 0.0
-        self.log(f"Total SoC    : {soc_now} %")
+        self.log(f"Total SoC    : {soc_now} % <- {soc_list} %")
         return soc_now, soc_list
 
-    def get_soc_cb(self, **kwargs) -> None:
+    def update_soc_cb(self, **kwargs) -> None:
         """Callback to update state of charge."""
-        self.log("get_soc_cb called with:")
-        for _k, _v in kwargs.items():
-            self.log(f"1____{_k}: {_v}")
+        # remember previous SoC and calculate new SoC
+        self.soc_prev = self.soc_now
         self.soc_now, self.bat_state = self.get_soc()
+        self.soc_speed: float = (self.soc_now - self.soc_prev) / cs.POLL_SOC
+        self.log(f"Speed of change: {self.soc_speed:.2f} %/h")
         # Update in half an hour
         now = dt.datetime.now()
         # get number of seconds to the next polling interval
         seconds_to_next_half_hour = (cs.POLL_SOC - now.minute % cs.POLL_SOC) * 60 - now.second
+        self.log(f"Next update in {seconds_to_next_half_hour} seconds")
         self.run_in(self.get_soc, dt.timedelta(seconds=seconds_to_next_half_hour))
