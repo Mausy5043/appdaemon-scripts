@@ -29,8 +29,12 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.soc_now: float = self.soc_prev
         # self.batteries_changed("batteries", "", "none", "new")
         _s1 = self.get_state(entity_id=cs.ENT_SOC1, attribute=cs.CUR_SOC_ATTR)
+        now = dt.datetime.now()
+        # get number of seconds to the next polling interval
+        seconds_to_next_half_hour = (cs.POLL_SOC - now.minute % cs.POLL_SOC) * 60 - now.second
+        self.log(f"Next update in {seconds_to_next_half_hour} seconds")
         # Update in half an hour
-        self.run_in(self.get_soc, dt.timedelta(seconds=cs.POLL_SOC))
+        self.run_in(self.get_soc, dt.timedelta(seconds=seconds_to_next_half_hour))
 
     def terminate(self):
         """Clean up app."""
@@ -61,4 +65,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.log(f"get_soc_cb called with entity={entity}, attribute={attribute}, old={old}, new={new}")
         self.soc_now, self.bat_state = self.get_soc()
         # Update in half an hour
-        self.run_in(self.get_soc, dt.timedelta(seconds=cs.POLL_SOC))
+        now = dt.datetime.now()
+        # get number of seconds to the next polling interval
+        seconds_to_next_half_hour = (cs.POLL_SOC - now.minute % cs.POLL_SOC) * 60 - now.second
+        self.run_in(self.get_soc, dt.timedelta(seconds=seconds_to_next_half_hour))
