@@ -3,6 +3,7 @@ from typing import Any
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import const as cs
+import utils as ut
 
 """Handle battery charge/discharge strategies for Batman app."""
 
@@ -60,9 +61,15 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         today = dt.date.today()
         tomorrow = today + dt.timedelta(days=1)
         self.todays_strategies = self.get_strategies(today)
-        self.log(f"Today's strategies:\n{self.todays_strategies}")
         self.tomorrows_strategies = self.get_strategies(tomorrow)
-        self.log(f"Tomorrow's strategies:\n{self.tomorrows_strategies}\n .")
+        charge_today = ut.sort_index(self.todays_strategies)[-3:]
+        discharge_today = ut.sort_index(self.todays_strategies)[:3]
+        charge_tomorrow = ut.sort_index(self.tomorrows_strategies)[-3:]
+        discharge_tomorrow = ut.sort_index(self.tomorrows_strategies)[:3]
+        self.log(f"Today's strategies:\n{self.todays_strategies} \n : {charge_today} {discharge_today}.")
+        self.log(
+            f"Tomorrow's strategies:\n{self.tomorrows_strategies} \n : {charge_tomorrow} {discharge_tomorrow}."
+        )
 
     def get_strategies(self, date) -> list[int]:
         """Get the energy strategies for a specific date."""
@@ -85,6 +92,7 @@ class Strategies(hass.Hass):  # type: ignore[misc]
     def strategy_list_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for strategy list change."""
         self.strategies_changed(entity, attribute, old, new, **kwargs)
+
 
 # strategy
 #  0 = nom
