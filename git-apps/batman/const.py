@@ -7,6 +7,7 @@ ENT_STRATEGY = "sensor.bat1_power_schedule"
 ENT_SOC1 = "sensor.bat1_state_of_charge"
 ENT_SOC2 = "sensor.bat2_state_of_charge"
 # Attributes for the entities
+CUR_SOC_ATTR = "state"
 CUR_PRICE_ATTR = "state"
 CUR_STRATEGY_ATTR = "state"
 LST_PRICE_ATTR = "attributes"
@@ -15,8 +16,9 @@ LST_STRATEGY_ATTR = "attributes"
 # Default values for energy prices and strategies
 ACT_PRICE = 25.0  # Default price in cents
 ACT_STRATEGY = 0  # Default strategy index
-ACT_SOC = 0.0  # Default battery level in kWh
+ACT_SOC = [0.0, 0.0]  # Default battery level in kWh
 
+POLL_SOC = 60 * 60 * 0.5  # Poll every half hour
 # ONLY these strategies may be selected by the app:
 # nom : null-on-meter
 #       default for summer days

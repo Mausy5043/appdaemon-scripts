@@ -15,8 +15,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         # Define the entities and attributes to listen to
         #
         # Initialize current soc and today's and tomorrow's soclist
-        self.now_soc1: float = cs.ENT_SOC1
-        self.now_soc2: float = cs.ENT_SOC2
+        self.bat_list: list[str] = [cs.ENT_SOC1, cs.ENT_SOC2]
         self.log(f"===================================== Batteries v{cs.VERSION} ====")
         # when debugging & first run: log everything
         _e: dict[str, Any] = self.get_state(entity_id=cs.ENT_SOC1, attribute="all")
@@ -25,17 +24,13 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         _e: dict[str, Any] = self.get_state(entity_id=cs.ENT_SOC2, attribute="all")
         for _k, _v in _e.items():
             self.log(f"2____{_k}: {_v}", level="INFO")
-        # Update today's and tomorrow's batteries
+        # Set previous SoC and current SoC to actual values
+        self.soc_prev, self.bat_state = self.get_soc()
+        self.soc_now: float = self.soc_prev.copy()
         # self.batteries_changed("batteries", "", "none", "new")
-        # _p = self.get_state(entity_id=cs.ENT_SOC1, attribute=cs.CUR_SOC_ATTR)
-        # self.soc_changed("soc", cs.CUR_PRICE_ATTR, "none", _p)
-        # # Set-up callbacks for soc changes
-        # self.callback_handles.append(
-        #     self.listen_state(self.soc_list_cb, cs.ENT_PRICE, attribute=cs.LST_PRICE_ATTR)
-        # )
-        # self.callback_handles.append(
-        #     self.listen_state(self.soc_current_cb, cs.ENT_PRICE, attribute=cs.CUR_PRICE_ATTR)
-        #)
+        _s1 = self.get_state(entity_id=cs.ENT_SOC1, attribute=cs.CUR_SOC_ATTR)
+        # Update in half an hour
+        self.run_in(self.get_soc, dt.timedelta(seconds=cs.POLL_SOC))
 
     def terminate(self):
         """Clean up app."""
@@ -46,3 +41,24 @@ class Batteries(hass.Hass):  # type: ignore[misc]
             self.cancel_listen_state(handle)
         self.callback_handles.clear()
         self.log("...terminated Batteries.")
+
+    def get_soc(self) -> tuple[float, list[float]]:
+        """Get current state of charge (SoC) for all batteries."""
+        soc_list: list[float] = []
+        for bat in self.bat_list:
+            _soc: Any | None = self.get_state(entity_id=bat, attribute=cs.CUR_SOC_ATTR)
+            if _soc is not None:
+                soc_list.append(float(_soc))
+            else:
+                soc_list.append(0.0)
+        self.log(f"Current SoCs : {soc_list} %")
+        soc_now: float = sum(soc_list) / len(soc_list) if soc_list else 0.0
+        self.log(f"Total SoC    : {self.soc_now} %")
+        return soc_now, soc_list
+
+    def get_soc_cb(self, entity: str, attribute: str, old: Any, new: Any, kwargs: dict[str, Any] | None = None):
+        """Callback for state of charge changes."""
+        self.log(f"get_soc_cb called with entity={entity}, attribute={attribute}, old={old}, new={new}")
+        self.soc_now, self.bat_state = self.get_soc()
+        # Update in half an hour
+        self.run_in(self.get_soc, dt.timedelta(seconds=cs.POLL_SOC))
