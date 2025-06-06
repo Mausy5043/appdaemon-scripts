@@ -27,13 +27,12 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         _e: dict[str, Any] = self.get_state(entity_id=cs.ENT_SOC1, attribute="all")
         for _k, _v in _e.items():
             self.log(f"_1____{_k}: {_v}", level="INFO")
-        _e: dict[str, Any] = self.get_state(entity_id=cs.ENT_SOC2, attribute="all")
+        _e = self.get_state(entity_id=cs.ENT_SOC2, attribute="all")
         for _k, _v in _e.items():
             self.log(f"_2___{_k}: {_v}", level="INFO")
         # Set previous SoC and current SoC to actual values
         self.soc_prev, self.bat_state = self.get_soc()
         self.soc_now = self.soc_prev
-        _s1 = self.get_state(entity_id=cs.ENT_SOC1, attribute=cs.CUR_SOC_ATTR)
         now = dt.datetime.now()
         # get number of seconds to the next polling interval
         seconds_to_next_half_hour: int = (cs.POLL_SOC - now.minute % cs.POLL_SOC) * 60 - now.second
@@ -70,7 +69,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.soc_prev = self.soc_now
         self.soc_now, self.bat_state = self.get_soc()
         self.soc_speeds.append((self.soc_now - self.soc_prev) / (cs.POLL_SOC / 60))
-        self.soc_speed: float = sum(self.soc_speeds) / len(self.soc_speeds) if self.soc_speeds else 0.0
+        self.soc_speed = sum(self.soc_speeds) / len(self.soc_speeds) if self.soc_speeds else 0.0
         # Keep only the last 6 speeds
         if len(self.soc_speeds) > 6:
             self.soc_speeds.pop(0)
