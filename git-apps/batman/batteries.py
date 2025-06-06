@@ -34,7 +34,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         seconds_to_next_half_hour = (cs.POLL_SOC - now.minute % cs.POLL_SOC) * 60 - now.second
         self.log(f"Next update in {seconds_to_next_half_hour} seconds")
         # Update in half an hour
-        self.run_in(self.get_soc, dt.timedelta(seconds=seconds_to_next_half_hour))
+        self.run_in(self.get_soc_cb, dt.timedelta(seconds=seconds_to_next_half_hour))
 
     def terminate(self):
         """Clean up app."""
@@ -60,9 +60,11 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.log(f"Total SoC    : {soc_now} %")
         return soc_now, soc_list
 
-    def get_soc_cb(self, entity: str, attribute: str, old: Any, new: Any, kwargs: dict[str, Any] | None = None):
-        """Callback for state of charge changes."""
-        self.log(f"get_soc_cb called with entity={entity}, attribute={attribute}, old={old}, new={new}")
+    def get_soc_cb(self, **kwargs) -> None:
+        """Callback to update state of charge."""
+        self.log("get_soc_cb called with:")
+        for _k, _v in kwargs.items():
+            self.log(f"1____{_k}: {_v}")
         self.soc_now, self.bat_state = self.get_soc()
         # Update in half an hour
         now = dt.datetime.now()
