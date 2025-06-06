@@ -18,7 +18,7 @@ ACT_PRICE = 25.0  # Default price in cents
 ACT_STRATEGY = 0  # Default strategy index
 ACT_SOC = [0.0, 0.0]  # Default battery level in kWh
 
-POLL_SOC = 60 * 60 * 0.5  # Poll every half hour
+POLL_SOC = 30  # minutes: Poll every half hour
 # ONLY these strategies may be selected by the app:
 # nom : null-on-meter
 #       default for summer days
