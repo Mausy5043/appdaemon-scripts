@@ -16,8 +16,8 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         # Define the entities and attributes to listen to
         #
         # Initialize current strategy and today's and tomorrow's list of strategies
-        self.bat1_strategy: int = cs.ACT_STRATEGY_IDX
-        self.bat2_strategy: int = cs.ACT_STRATEGY_IDX
+        self.bat1_strategy: int = cs.CUR_STRATEGY_IDX
+        self.bat2_strategy: int = cs.CUR_STRATEGY_IDX
         self.log(f"================================= Strategies v{cs.VERSION} ====")
         # when debugging & first run: log everything
         _e: dict[str, Any] = self.get_state(entity_id=cs.ENT_BAT1_STRATEGY, attribute="all")

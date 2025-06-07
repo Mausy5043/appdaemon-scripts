@@ -30,7 +30,8 @@ POLL_SOC = 30  # minutes: Poll every half hour
 
 # Defaults and settings for stategy & battery power management
 EXTERNAL_OVERRIDE = False
-ACT_STRATEGY_IDX = 0  # Default strategy index
+CUR_STRATEGY_IDX = 0  # Default strategy index
+CUR_STRATEGY_ATTR = "state"
 ENT_STRATEGY = None
 ENT_BAT1_STRATEGY = "select.bat1_power_strategy"
 SET_BAT1_STRATEGY = "nom"
