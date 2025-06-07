@@ -36,7 +36,6 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         now = dt.datetime.now()
         # get number of seconds to the next polling interval
         seconds_to_next_half_hour: int = (cs.POLL_SOC - now.minute % cs.POLL_SOC) * 60 - now.second
-        self.log(f"Next update in {seconds_to_next_half_hour} seconds")
         # Update in half an hour
         self.run_in(self.update_soc_cb, dt.timedelta(seconds=seconds_to_next_half_hour))
 
@@ -78,5 +77,4 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         now = dt.datetime.now()
         # get number of seconds to the next polling interval
         seconds_to_next_half_hour = (cs.POLL_SOC - now.minute % cs.POLL_SOC) * 60 - now.second
-        self.log(f"Next update in {seconds_to_next_half_hour} seconds")
         self.run_in(self.update_soc_cb, dt.timedelta(seconds=seconds_to_next_half_hour))
