@@ -1,24 +1,43 @@
 """Provides constants for the Batman app."""
 
 VERSION = "0.0.4"
-# Entity IDs for energy prices and strategies
+
+
+# Defaults and settings for energy prices
+ACT_PRICE = 25.0  # default price in cents/kWh
+# Entity ID
 ENT_PRICE = "sensor.bat1_energy_price"
-ENT_STRATEGY = "sensor.bat1_power_schedule"
+# Attributes
+CUR_PRICE_ATTR = "state"
+LST_PRICE_ATTR = "attributes"
+
+# Defaults and settings for schedules
+ACT_SCHEDULE = 0  # Default schedule
+# Entity ID
+ENT_SCHEDULE = "sensor.bat1_power_schedule"
+# Attributes
+CUR_SCHEDULE_ATTR = "state"
+LST_SCHEDULE_ATTR = "attributes"
+
+# Defaults and settings for batteries
+ACT_SOC = [0.0, 0.0]  # Default battery level in kWh
+# Entity IDs
 ENT_SOC1 = "sensor.bat1_state_of_charge"
 ENT_SOC2 = "sensor.bat2_state_of_charge"
-# Attributes for the entities
+# Attributes
 CUR_SOC_ATTR = "state"
-CUR_PRICE_ATTR = "state"
-CUR_STRATEGY_ATTR = "state"
-LST_PRICE_ATTR = "attributes"
-LST_STRATEGY_ATTR = "attributes"
-
-# Default values for energy prices and strategies
-ACT_PRICE = 25.0  # Default price in cents
-ACT_STRATEGY = 0  # Default strategy index
-ACT_SOC = [0.0, 0.0]  # Default battery level in kWh
-
 POLL_SOC = 30  # minutes: Poll every half hour
+
+# Defaults and settings for battery power management
+EXTERNAL_OVERRIDE = False
+ENT_BAT1_STRATEGY = "select.bat1_power_strategy"
+SET_BAT1_STRATEGY = "nom"
+SET_BAT1_POWER = 0
+ENT_BAT2_STRATEGY = "select.bat2_power_strategy"
+SET_BAT2_STRATEGY = "nom"
+SET_BAT2_POWER = 0
+LIMIT_BAT_CHARGE = -2200  # W
+LIMIT_BAT_DISCHARGE = 1700  # W
 # ONLY these strategies may be selected by the app:
 # nom : null-on-meter
 #       default for summer days
@@ -30,14 +49,8 @@ POLL_SOC = 30  # minutes: Poll every half hour
 # api : power set-point is controlled externally (by HASS or other(!) app)
 #       used to transition bumplessly
 STRATEGIES = ["nom", "eco", "roi", "idle", "api"]
-EXTERNAL_OVERRIDE = False
+ACT_STRATEGY = 0  # Default strategy index
 
-ENT_BAT1_STRATEGY = "select.bat1_power_strategy"
-SET_BAT1_STRATEGY = "nom"
-SET_BAT1_POWER = 0
-ENT_BAT2_STRATEGY = "select.bat2_power_strategy"
-SET_BAT2_STRATEGY = "nom"
-SET_BAT2_POWER = 0
 
 # Default values for price and strategy change events
 PRICE_CHANGE_EVENT = "price_change"
@@ -57,8 +70,11 @@ STRATEGY_CHANGE_OLD = None
 # Default values for price and strategy change kwargs
 PRICE_CHANGE_KWARGS = None
 STRATEGY_CHANGE_KWARGS = None
-# Default values for price and strategy change log level
-LOG_LEVEL_DEBUG = "DEBUG"
+
+
+# Default values for logging
+LOG_LVL_INFO = "INFO"
+LOG_LVL_DEBUG = "INFO"
 # Default values for price and strategy change log messages
 LOG_MSG_LISTENING = "\n\t*** Listening to entity: {}, attribute: {}"
 # Default values for price and strategy change log messages

@@ -1,5 +1,4 @@
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
-import batteries
 import const as cs
 import utils as ut
 

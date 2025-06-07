@@ -52,23 +52,23 @@ class Prices(hass.Hass):  # type: ignore[misc]
             new = f"{float(new):.5f}"
         except (ValueError, TypeError):
             pass
-        self.log(f"State changed for {entity} ({attribute}): {old} -> {new}")
+        # self.log(f"State changed for {entity} ({attribute}): {old} -> {new}")
         _p: list[float] = [float(new)]
         self.now_price = self.total_price(_p)[0]
-        self.log(f"New price = {self.now_price}")
+        self.log(f"____New price = {self.now_price}")
 
     def prices_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy prices."""
-        self.log(f"Prices changed: {old} -> {new}")
+        # self.log(f"Prices changed: {old} -> {new}")
         # Update today's and tomorrow's prices
         today = dt.date.today()
         tomorrow = today + dt.timedelta(days=1)
         # update list of prices for today
         self.todays_prices = self.get_prices(today)
-        self.log(f"Today's prices:\n{self.todays_prices}")
+        self.log(f"____Today's prices    :\n{self.todays_prices}")
         # update list of prices for tomorrow
         self.tomorrows_prices = self.get_prices(tomorrow)
-        self.log(f"Tomorrow's prices:\n{self.tomorrows_prices}\n .")
+        self.log(f"____Tomorrow's prices :\n{self.tomorrows_prices}\n .")
 
     def get_prices(self, date) -> list[float]:
         """Get the energy prices for a specific date."""

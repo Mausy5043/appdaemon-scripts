@@ -10,18 +10,17 @@ import const as cs
 class Batteries(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
+        self.log(f"===================================== Batteries v{cs.VERSION} ====")
         # Keep track of active callbacks
         self.callback_handles: list[Any] = []
         # Define the internal state variables
         self.soc_speed: float = 0.0  # Speed of change in SoC
+        self.soc_speeds: list[float] = []  # List of SoC speeds
         self.soc_prev: float = 0.0  # Previous SoC
         self.soc_now: float = 0.0  # Current SoC
-        self.bat_state: list[float] = []
-        self.soc_speeds: list[float] = []  # List of SoC speeds
-        # Initialize current soc
-        # and today's and tomorrow's soclist
         self.bat_list: list[str] = [cs.ENT_SOC1, cs.ENT_SOC2]
-        self.log(f"===================================== Batteries v{cs.VERSION} ====")
+        self.bat_state: list[float] = []
+
         # when debugging & first run:
         # log everything
         _e: dict[str, Any] = self.get_state(entity_id=cs.ENT_SOC1, attribute="all")
@@ -30,9 +29,11 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         _e = self.get_state(entity_id=cs.ENT_SOC2, attribute="all")
         for _k, _v in _e.items():
             self.log(f"_2___{_k}: {_v}", level="INFO")
+
         # Set previous SoC and current SoC to actual values
         self.soc_prev, self.bat_state = self.get_soc()
         self.soc_now = self.soc_prev
+
         now = dt.datetime.now()
         # get number of seconds to the next polling interval
         seconds_to_next_half_hour: int = (cs.POLL_SOC - now.minute % cs.POLL_SOC) * 60 - now.second
@@ -67,13 +68,16 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         # remember previous SoC and calculate new SoC
         self.soc_prev = self.soc_now
         self.soc_now, self.bat_state = self.get_soc()
+
+        # calculate speed of change
         self.soc_speeds.append((self.soc_now - self.soc_prev) / (cs.POLL_SOC / 60))
         self.soc_speed = sum(self.soc_speeds) / len(self.soc_speeds) if self.soc_speeds else 0.0
-        # Keep only the last 6 speeds
+        # Keep only a few speeds to avoid too much influence on prediction
         if len(self.soc_speeds) > 3:
             self.soc_speeds.pop(0)
         self.log(f"Speed of change: {self.soc_speed:.2f} %/h")
-        # Update in half an hour
+
+        # Update again in half an hour
         now = dt.datetime.now()
         # get number of seconds to the next polling interval
         seconds_to_next_half_hour = (cs.POLL_SOC - now.minute % cs.POLL_SOC) * 60 - now.second
