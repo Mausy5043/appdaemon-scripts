@@ -1,6 +1,6 @@
 """Provides constants for the Batman app."""
 
-VERSION = "0.0.4"
+VERSION = "0.0.5"
 
 
 # Defaults and settings for energy prices
