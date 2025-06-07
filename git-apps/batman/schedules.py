@@ -62,7 +62,7 @@ class Schedules(hass.Hass):  # type: ignore[misc]
             proposal = "discharge"
         if self.now_schedule < 0:
             proposal = "charge"
-        self.batman.tell(f"Current schedule is {self.now_schedule} ({proposal})")
+        self.the_batman.tell(f"Current schedule is {self.now_schedule} ({proposal})")
 
     def schedules_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy schedules."""
