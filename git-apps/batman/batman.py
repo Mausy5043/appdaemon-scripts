@@ -21,7 +21,7 @@ class BatMan(hass.Hass):  # type: ignore[misc]
         # Log the version and entity attributes
         self.log(f"=== BatMan v{cs.VERSION} ===")
         ut.log_entity_attr(self, cs.ENT_PRICE, level="DEBUG")
-        ut.log_entity_attr(self, cs.ENT_STRATEGY, level="DEBUG")
+        ut.log_entity_attr(self, cs.ENT_SCHEDULE, level="DEBUG")
 
         self.log(f"\n*** Today's prices:\n{self.todays_prices}\n.")
         self.log(f"\n*** Tomorrow's prices:\n{self.tomorrows_prices}\n .")
