@@ -17,7 +17,6 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.soc_speed: float = 0.0  # Speed of change in SoC
         self.soc_speeds: list[float] = []  # List of SoC speeds
         self.soc_prev: float = 0.0  # Previous SoC
-        self.soc_now: float = 0.0  # Current SoC
         self.bat_list: list[str] = [cs.ENT_SOC1, cs.ENT_SOC2]
         self.bat_state: list[float] = []
 
@@ -32,7 +31,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
 
         # Set previous SoC and current SoC to actual values
         self.soc_prev, self.bat_state = self.get_soc()
-        self.soc_now = self.soc_prev
+        self.soc_now: float = self.soc_prev
 
         now = dt.datetime.now()
         # get number of seconds to the next polling interval

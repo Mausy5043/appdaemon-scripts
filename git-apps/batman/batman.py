@@ -1,6 +1,7 @@
+from typing import Any
+
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import const as cs
-import utils as ut
 
 """BatMan App
 Listen to changes in the battery state and control the charging/discharging based on energy prices and strategies.
@@ -10,35 +11,20 @@ Listen to changes in the battery state and control the charging/discharging base
 class BatMan(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
-        # initialize the prices and strategies
-        self.todays_prices: list[float] = []
-        self.tomorrows_prices: list[float] = []
-        self.todays_strategy: list[int] = []
-        self.tomorrows_strategy: list[int] = []
-        self.now_price: float = cs.ACT_PRICE
-        self.now_strategy: int = cs.ACT_STRATEGY
-
-        # Log the version and entity attributes
-        self.log(f"=== BatMan v{cs.VERSION} ===")
-        ut.log_entity_attr(self, cs.ENT_PRICE, level="DEBUG")
-        ut.log_entity_attr(self, cs.ENT_SCHEDULE, level="DEBUG")
-
-        self.log(f"\n*** Today's prices:\n{self.todays_prices}\n.")
-        self.log(f"\n*** Tomorrow's prices:\n{self.tomorrows_prices}\n .")
-
-        self.log(f"Today's strategy:\n{self.todays_strategy}")
-        self.log(f"Charging   : {ut.sort_index(self.todays_strategy)[-3:]}")
-        self.log(f"Discharging: {ut.sort_index(self.todays_strategy)[:3]}")
-        self.log(f"Tomorrow's strategy:\n{self.tomorrows_strategy}\n .")
-        self.log(f"Charging   : {ut.sort_index(self.tomorrows_strategy)[-3:]}")
-        self.log(f"Discharging: {ut.sort_index(self.tomorrows_strategy)[:3]}")
-
-        # self.listen_state(prices.price_list_cb, cs.ENT_PRICE, attribute=cs.LST_PRICE_ATTR)
-        # batteries.ramp(self, "ramping...")
+        self.log(f"===================================== BatMan v{cs.VERSION} ====")
+        # Keep track of active callbacks
+        self.callback_handles: list[Any] = []
 
     def terminate(self):
         """Clean up app."""
-        self.log("Terminating BatMan...")
+        self.log("__Terminating BatMan...")
         # some cleanup code goes here
-        # - set batteries to NOM strategy
-        self.log("...terminated BatMan.")
+        # Cancel all registered callbacks
+        for handle in self.callback_handles:
+            self.cancel_listen_state(handle)
+        self.callback_handles.clear()
+        self.log("__...terminated BatMan.")
+
+    def tell(self, message: str):
+        """Log a message."""
+        self.log(f"BatMan: {message}")

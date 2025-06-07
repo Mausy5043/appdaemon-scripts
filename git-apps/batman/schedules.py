@@ -29,6 +29,7 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         _s = self.get_state(entity_id=cs.ENT_SCHEDULE, attribute=cs.CUR_SCHEDULE_ATTR)
         self.schedule_changed("schedule", cs.CUR_SCHEDULE_ATTR, "none", _s)
 
+        self.batman = self.get_app("batman")
         self.callback_handles.append(
             self.listen_state(self.schedule_current_cb, cs.ENT_SCHEDULE, attribute=cs.CUR_SCHEDULE_ATTR)
         )
@@ -55,7 +56,13 @@ class Schedules(hass.Hass):  # type: ignore[misc]
             pass
         # self.log(f"{entity} ({attribute}) changed : {old} -> {new}")
         self.now_schedule = int(new)
+        proposal: str = "nom"
         self.log(f"__New schedule = {self.now_schedule}")
+        if self.now_schedule > 0:
+            proposal = "discharge"
+        if self.now_schedule < 0:
+            proposal = "charge"
+        self.batman.tell(f"Current schedule is {self.now_schedule} ({proposal})")
 
     def schedules_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy schedules."""
@@ -71,9 +78,7 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         discharge_tomorrow = ut.sort_index(self.tomorrows_schedules)[:3]
         self.log(f"__Today's schedules    :\n{self.todays_schedules} \n : {charge_today} {discharge_today}.")
         self.log(
-            f"__Tomorrow's schedules :\n{self.tomorrows_schedules} \n : {charge_tomorrow} {
-                discharge_tomorrow
-            }."
+            f"__Tomorrow's schedules :\n{self.tomorrows_schedules} \n : {charge_tomorrow} {discharge_tomorrow}."
         )
 
     def get_schedules(self, date) -> list[int]:
@@ -105,7 +110,7 @@ class Schedules(hass.Hass):  # type: ignore[misc]
 #  (-)  || SoC < 32% || winterday |-> = charge to 100%
 # definition of summerday is
 
-#  summerday = 1st of May to 30th of September
+# summerday = 1st of May to 30th of September
 # sensors that detect summerday or winterday:
 #  - sensor.batman_summerday
 #  - sensor.batman_winterday

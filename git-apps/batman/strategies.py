@@ -3,7 +3,6 @@ from typing import Any
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import const as cs
-import utils as ut
 
 """Handle battery charge/discharge strategies for Batman app."""
 
@@ -59,7 +58,6 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         self.now_strategy = new
         self.log(f"_New strategy = {self.now_strategy} for {entity}")
 
-
     def get_strategies(self, date) -> list[int]:
         """Get the energy strategies for a specific date."""
         no_strategies: list[int] = [0] * 24
@@ -77,7 +75,6 @@ class Strategies(hass.Hass):  # type: ignore[misc]
     def strategy_current_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for current strategy change."""
         self.strategy_changed(entity, attribute, old, new, **kwargs)
-
 
 
 # strategy

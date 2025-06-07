@@ -1,9 +1,9 @@
 ---
 
-# batman:
-#   module: batman
-#   class: BatMan
-#   priority: 80
+batman:
+  module: batman
+  class: BatMan
+  priority: 80
 
 schedules:
   module: schedules
