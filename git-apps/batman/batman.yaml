@@ -20,7 +20,7 @@ batteries:
   class: Batteries
   priority: 83
 
-# strategies:
-#   module: strategies
-#   class: Strategies
-#   priority: 84
+strategies:
+  module: strategies
+  class: Strategies
+  priority: 84

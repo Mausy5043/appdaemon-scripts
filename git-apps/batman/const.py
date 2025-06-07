@@ -28,9 +28,9 @@ ENT_SOC2 = "sensor.bat2_state_of_charge"
 CUR_SOC_ATTR = "state"
 POLL_SOC = 30  # minutes: Poll every half hour
 
-# Defaults and settings for battery power management
+# Defaults and settings for stategy & battery power management
 EXTERNAL_OVERRIDE = False
-ACT_STRATEGY = 0  # Default strategy index
+ACT_STRATEGY_IDX = 0  # Default strategy index
 ENT_STRATEGY = None
 ENT_BAT1_STRATEGY = "select.bat1_power_strategy"
 SET_BAT1_STRATEGY = "nom"
