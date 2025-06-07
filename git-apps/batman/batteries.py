@@ -42,13 +42,13 @@ class Batteries(hass.Hass):  # type: ignore[misc]
 
     def terminate(self):
         """Clean up app."""
-        self.log("____Terminating Batteries...")
+        self.log("___Terminating Batteries...")
         # some cleanup code goes here
         # Cancel all registered callbacks
         for handle in self.callback_handles:
             self.cancel_listen_state(handle)
         self.callback_handles.clear()
-        self.log("____...terminated Batteries.")
+        self.log("___...terminated Batteries.")
 
     def get_soc(self) -> tuple[float, list[float]]:
         """Get current state of charge (SoC) for all batteries."""
@@ -60,7 +60,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
             else:
                 soc_list.append(0.0)
         soc_now: float = sum(soc_list) / len(soc_list) if soc_list else 0.0
-        self.log(f"____Total SoC = {soc_now} % <- {soc_list} %")
+        self.log(f"___Total SoC = {soc_now} % <- {soc_list} %")
         return soc_now, soc_list
 
     def update_soc_cb(self, **kwargs) -> None:
@@ -75,7 +75,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         # Keep only a few speeds to avoid too much influence on prediction
         if len(self.soc_speeds) > 3:
             self.soc_speeds.pop(0)
-        self.log(f"____Speed of change = {self.soc_speed:.2f} %/h")
+        self.log(f"___Speed of change = {self.soc_speed:.2f} %/h")
 
         # Update again in half an hour
         now = dt.datetime.now()

@@ -38,13 +38,13 @@ class Schedules(hass.Hass):  # type: ignore[misc]
 
     def terminate(self):
         """Clean up app."""
-        self.log("Terminating Schedules...")
+        self.log("__Terminating Schedules...")
         # some cleanup code goes here
         # Cancel all registered callbacks
         for handle in self.callback_handles:
             self.cancel_listen_state(handle)
         self.callback_handles.clear()
-        self.log("...terminated Schedules.")
+        self.log("__...terminated Schedules.")
 
     def schedule_changed(self, entity, attribute, old, new, **kwargs):
         """Log change of current schedule."""
@@ -55,7 +55,7 @@ class Schedules(hass.Hass):  # type: ignore[misc]
             pass
         # self.log(f"{entity} ({attribute}) changed : {old} -> {new}")
         self.now_schedule = int(new)
-        self.log(f"____New schedule = {self.now_schedule}")
+        self.log(f"__New schedule = {self.now_schedule}")
 
     def schedules_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy schedules."""
@@ -69,9 +69,9 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         discharge_today = ut.sort_index(self.todays_schedules)[:3]
         charge_tomorrow = ut.sort_index(self.tomorrows_schedules)[-3:]
         discharge_tomorrow = ut.sort_index(self.tomorrows_schedules)[:3]
-        self.log(f"____Today's schedules    :\n{self.todays_schedules} \n : {charge_today} {discharge_today}.")
+        self.log(f"__Today's schedules    :\n{self.todays_schedules} \n : {charge_today} {discharge_today}.")
         self.log(
-            f"____Tomorrow's schedules :\n{self.tomorrows_schedules} \n : {charge_tomorrow} {
+            f"__Tomorrow's schedules :\n{self.tomorrows_schedules} \n : {charge_tomorrow} {
                 discharge_tomorrow
             }."
         )
