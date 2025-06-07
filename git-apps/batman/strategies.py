@@ -40,13 +40,13 @@ class Strategies(hass.Hass):  # type: ignore[misc]
 
     def terminate(self):
         """Clean up app."""
-        self.log("Terminating Strategies...")
+        self.log("_Terminating Strategies...")
         # some cleanup code goes here
         # Cancel all registered callbacks
         for handle in self.callback_handles:
             self.cancel_listen_state(handle)
         self.callback_handles.clear()
-        self.log("...terminated Strategies.")
+        self.log("_...terminated Strategies.")
 
     def strategy_changed(self, entity, attribute, old, new, **kwargs):
         """Log change of current strategy."""
@@ -55,9 +55,9 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         #     new = f"{int(new)}"
         # except (ValueError, TypeError):
         #     pass
-        self.log(f"State changed for {entity} ({attribute}): {old} -> {new}")
+        # self.log(f"State changed for {entity} ({attribute}): {old} -> {new}")
         self.now_strategy = new
-        self.log(f"New strategy = {self.now_strategy}")
+        self.log(f"_New strategy = {self.now_strategy} for {entity}")
 
 
     def get_strategies(self, date) -> list[int]:

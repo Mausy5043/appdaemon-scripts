@@ -37,13 +37,13 @@ class Prices(hass.Hass):  # type: ignore[misc]
 
     def terminate(self):
         """Clean up app."""
-        self.log("Terminating Prices...")
+        self.log("______Terminating Prices...")
         # some cleanup code goes here
         # Cancel all registered callbacks
         for handle in self.callback_handles:
             self.cancel_listen_state(handle)
         self.callback_handles.clear()
-        self.log("...terminated Prices.")
+        self.log("______...terminated Prices.")
 
     def price_changed(self, entity, attribute, old, new, **kwargs):
         """Log change of current price."""
@@ -55,7 +55,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
         # self.log(f"State changed for {entity} ({attribute}): {old} -> {new}")
         _p: list[float] = [float(new)]
         self.now_price = self.total_price(_p)[0]
-        self.log(f"____New price = {self.now_price}")
+        self.log(f"______New price = {self.now_price}")
 
     def prices_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy prices."""
@@ -65,10 +65,10 @@ class Prices(hass.Hass):  # type: ignore[misc]
         tomorrow = today + dt.timedelta(days=1)
         # update list of prices for today
         self.todays_prices = self.get_prices(today)
-        self.log(f"____Today's prices    :\n{self.todays_prices}")
+        self.log(f"______Today's prices    :\n{self.todays_prices}")
         # update list of prices for tomorrow
         self.tomorrows_prices = self.get_prices(tomorrow)
-        self.log(f"____Tomorrow's prices :\n{self.tomorrows_prices}\n .")
+        self.log(f"______Tomorrow's prices :\n{self.tomorrows_prices}\n .")
 
     def get_prices(self, date) -> list[float]:
         """Get the energy prices for a specific date."""
