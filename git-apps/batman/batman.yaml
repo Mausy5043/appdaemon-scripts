@@ -5,9 +5,9 @@
 #   class: BatMan
 #   priority: 80
 
-strategies:
-  module: strategies
-  class: Strategies
+schedules:
+  module: schedules
+  class: Schedules
   priority: 81
 
 prices:
@@ -19,3 +19,8 @@ batteries:
   module: batteries
   class: Batteries
   priority: 83
+
+# strategies:
+#   module: strategies
+#   class: Strategies
+#   priority: 84
