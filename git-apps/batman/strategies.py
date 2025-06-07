@@ -35,7 +35,7 @@ class Strategies(hass.Hass):  # type: ignore[misc]
             self.listen_state(self.strategy_current_cb, cs.ENT_BAT1_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
         )
         self.callback_handles.append(
-            self.listen_state(self.strategy_current_cb, cs.ENT_BAT2_STRATEGY, attribute=cs.LST_STRATEGY_ATTR)
+            self.listen_state(self.strategy_current_cb, cs.ENT_BAT2_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
         )
 
     def terminate(self):
