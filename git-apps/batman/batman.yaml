@@ -1,6 +1,6 @@
 ---
 
-batman:
+the_batman:
   module: batman
   class: BatMan
   priority: 80

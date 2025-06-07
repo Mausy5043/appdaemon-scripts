@@ -11,10 +11,11 @@ import utils as ut
 class Schedules(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
+        self.log(f"================================= Schedules v{cs.VERSION} ====")
         # Keep track of active callbacks
         self.callback_handles: list[Any] = []
-        # Define the entities and attributes to listen to
-        #
+
+        self.the_batman = self.get_app("batman")
         # Initialize current schedule and today's and tomorrow's list of schedules
         self.now_schedule: int = cs.ACT_SCHEDULE
         self.todays_schedules: list[int] = []
@@ -29,7 +30,6 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         _s = self.get_state(entity_id=cs.ENT_SCHEDULE, attribute=cs.CUR_SCHEDULE_ATTR)
         self.schedule_changed("schedule", cs.CUR_SCHEDULE_ATTR, "none", _s)
 
-        self.batman = self.get_app("batman")
         self.callback_handles.append(
             self.listen_state(self.schedule_current_cb, cs.ENT_SCHEDULE, attribute=cs.CUR_SCHEDULE_ATTR)
         )
