@@ -50,13 +50,13 @@ class Strategies(hass.Hass):  # type: ignore[misc]
 
     def strategy_changed(self, entity, attribute, old, new, **kwargs):
         """Log change of current strategy."""
-        try:
-            old = f"{int(old)}"
-            new = f"{int(new)}"
-        except (ValueError, TypeError):
-            pass
+        # try:
+        #     old = f"{int(old)}"
+        #     new = f"{int(new)}"
+        # except (ValueError, TypeError):
+        #     pass
         self.log(f"State changed for {entity} ({attribute}): {old} -> {new}")
-        self.now_strategy = int(new)
+        self.now_strategy = new
         self.log(f"New strategy = {self.now_strategy}")
 
 
