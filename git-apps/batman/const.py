@@ -54,27 +54,6 @@ LIMIT_BAT_DISCHARGE = 1700  # W
 STRATEGIES = ["nom", "eco", "roi", "idle", "api"]
 ACT_STRATEGY = 0  # Default strategy index
 
-
-# Default values for price and strategy change events
-PRICE_CHANGE_EVENT = "price_change"
-STRATEGY_CHANGE_EVENT = "strategy_change"
-# Default values for price and strategy change attributes
-PRICE_CHANGE_ATTR = "price"
-STRATEGY_CHANGE_ATTR = "strategy"
-# Default values for price and strategy change states
-PRICE_CHANGE_STATE = "none"
-STRATEGY_CHANGE_STATE = "none"
-# Default values for price and strategy change new values
-PRICE_CHANGE_NEW = None
-STRATEGY_CHANGE_NEW = None
-# Default values for price and strategy change old values
-PRICE_CHANGE_OLD = None
-STRATEGY_CHANGE_OLD = None
-# Default values for price and strategy change kwargs
-PRICE_CHANGE_KWARGS = None
-STRATEGY_CHANGE_KWARGS = None
-
-
 # Default values for logging
 LOG_LVL_INFO = "INFO"
 LOG_LVL_DEBUG = "INFO"
