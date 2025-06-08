@@ -11,6 +11,6 @@ def log_entity_attr(hass, entity_id, attribute="all", level="DEBUG"):
         hass.log(f"____{entity_id} ({attribute}): {entity_state}", level=level)
 
 
-def sort_index(lst, rev=True):
-    s = sorted(enumerate(lst), reverse=rev, key=lambda i: lst[i])
+def sort_index(lst: list, rev=True):
+    s: list = [i[0] for i in sorted(enumerate(lst), key=lambda x:x[1], reverse=rev)]
     return s
