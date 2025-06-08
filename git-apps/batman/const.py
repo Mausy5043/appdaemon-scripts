@@ -1,6 +1,29 @@
+from typing import Any
+
 """Provides constants for the Batman app."""
 
 VERSION = "0.0.5"
+
+# SCHEDULES settings
+# schedules are used to propose the charge/discharge power of the batteries for each hour
+SCHEDULES: dict[str, Any] = {
+    "actual": 0,    # W
+    "entity": "sensor.bat1_power_schedule",
+    "attr": {
+        "actual": "state",
+        "list": "attributes",
+    },
+    "today": [],
+    "tomor": [],
+    "manager": "the_batman",
+}
+# # Defaults and settings for schedules
+# ACT_SCHEDULE = 0  # Default schedule
+# # Entity ID
+# ENT_SCHEDULE = "sensor.bat1_power_schedule"
+# # Attributes
+# CUR_SCHEDULE_ATTR = "state"
+# LST_SCHEDULE_ATTR = "attributes"
 
 
 # Defaults and settings for energy prices
@@ -11,13 +34,6 @@ ENT_PRICE = "sensor.bat1_energy_price"
 CUR_PRICE_ATTR = "state"
 LST_PRICE_ATTR = "attributes"
 
-# Defaults and settings for schedules
-ACT_SCHEDULE = 0  # Default schedule
-# Entity ID
-ENT_SCHEDULE = "sensor.bat1_power_schedule"
-# Attributes
-CUR_SCHEDULE_ATTR = "state"
-LST_SCHEDULE_ATTR = "attributes"
 
 # Defaults and settings for batteries
 ACT_SOC = [0.0, 0.0]  # Default battery level in kWh
