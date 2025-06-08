@@ -4,7 +4,7 @@ from typing import Any
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import const as cs
 
-from statistics import median
+from statistics import quantiles
 
 """Handle energy prices for Batman app."""
 
@@ -67,16 +67,19 @@ class Prices(hass.Hass):  # type: ignore[misc]
         tomorrow = today + dt.timedelta(days=1)
         # update list of prices for today
         self.todays_prices = self.get_prices(today)
+        _q = [round(q, 3) for q in quantiles(self.todays_prices, n=4, method="inclusive")]
         self.todays_mean = sum(self.todays_prices) / len(self.todays_prices) if self.todays_prices else 0.0
         self.todays_diff: list = [
             x - y for x, y in zip(self.todays_prices, [self.todays_mean] * len(self.todays_prices), strict=True)
         ]
-        self.log(f"_____Today's prices    :\n{self.todays_prices}\n {self.todays_mean:.3f}\n {median(self.todays_prices):.3f} \n.")
-        self.log(f"_____Diff              :\n{self.todays_diff}\n .")
-        self.log(f"_____Max diff          : {max(self.todays_diff):.3f}\n .")
-        self.log(f"_____Min diff          : {min(self.todays_diff):.3f}\n .")
+        self.log(f"_____Today's prices    :\n{self.todays_prices}\n {self.todays_mean:.3f}\n.")
+        self.log(f"_____Diff              :\n{self.todays_diff}")
+        self.log(f"_____Max diff          : {max(self.todays_diff):.3f}")
+        self.log(f"_____Min diff          : {min(self.todays_diff):.3f}")
+        self.log(f"_____Quartiles         : {', '.join(map(str, _q))}")
         # update list of prices for tomorrow
         self.tomorrows_prices = self.get_prices(tomorrow)
+        _q = [round(q, 3) for q in quantiles(self.tomorrows_prices, n=4, method="inclusive")]
         self.tomorrows_mean = (
             sum(self.tomorrows_prices) / len(self.tomorrows_prices) if self.tomorrows_prices else 0.0
         )
@@ -90,6 +93,10 @@ class Prices(hass.Hass):  # type: ignore[misc]
 
         self.log(f"_____Tomorrow's max    : {max(self.tomorrows_diff):.3f}\n .")
         self.log(f"_____Tomorrow's min    : {min(self.tomorrows_diff):.3f}\n .")
+        self.log(f"_____Diff              :\n{self.tomorrows_diff}")
+        self.log(f"_____Max diff          : {max(self.tomorrows_diff):.3f}")
+        self.log(f"_____Min diff          : {min(self.tomorrows_diff):.3f}")
+        self.log(f"_____Quartiles         : {', '.join(map(str, _q))}")
 
     def get_prices(self, date) -> list[float]:
         """Get the energy prices for a specific date."""
