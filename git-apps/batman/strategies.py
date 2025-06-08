@@ -22,7 +22,7 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         _e: dict[str, Any] = self.get_state(entity_id=cs.ENT_BAT1_STRATEGY, attribute="all")
         for _k, _v in _e.items():
             self.log(f"____{_k}: {_v}", level="INFO")
-        _e: dict[str, Any] = self.get_state(entity_id=cs.ENT_BAT2_STRATEGY, attribute="all")
+        _e = self.get_state(entity_id=cs.ENT_BAT2_STRATEGY, attribute="all")
         for _k, _v in _e.items():
             self.log(f"____{_k}: {_v}", level="INFO")
         # Initialize today's and tomorrow's strategies
@@ -64,7 +64,7 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         _s: list[int] = no_strategies
         if isinstance(date, dt.date):
             date_str: str = date.strftime("%Y-%m-%d")
-            attr: dict = self.get_state(entity_id=cs.ENT_STRATEGY, attribute=cs.LST_STRATEGY_ATTR)
+            attr: dict = self.get_state(entity_id=cs.ENT_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
             _s = attr.get(date_str, no_strategies)
         else:
             self.log(f"Invalid date: {date}", level="ERROR")
