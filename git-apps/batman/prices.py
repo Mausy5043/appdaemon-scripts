@@ -70,7 +70,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
             x - y for x, y in zip(self.todays_prices, [self.todays_mean] * len(self.todays_prices), strict=True)
         ]
         self.log(f"_____Today's prices    :\n{self.todays_prices}\n {self.todays_mean:.3f}\n .")
-        self.log(f"_____Diff              :\n{self.todays_diff:.3f}\n .")
+        self.log(f"_____Diff              :\n{self.todays_diff}\n .")
         self.log(f"_____Mean diff         : {sum(self.todays_diff) / len(self.todays_diff):.3f}\n .")
         self.log(f"_____Max diff          : {max(self.todays_diff):.3f}\n .")
         self.log(f"_____Min diff          : {min(self.todays_diff):.3f}\n .")
@@ -83,7 +83,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
             x - y for x, y in zip(self.tomorrows_prices, [self.tomorrows_mean] * len(self.tomorrows_prices), strict=True)
         ]
         self.log(f"_____Tomorrow's prices :\n{self.tomorrows_prices}\n {self.tomorrows_mean:.3f}\n .")
-        self.log(f"_____Tomorrow's diff   :\n{self.tomorrows_diff:.3f}\n .")
+        self.log(f"_____Tomorrow's diff   :\n{self.tomorrows_diff}\n .")
         self.log(f"_____Tomorrow's mean   : {sum(self.tomorrows_diff) / len(self.tomorrows_diff):.3f}\n .")
         self.log(f"_____Tomorrow's max    : {max(self.tomorrows_diff):.3f}\n .")
         self.log(f"_____Tomorrow's min    : {min(self.tomorrows_diff):.3f}\n .")
