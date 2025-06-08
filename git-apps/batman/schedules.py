@@ -59,7 +59,7 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         # self.log(f"{entity} ({attribute}) changed : {old} -> {new}")
         self.schdl["actual"] = int(new)
         proposal: str = "nom"
-        self.log(f"__New schedule = {self.now_schedule}")
+        self.log(f"__New schedule = {self.schdl["actual"]}")
         if self.schdl["actual"] > 0:
             proposal = "discharge"
         if self.schdl["actual"] < 0:
