@@ -86,9 +86,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
         self.tomorrows_diff: list = [
             x - y for x, y in zip(self.tomorrows_prices, [self.tomorrows_mean] * len(self.tomorrows_prices), strict=True)
         ]
-        self.log(
-            f"_____Tomorrow's prices :\n{self.tomorrows_prices}\n {self.tomorrows_mean:.3f}\n {median(self.tomorrows_prices):.3f} \n ."
-        )
+        self.log(f"_____Tomorrow's prices :\n{self.tomorrows_prices}\n {self.tomorrows_mean:.3f}\n .")
         self.log(f"_____Tomorrow's diff   :\n{self.tomorrows_diff}\n .")
 
         self.log(f"_____Tomorrow's max    : {max(self.tomorrows_diff):.3f}\n .")
