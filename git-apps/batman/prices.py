@@ -65,10 +65,10 @@ class Prices(hass.Hass):  # type: ignore[misc]
         tomorrow = today + dt.timedelta(days=1)
         # update list of prices for today
         self.todays_prices = self.get_prices(today)
-        self.log(f"_____Today's prices    :\n{self.todays_prices}")
+        self.log(f"_____Today's prices    :\n{self.todays_prices}\n {sum(self.todays_prices)/len(self.todays_prices):.3f}\n .")
         # update list of prices for tomorrow
         self.tomorrows_prices = self.get_prices(tomorrow)
-        self.log(f"_____Tomorrow's prices :\n{self.tomorrows_prices}\n .")
+        self.log(f"_____Tomorrow's prices :\n{self.tomorrows_prices}\n {sum(self.tomorrows_prices)/len(self.tomorrows_prices):.3f}\n .")
 
     def get_prices(self, date) -> list[float]:
         """Get the energy prices for a specific date."""
