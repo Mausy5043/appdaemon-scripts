@@ -70,7 +70,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
         _q = [round(q, 3) for q in quantiles(self.todays_prices, n=4, method="inclusive")]
         self.todays_mean = sum(self.todays_prices) / len(self.todays_prices) if self.todays_prices else 0.0
         self.todays_diff: list = [
-            x - y for x, y in zip(self.todays_prices, [self.todays_mean] * len(self.todays_prices), strict=True)
+            round(x - y,3) for x, y in zip(self.todays_prices, [self.todays_mean] * len(self.todays_prices), strict=True)
         ]
         self.log(f"_____Today's prices    :\n{self.todays_prices}\n {self.todays_mean:.3f}\n.")
         self.log(f"_____Diff              :\n{self.todays_diff}")
@@ -84,13 +84,10 @@ class Prices(hass.Hass):  # type: ignore[misc]
             sum(self.tomorrows_prices) / len(self.tomorrows_prices) if self.tomorrows_prices else 0.0
         )
         self.tomorrows_diff: list = [
-            x - y for x, y in zip(self.tomorrows_prices, [self.tomorrows_mean] * len(self.tomorrows_prices), strict=True)
+            round(x - y,3) for x, y in zip(self.tomorrows_prices, [self.tomorrows_mean] * len(self.tomorrows_prices), strict=True)
         ]
         self.log(f"_____Tomorrow's prices :\n{self.tomorrows_prices}\n {self.tomorrows_mean:.3f}\n .")
-        self.log(f"_____Tomorrow's diff   :\n{self.tomorrows_diff}\n .")
 
-        self.log(f"_____Tomorrow's max    : {max(self.tomorrows_diff):.3f}\n .")
-        self.log(f"_____Tomorrow's min    : {min(self.tomorrows_diff):.3f}\n .")
         self.log(f"_____Diff              :\n{self.tomorrows_diff}")
         self.log(f"_____Max diff          : {max(self.tomorrows_diff):.3f}")
         self.log(f"_____Min diff          : {min(self.tomorrows_diff):.3f}")
