@@ -7,7 +7,7 @@ VERSION = "0.0.5"
 # SCHEDULES settings
 # schedules are used to propose the charge/discharge power of the batteries for each hour
 SCHEDULES: dict[str, Any] = {
-    "actual": 0,    # W
+    "actual": 0,  # W
     "entity": "sensor.bat1_power_schedule",
     "attr": {
         "actual": "state",

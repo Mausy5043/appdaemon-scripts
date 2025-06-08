@@ -24,19 +24,27 @@ class Schedules(hass.Hass):  # type: ignore[misc]
 
         self.log(f"================================= Schedules v{cs.VERSION} ====")
         # when debugging & first run: log everything
-        _e: dict[str, Any] = self.get_state(entity_id=self.schdl['entity'], attribute="all")
+        _e: dict[str, Any] = self.get_state(entity_id=self.schdl["entity"], attribute="all")
         for _k, _v in _e.items():
             self.log(f"____{_k}: {_v}", level="INFO")
         # Initialize today's and tomorrow's schedules
         self.schedules_changed("schedules", "", "none", "new")
-        _s = self.get_state(entity_id=self.schdl['entity'], attribute=self.schdl['attr']['actual'])
-        self.schedule_changed("schedule", self.schdl['attr']['actual'], "none", _s)
+        _s = self.get_state(entity_id=self.schdl["entity"], attribute=self.schdl["attr"]["actual"])
+        self.schedule_changed("schedule", self.schdl["attr"]["actual"], "none", _s)
 
         self.callback_handles.append(
-            self.listen_state(self.schedule_current_cb, self.schdl['entity'], attribute=self.schdl['attr']['actual'])
+            self.listen_state(
+                callback=self.schedule_current_cb,
+                entity_id=self.schdl["entity"],
+                attribute=self.schdl["attr"]["actual"],
+            )
         )
         self.callback_handles.append(
-            self.listen_state(self.schedule_list_cb, self.schdl['entity'], attribute=self.schdl['attr']['list'])
+            self.listen_state(
+                callback=self.schedule_list_cb,
+                entity_id=self.schdl["entity"],
+                attribute=self.schdl["attr"]["list"],
+            )
         )
 
     def terminate(self):
@@ -72,12 +80,12 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         # Update today's and tomorrow's schedules
         today = dt.date.today()
         tomorrow = today + dt.timedelta(days=1)
-        self.schdl['today'] = self.get_schedules(today)
-        self.schdl['tomor'] = self.get_schedules(tomorrow)
-        charge_today = ut.sort_index(self.schdl['today'], rev=True)[-3:]
-        discharge_today = ut.sort_index(self.schdl['today'], rev=True)[:3]
-        charge_tomorrow = ut.sort_index(self.schdl['tomor'], rev=True)[-3:]
-        discharge_tomorrow = ut.sort_index(self.schdl['tomor'], rev=True)[:3]
+        self.schdl["today"] = self.get_schedules(today)
+        self.schdl["tomor"] = self.get_schedules(tomorrow)
+        charge_today = ut.sort_index(self.schdl["today"], rev=True)[-3:]
+        discharge_today = ut.sort_index(self.schdl["today"], rev=True)[:3]
+        charge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[-3:]
+        discharge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[:3]
         self.log(f"__Today's schedules    :\n{self.schdl['today']} \n : {charge_today} {discharge_today}.")
         self.log(
             f"__Tomorrow's schedules :\n{self.schdl['tomor']} \n : {charge_tomorrow} {discharge_tomorrow}."
