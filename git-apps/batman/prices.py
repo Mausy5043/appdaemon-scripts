@@ -60,6 +60,28 @@ class Prices(hass.Hass):  # type: ignore[misc]
         _p: list[float] = [float(new)]
         self.price["actual"] = self.total_price(_p)[0]
         self.log(f"_____New price = {self.price['actual']:.3f} cents/kWh")
+        self.eval_price()
+
+    def eval_price(self):
+        """Evaluate the current price and inform manager."""
+        # Check if the current price is below the threshold
+        if self.price["actual"] < self.price["q1"]:
+            self.mgr.tell(
+                self.price["name"],
+                f"Current price {self.price['actual']:.3f} is below Q1 ({self.price['q1']:.3f}): CHARGE.",
+                )
+            # Trigger actions, e.g., turn on a device or notify
+            # self.mgr.trigger_action("price_below_threshold")
+        if self.price["actual"] > self.price["q3"]:
+            self.mgr.tell(
+                self.price["name"],
+                f"Current price {self.price['actual']:.3f} is above Q3 ({self.price['q3']:.3f}) DISCHARGE.",
+            )
+        if self.price["actual"] < self.price["q3"] and self.price["actual"] > self.price["q1"]:
+            self.mgr.tell(
+                self.price["name"],
+                f"Current price {self.price['actual']:.3f} is between Q1 ({self.price['q1']:.3f}) and Q3 ({self.price['q3']:.3f}): NOM.",
+            )
 
     def prices_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy prices."""
@@ -140,3 +162,19 @@ class Prices(hass.Hass):  # type: ignore[misc]
         """Callback for price list change."""
         self.prices_changed(entity, attribute, old, new, **kwargs)
 
+
+"""
+MAX
+    <- discharge [api, discharge_max] to x% SoC; x = aantal uren tot 09:00 volgende ochtend * 2.0%
+Q3
+    <- nom
+: ongunstig om te importeren
+min(MED,AVG)
+: ongunstig om te exporteren
+    <- nom
+Q1
+    <- charge [api, charge_max] to 100% SoC
+MIN
+
+
+"""
