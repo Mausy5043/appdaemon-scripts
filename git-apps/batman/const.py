@@ -17,15 +17,38 @@ SCHEDULES: dict[str, Any] = {
     "tomor": [],
     "manager": "the_batman",
 }
-# # Defaults and settings for schedules
-# ACT_SCHEDULE = 0  # Default schedule
-# # Entity ID
-# ENT_SCHEDULE = "sensor.bat1_power_schedule"
-# # Attributes
-# CUR_SCHEDULE_ATTR = "state"
-# LST_SCHEDULE_ATTR = "attributes"
+#
 
-
+# PRICES settings
+# prices are used to determine the best time to charge/discharge the batteries
+PRICES: dict[str, Any] = {
+    "actual": 25.0,  # cents/kWh
+    "entity": "sensor.bat1_energy_price",
+    "attr": {
+        "current": "state",
+        "list": "attributes",
+    },
+    "today": {
+        "data": [],
+        "min": 14.0,
+        "q1": 20.0,
+        "med": 25.0,
+        "avg": 27.5,
+        "q3": 30.0,
+        "max": 35.0,
+    },
+    "tomor": {
+        "data": [],
+        "min": 14.0,
+        "q1": 20.0,
+        "med": 25.0,
+        "avg": 27.5,
+        "q3": 30.0,
+        "max": 35.0,
+    },
+    "adjust": {"hike": 0.021, "extra": 2.0, "taxes": 10.15, "btw": 1.21},
+    "manager": "the_batman",
+}
 # Defaults and settings for energy prices
 ACT_PRICE = 25.0  # default price in cents/kWh
 # Entity ID

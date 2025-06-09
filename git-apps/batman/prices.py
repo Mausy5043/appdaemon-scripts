@@ -11,29 +11,32 @@ import const as cs
 class Prices(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
+        self.log(f"===================================== Prices v{cs.VERSION} ====")
         # Keep track of active callbacks
         self.callback_handles: list[Any] = []
-        # Define the entities and attributes to listen to
-        #
-        # Initialize current price and today's and tomorrow's pricelist
-        self.now_price: float = cs.ACT_PRICE
-        self.todays_prices: list[float] = []
-        self.tomorrows_prices: list[float] = []
-        self.log(f"===================================== Prices v{cs.VERSION} ====")
+
+        self.price = cs.PRICES
+        self.mgr = self.get_app(self.price["manager"])
+        if not self.mgr:
+            self.log(f"__ERROR: {self.price['manager']} app not found!", level="ERROR")
+            return
         # when debugging & first run: log everything
-        _e: dict[str, Any] = self.get_state(entity_id=cs.ENT_PRICE, attribute="all")
+        _e: dict[str, Any] = self.get_state(entity_id=self.price["entity"], attribute="all")
         for _k, _v in _e.items():
             self.log(f"____{_k}: {_v}", level="INFO")
         # Update today's and tomorrow's prices
         self.prices_changed("prices", "", "none", "new")
-        _p = self.get_state(entity_id=cs.ENT_PRICE, attribute=cs.CUR_PRICE_ATTR)
-        self.price_changed("price", cs.CUR_PRICE_ATTR, "none", _p)
+        _p = self.get_state(entity_id=self.price["entity"], attribute=self.price["attr"]["current"])
+        self.price_changed("price", self.price["attr"]["current"], "none", _p)
+
         # Set-up callbacks for price changes
         self.callback_handles.append(
-            self.listen_state(self.price_list_cb, cs.ENT_PRICE, attribute=cs.LST_PRICE_ATTR)
+            self.listen_state(self.price_list_cb, self.price["entity"], attribute=self.price["attr"]["list"])
         )
         self.callback_handles.append(
-            self.listen_state(self.price_current_cb, cs.ENT_PRICE, attribute=cs.CUR_PRICE_ATTR)
+            self.listen_state(
+                self.price_current_cb, self.price["entity"], attribute=self.price["attr"]["current"]
+            )
         )
 
     def terminate(self):
@@ -55,8 +58,8 @@ class Prices(hass.Hass):  # type: ignore[misc]
             pass
         # self.log(f"State changed for {entity} ({attribute}): {old} -> {new}")
         _p: list[float] = [float(new)]
-        self.now_price = self.total_price(_p)[0]
-        self.log(f"_____New price = {self.now_price}")
+        self.price["actual"] = self.total_price(_p)[0]
+        self.log(f"_____New price = {self.price['actual']:.3f} cents/kWh")
 
     def prices_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy prices."""
@@ -66,28 +69,41 @@ class Prices(hass.Hass):  # type: ignore[misc]
         tomorrow = today + dt.timedelta(days=1)
         # update list of prices for today
         _p = self.get_prices(today)
-        self.todays_prices = _p
-        self.mqcqm: list = [
-            max(_p),
-            quantiles(_p, n=4, method="inclusive"),
-            min(_p),
-        ]
-        self.todays_mean = sum(_p) / len(_p)
+        self.price["today"]["list"] = _p
+        self.price["today"]["min"] = min(_p)
+        self.price["today"]["q1"] = quantiles(_p, n=4, method="inclusive")[0]
+        self.price["today"]["med"] = quantiles(_p, n=4, method="inclusive")[1]
+        self.price["today"]["avg"] = sum(_p) / len(_p)
+        self.price["today"]["q3"] = quantiles(_p, n=4, method="inclusive")[2]
+        self.price["today"]["max"] = max(_p)
+
         self.log(f"_____Today's prices    :\n{_p}\n .")
-        self.log(f"_____Mean              : {self.todays_mean:.3f}")
-        self.log(f"_____Quartiles+        : {', '.join(map(str, self.mqcqm))}")
+        self.log(self.format_price_statistics(self.price["today"]))
+
         # update list of prices for tomorrow
         _p = self.get_prices(tomorrow)
-        self.tomorrows_prices = _p
-        self.mqcqm: list = [
-            max(_p),
-            quantiles(_p, n=4, method="inclusive"),
-            min(_p),
-        ]
-        self.tomorrows_mean = sum(_p) / len(_p)
-        self.log(f"_____Today's prices    :\n{_p}\n .")
-        self.log(f"_____Mean              : {self.tomorrows_mean:.3f}")
-        self.log(f"_____Quartiles+        : {', '.join(map(str, self.mqcqm))}")
+        self.price["tomor"]["list"] = _p
+        self.price["tomor"]["min"] = min(_p)
+        self.price["tomor"]["q1"] = quantiles(_p, n=4, method="inclusive")[0]
+        self.price["tomor"]["med"] = quantiles(_p, n=4, method="inclusive")[1]
+        self.price["tomor"]["avg"] = sum(_p) / len(_p)
+        self.price["tomor"]["q3"] = quantiles(_p, n=4, method="inclusive")[2]
+        self.price["tomor"]["max"] = max(_p)
+
+        self.log(f"_____Tomorrow's prices :\n{_p}\n .")
+        self.log(self.format_price_statistics(self.price["tomor"]))
+
+    @staticmethod
+    def format_price_statistics(price: dict) -> str:
+        """Return a string with price statistics."""
+        return (
+            f"Min: {price.get('min', 'N/A'):.3f}, "
+            f"Q1: {price.get('q1', 'N/A'):.3f}, "
+            f"Med: {price.get('med', 'N/A'):.3f}, "
+            f"Avg: {price.get('avg', 'N/A'):.3f}, "
+            f"Q3: {price.get('q3', 'N/A'):.3f}, "
+            f"Max: {price.get('max', 'N/A'):.3f}"
+        )
 
     def get_prices(self, date) -> list[float]:
         """Get the energy prices for a specific date."""
@@ -95,7 +111,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
         _p: list[float] = no_prices
         if isinstance(date, dt.date):
             date_str: str = date.strftime("%Y-%m-%d")
-            attr: dict = self.get_state(entity_id=cs.ENT_PRICE, attribute=cs.LST_PRICE_ATTR)
+            attr: dict = self.get_state(entity_id=self.price["entity"], attribute=self.price["attr"]["list"])
             _p = attr.get(date_str, no_prices)
         else:
             self.log(f"Invalid date: {date}", level="ERROR")
@@ -106,9 +122,12 @@ class Prices(hass.Hass):  # type: ignore[misc]
         # cents to Euro
         _p: list[float] = [i * 100 for i in pricelist]
         # add costs and taxes
-        _p = [i + (cs.PRICE_HIKE + cs.PRICE_XTRA + cs.PRICE_TAXS) for i in _p]
+        _p = [
+            i + (self.price["adjust"]["hike"] + self.price["adjust"]["extra"] + self.price["adjust"]["taxes"])
+            for i in _p
+        ]
         # add BTW
-        _p = [round(i * cs.PRICE_BTW, 5) for i in _p]
+        _p = [round(i * self.price["adjust"]["btw"], 5) for i in _p]
         return _p
 
     # CALLBACKS
