@@ -7,6 +7,7 @@ VERSION = "0.0.5"
 # SCHEDULES settings
 # schedules are used to propose the charge/discharge power of the batteries for each hour
 SCHEDULES: dict[str, Any] = {
+    "name": "schds",
     "actual": 0,  # W
     "entity": "sensor.bat1_power_schedule",
     "attr": {
@@ -22,6 +23,7 @@ SCHEDULES: dict[str, Any] = {
 # PRICES settings
 # prices are used to determine the best time to charge/discharge the batteries
 PRICES: dict[str, Any] = {
+    "name": "price",
     "actual": 25.0,  # cents/kWh
     "entity": "sensor.bat1_energy_price",
     "attr": {
@@ -50,13 +52,24 @@ PRICES: dict[str, Any] = {
     "manager": "the_batman",
 }
 # Defaults and settings for energy prices
-ACT_PRICE = 25.0  # default price in cents/kWh
-# Entity ID
-ENT_PRICE = "sensor.bat1_energy_price"
-# Attributes
-CUR_PRICE_ATTR = "state"
-LST_PRICE_ATTR = "attributes"
+# ACT_PRICE = 25.0  # default price in cents/kWh
+# # Entity ID
+# ENT_PRICE = "sensor.bat1_energy_price"
+# # Attributes
+# CUR_PRICE_ATTR = "state"
+# LST_PRICE_ATTR = "attributes"
 
+# STRATEGIES settings
+STRATEGIES: dict[str, Any] = {
+    "name": "strat",
+    "actual": 0,  # index of the current strategy
+    "entity": "select.bat1_power_strategy",
+    "attr": {
+        "current": "state",
+        "list": "options",
+    },
+    "manager": "the_batman",
+}
 
 # Defaults and settings for batteries
 ACT_SOC = [0.0, 0.0]  # Default battery level in kWh

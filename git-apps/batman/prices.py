@@ -139,3 +139,4 @@ class Prices(hass.Hass):  # type: ignore[misc]
     def price_list_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for price list change."""
         self.prices_changed(entity, attribute, old, new, **kwargs)
+
