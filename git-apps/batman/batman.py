@@ -27,4 +27,4 @@ class BatMan(hass.Hass):  # type: ignore[misc]
 
     def tell(self, message: str):
         """Log a message."""
-        self.log(f"BatMan: {message}")
+        self.log(f"_BatMan: {message}")
