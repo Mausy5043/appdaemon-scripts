@@ -16,13 +16,11 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         self.callback_handles: list[Any] = []
 
         self.schdl = cs.SCHEDULES
-
         self.mgr = self.get_app(self.schdl["manager"])
         if not self.mgr:
             self.log(f"__ERROR: {self.schdl['manager']} app not found!", level="ERROR")
             return
 
-        self.log(f"================================= Schedules v{cs.VERSION} ====")
         # when debugging & first run: log everything
         _e: dict[str, Any] = self.get_state(entity_id=self.schdl["entity"], attribute="all")
         for _k, _v in _e.items():
