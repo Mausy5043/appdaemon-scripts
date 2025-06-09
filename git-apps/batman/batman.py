@@ -25,6 +25,6 @@ class BatMan(hass.Hass):  # type: ignore[misc]
         self.callback_handles.clear()
         self.log("__...terminated BatMan.")
 
-    def tell(self, message: str):
+    def tell(self, caller: str, message: str):
         """Log a message."""
-        self.log(f"_BatMan: {message}")
+        self.log(f"_BatMan: {caller} said {message}")
