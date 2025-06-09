@@ -1,4 +1,3 @@
-from typing import Any
 
 """Provides constants for the Batman app."""
 
@@ -6,7 +5,7 @@ VERSION = "0.0.5"
 
 # SCHEDULES settings
 # schedules are used to propose the charge/discharge power of the batteries for each hour
-SCHEDULES: dict[str, Any] = {
+SCHEDULES: dict = {
     "name": "schds",
     "actual": 0,  # W
     "entity": "sensor.bat1_power_schedule",
@@ -22,7 +21,7 @@ SCHEDULES: dict[str, Any] = {
 
 # PRICES settings
 # prices are used to determine the best time to charge/discharge the batteries
-PRICES: dict[str, Any] = {
+PRICES: dict = {
     "name": "price",
     "actual": 25.0,  # cents/kWh
     "entity": "sensor.bat1_energy_price",
@@ -51,16 +50,10 @@ PRICES: dict[str, Any] = {
     "adjust": {"hike": 0.021, "extra": 2.0, "taxes": 10.15, "btw": 1.21},
     "manager": "the_batman",
 }
-# Defaults and settings for energy prices
-# ACT_PRICE = 25.0  # default price in cents/kWh
-# # Entity ID
-# ENT_PRICE = "sensor.bat1_energy_price"
-# # Attributes
-# CUR_PRICE_ATTR = "state"
-# LST_PRICE_ATTR = "attributes"
+#
 
 # STRATEGIES settings
-STRATEGIES: dict[str, Any] = {
+STRATEGIES: dict = {
     "name": "strat",
     "actual": 0,  # index of the current strategy
     "entity": "select.bat1_power_strategy",
@@ -103,7 +96,7 @@ LIMIT_BAT_DISCHARGE = 1700  # W
 # idle: do nothing
 # api : power set-point is controlled externally (by HASS or other(!) app)
 #       used to transition bumplessly
-STRATEGIES = ["nom", "eco", "roi", "idle", "api"]
+#STRATEGIES = ["nom", "eco", "roi", "idle", "api"]
 ACT_STRATEGY = 0  # Default strategy index
 
 # Default values for logging
@@ -115,8 +108,8 @@ LOG_MSG_LISTENING = "\n\t*** Listening to entity: {}, attribute: {}"
 LOG_MSG_ENTITY = "____{}: {}"
 
 
-# add opslag=0.021 + extra=2.000 + taxes=10.15 = 12.171
-PRICE_HIKE = 0.021
-PRICE_XTRA = 2.0
-PRICE_TAXS = 10.15
-PRICE_BTW = 1.21
+# # add opslag=0.021 + extra=2.000 + taxes=10.15 = 12.171
+# PRICE_HIKE = 0.021
+# PRICE_XTRA = 2.0
+# PRICE_TAXS = 10.15
+# PRICE_BTW = 1.21
