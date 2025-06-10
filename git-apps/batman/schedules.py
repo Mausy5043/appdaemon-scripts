@@ -64,14 +64,14 @@ class Schedules(hass.Hass):  # type: ignore[misc]
             pass
         # self.log(f"{entity} ({attribute}) changed : {old} -> {new}")
         self.schdl["actual"] = int(new)
-        proposal: str = "nom"
+        proposal: str = "NOM"
         self.log(f"__New schedule = {self.schdl["actual"]}")
         if self.schdl["actual"] > 0:
-            proposal = "discharge"
+            proposal = "DISCHARGE"
         if self.schdl["actual"] < 0:
-            proposal = "charge"
+            proposal = "CHARGE"
         self.mgr.tell(
-            caller=self.schdl["name"], message=f"Current schedule is {self.schdl["actual"]} ({proposal})"
+            caller=self.schdl["name"], message=f"Current schedule is {self.schdl["actual"]}: {proposal}."
         )
 
     def schedules_changed(self, entity, attribute, old, new, **kwargs):
