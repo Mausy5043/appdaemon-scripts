@@ -13,21 +13,19 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.log(f"===================================== Batteries v{cs.VERSION} ====")
         # Keep track of active callbacks
         self.callback_handles: list[Any] = []
-        # Define the internal state variables
-        self.soc_speed: float = 0.0  # Speed of change in SoC
-        self.soc_speeds: list[float] = []  # List of SoC speeds
-        self.soc_prev: float = 0.0  # Previous SoC
-        self.bat_list: list[str] = [cs.ENT_SOC1, cs.ENT_SOC2]
-        self.bat_state: list[float] = []
+
+        self.batteries = cs.BATTERIES
+        self.mgr = self.get_app(self.batteries["manager"])
+        if not self.mgr:
+            self.log(f"__ERROR: {self.batteries['manager']} app not found!", level="ERROR")
+            return
 
         # when debugging & first run:
         # log everything
-        _e: dict[str, Any] = self.get_state(entity_id=cs.ENT_SOC1, attribute="all")
-        for _k, _v in _e.items():
-            self.log(f"_1____{_k}: {_v}", level="INFO")
-        _e = self.get_state(entity_id=cs.ENT_SOC2, attribute="all")
-        for _k, _v in _e.items():
-            self.log(f"_2___{_k}: {_v}", level="INFO")
+        for bat in self.batteries["entitys"]:
+            _e: dict[str, Any] = self.get_state(entity_id=bat, attribute="all")
+            for _k, _v in _e.items():
+                self.log(f"_{bat}___{_k}: {_v}", level="INFO")
 
         # Set previous SoC and current SoC to actual values
         self.soc_prev, self.bat_state = self.get_soc()
@@ -38,6 +36,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         seconds_to_next_half_hour: int = (cs.POLL_SOC - now.minute % cs.POLL_SOC) * 60 - now.second
         # Update in half an hour
         self.run_in(self.update_soc_cb, dt.timedelta(seconds=seconds_to_next_half_hour))
+
 
     def terminate(self):
         """Clean up app."""
@@ -52,7 +51,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
     def get_soc(self) -> tuple[float, list[float]]:
         """Get current state of charge (SoC) for all batteries."""
         soc_list: list[float] = []
-        for bat in self.bat_list:
+        for bat in self.batteries["entity"]:
             _soc: Any | None = self.get_state(entity_id=bat, attribute=cs.CUR_SOC_ATTR)
             if _soc is not None:
                 soc_list.append(float(_soc))

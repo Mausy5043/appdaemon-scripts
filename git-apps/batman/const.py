@@ -1,4 +1,3 @@
-
 """Provides constants for the Batman app."""
 
 VERSION = "0.0.5"
@@ -64,6 +63,25 @@ STRATEGIES: dict = {
     "manager": "the_batman",
 }
 
+# BATTERIES settings
+BATTERIES: dict = {
+    "name": "bat",
+    "manager": "the_batman",
+    "entity": [ "sensor.bat1_state_of_charge",
+               "sensor.bat2_state_of_charge"
+               ],
+    "attr": {
+        "soc": "state",
+        "power": "attributes",
+    },
+    "speed": 0.0,  # Speed of change %/h
+    "soc": {"now": 0.0,
+            "prev": 0.0,  # Previous state of charge
+            "speeds": []# List of speeds of change %/h
+            },
+},
+}
+
 # Defaults and settings for batteries
 ACT_SOC = [0.0, 0.0]  # Default battery level in kWh
 # Entity IDs
@@ -96,7 +114,7 @@ LIMIT_BAT_DISCHARGE = 1700  # W
 # idle: do nothing
 # api : power set-point is controlled externally (by HASS or other(!) app)
 #       used to transition bumplessly
-#STRATEGIES = ["nom", "eco", "roi", "idle", "api"]
+# STRATEGIES = ["nom", "eco", "roi", "idle", "api"]
 ACT_STRATEGY = 0  # Default strategy index
 
 # Default values for logging
