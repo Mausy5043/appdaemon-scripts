@@ -14,22 +14,22 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         # Keep track of active callbacks
         self.callback_handles: list[Any] = []
 
-        self.batteries = cs.BATTERIES
-        self.mgr = self.get_app(self.batteries["manager"])
+        self.bats = cs.BATTERIES
+        self.mgr = self.get_app(self.bats["manager"])
         if not self.mgr:
-            self.log(f"__ERROR: {self.batteries['manager']} app not found!", level="ERROR")
+            self.log(f"__ERROR: {self.bats['manager']} app not found!", level="ERROR")
             return
 
         # when debugging & first run:
         # log everything
-        for bat in self.batteries["entity"]:
+        for bat in self.bats["entity"]:
             _e: dict[str, Any] = self.get_state(entity_id=bat, attribute="all")
             for _k, _v in _e.items():
                 self.log(f"_{bat}___{_k}: {_v}", level="INFO")
 
         # Set previous SoC and current SoC to actual values
-        self.soc_prev, self.bat_state = self.get_soc()
-        self.soc_now: float = self.soc_prev
+        self.bats["soc"]["now"], self.bats["soc"]["states"] = self.get_soc()
+        self.bats["soc"]["prev"] = self.bats["soc"]["now"]
 
         now = dt.datetime.now()
         # get number of seconds to the next polling interval
@@ -50,7 +50,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
     def get_soc(self) -> tuple[float, list[float]]:
         """Get current state of charge (SoC) for all batteries."""
         soc_list: list[float] = []
-        for bat in self.batteries["entity"]:
+        for bat in self.bats["entity"]:
             _soc: Any | None = self.get_state(entity_id=bat, attribute=cs.CUR_SOC_ATTR)
             if _soc is not None:
                 soc_list.append(float(_soc))
@@ -63,16 +63,16 @@ class Batteries(hass.Hass):  # type: ignore[misc]
     def update_soc_cb(self, **kwargs) -> None:
         """Callback to update state of charge."""
         # remember previous SoC and calculate new SoC
-        self.soc_prev = self.soc_now
-        self.soc_now, self.bat_state = self.get_soc()
+        self.bats["soc"]["prev"] = self.bats["soc"]["now"]
+        self.bats["soc"]["now"], self.bats["soc"]["states"] = self.get_soc()
 
         # calculate speed of change
-        self.soc_speeds.append((self.soc_now - self.soc_prev) / (cs.POLL_SOC / 60))
-        self.soc_speed = sum(self.soc_speeds) / len(self.soc_speeds) if self.soc_speeds else 0.0
+        self.bats["soc"]["speeds"].append((self.bats["soc"]["now"] - self.bats["soc"]["prev"]) / (cs.POLL_SOC / 60))
+        self.bats["soc"]["speed"] = sum(self.bats["soc"]["speeds"]) / len(self.bats["soc"]["speeds"]) if self.bats["soc"]["speeds"] else 0.0
         # Keep only a few speeds to avoid too much influence on prediction
-        if len(self.soc_speeds) > 3:
-            self.soc_speeds.pop(0)
-        self.log(f"__Speed of change = {self.soc_speed:.2f} %/h")
+        if len(self.bats["soc"]["speeds"]) > 3:
+            self.bats["soc"]["speeds"].pop(0)
+        self.log(f"__Speed of change = {self.bats["soc"]["speed"]:.2f} %/h")
 
         # Update again in half an hour
         now = dt.datetime.now()

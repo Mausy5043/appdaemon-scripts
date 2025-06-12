@@ -75,19 +75,13 @@ BATTERIES: dict = {
     "soc": {
         "now": 0.0,
         "prev": 0.0,  # Previous state of charge
+        "speed": 0.0,  # Speed of change %/h
         "speeds": [],  # List of speeds of change %/h
+        "states": [],  # List of current SoCs
     },
     "manager": "the_batman",
 }
 
-
-# Defaults and settings for batteries
-ACT_SOC = [0.0, 0.0]  # Default battery level in kWh
-# Entity IDs
-ENT_SOC1 = "sensor.bat1_state_of_charge"
-ENT_SOC2 = "sensor.bat2_state_of_charge"
-# Attributes
-CUR_SOC_ATTR = "state"
 POLL_SOC = 30  # minutes: Poll every half hour
 
 # Defaults and settings for stategy & battery power management
