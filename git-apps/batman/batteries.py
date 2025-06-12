@@ -37,7 +37,6 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         # Update in half an hour
         self.run_in(self.update_soc_cb, dt.timedelta(seconds=seconds_to_next_half_hour))
 
-
     def terminate(self):
         """Clean up app."""
         self.log("__Terminating Batteries...")
