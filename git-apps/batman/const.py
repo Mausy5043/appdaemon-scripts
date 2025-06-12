@@ -66,20 +66,19 @@ STRATEGIES: dict = {
 # BATTERIES settings
 BATTERIES: dict = {
     "name": "bat",
-    "manager": "the_batman",
-    "entity": [ "sensor.bat1_state_of_charge",
-               "sensor.bat2_state_of_charge"
-               ],
+    "entity": ["sensor.bat1_state_of_charge", "sensor.bat2_state_of_charge"],
     "attr": {
         "soc": "state",
         "power": "attributes",
     },
     "speed": 0.0,  # Speed of change %/h
-    "soc": {"now": 0.0,
-            "prev": 0.0,  # Previous state of charge
-            "speeds": []# List of speeds of change %/h
-            },
-},
+    "soc": {
+        "now": 0.0,
+        "prev": 0.0,  # Previous state of charge
+        "speeds": [],  # List of speeds of change %/h
+    },
+    "manager": "the_batman",
+}
 
 
 # Defaults and settings for batteries
