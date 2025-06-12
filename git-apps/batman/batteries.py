@@ -22,7 +22,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
 
         # when debugging & first run:
         # log everything
-        for bat in self.batteries["entitys"]:
+        for bat in self.batteries["entity"]:
             _e: dict[str, Any] = self.get_state(entity_id=bat, attribute="all")
             for _k, _v in _e.items():
                 self.log(f"_{bat}___{_k}: {_v}", level="INFO")
