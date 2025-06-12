@@ -80,7 +80,7 @@ BATTERIES: dict = {
             "speeds": []# List of speeds of change %/h
             },
 },
-}
+
 
 # Defaults and settings for batteries
 ACT_SOC = [0.0, 0.0]  # Default battery level in kWh
