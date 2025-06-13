@@ -67,23 +67,17 @@ class Prices(hass.Hass):  # type: ignore[misc]
         if self.price["actual"] < self.price["today"]["q1"]:
             self.mgr.tell(
                 self.price["name"],
-                f"Current price {self.price['actual']:.3f} is below Q1 ({
-                    self.price["today"]['q1']:.3f
-                }): CHARGE.",
+                f"Current price {self.price['actual']:.3f} is below Q1 ({self.price["today"]['q1']:.3f })",
             )
             # Trigger actions, e.g., turn on a device or notify
             # self.mgr.trigger_action("price_below_threshold")
         if self.price["actual"] > self.price["today"]["q3"]:
             self.mgr.tell(
                 self.price["name"],
-                f"Current price {self.price['actual']:.3f} is above Q3 ({
-                    self.price["today"]['q3']:.3f
-                }) DISCHARGE.",
+                f"Current price {self.price['actual']:.3f} is above Q3 ({self.price["today"]['q3']:.3f})",
             )
-        if (
-            self.price["actual"] < self.price["today"]["q3"]
-            and self.price["actual"] > self.price["today"]["q1"]
-        ):
+            self.mgr.vote(self.price["name"], "DISCHARGE")
+        if self.price["today"]["q1"] < self.price["actual"] < self.price["today"]["q3"]:
             self.mgr.tell(
                 self.price["name"],
                 f"Current price {self.price['actual']:.3f} is between Q1 ({
@@ -106,7 +100,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
         self.price["today"]["q3"] = quantiles(_p, n=4, method="inclusive")[2]
         self.price["today"]["max"] = max(_p)
 
-        self.mgr.tell(self.price["name"], f"_____Today's prices    :\n{_p}\n .")
+        self.mgr.tell(self.price["name"], f"Today's prices    :\n{_p}\n .")
         self.mgr.tell(self.price["name"], self.format_price_statistics(self.price["today"]))
 
         # update list of prices for tomorrow
@@ -119,7 +113,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
         self.price["tomor"]["q3"] = quantiles(_p, n=4, method="inclusive")[2]
         self.price["tomor"]["max"] = max(_p)
 
-        self.mgr.tell(self.price["name"], f"_____Tomorrow's prices :\n{_p}\n .")
+        self.mgr.tell(self.price["name"], f"Tomorrow's prices :\n{_p}\n .")
         self.mgr.tell(self.price["name"], self.format_price_statistics(self.price["tomor"]))
 
     @staticmethod

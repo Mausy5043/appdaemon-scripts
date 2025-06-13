@@ -69,9 +69,8 @@ class Schedules(hass.Hass):  # type: ignore[misc]
             proposal = "DISCHARGE"
         if self.schdl["actual"] < 0:
             proposal = "CHARGE"
-        self.mgr.tell(
-            caller=self.schdl["name"], message=f"Current schedule is {self.schdl["actual"]}: {proposal}."
-        )
+        self.mgr.tell(caller=self.schdl["name"], message=f"Current schedule is {self.schdl["actual"]}.")
+        self.mgr.vote(self.schdl["name"], f"{proposal.upper()}")
 
     def schedules_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy schedules."""
