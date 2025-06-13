@@ -51,7 +51,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         """Get current state of charge (SoC) for all batteries."""
         soc_list: list[float] = []
         for bat in self.bats["entity"]:
-            _soc: Any | None = self.get_state(entity_id=bat, attribute=cs.CUR_SOC_ATTR)
+            _soc: Any | None = self.get_state(entity_id=bat, attribute=self.bats["soc"])
             if _soc is not None:
                 soc_list.append(float(_soc))
             else:
