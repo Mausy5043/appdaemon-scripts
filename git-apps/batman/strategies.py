@@ -13,9 +13,9 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         # Keep track of active callbacks
         self.callback_handles: list[Any] = []
         self.strat = cs.STRATEGIES
-        self.mgr = self.get_app(self.schdl["manager"])
+        self.mgr = self.get_app(self.strat["manager"])
         if not self.mgr:
-            self.log(f"__ERROR: {self.schdl['manager']} app not found!", level="ERROR")
+            self.log(f"__ERROR: {self.strat['manager']} app not found!", level="ERROR")
             return
 
         # Define the entities and attributes to listen to
