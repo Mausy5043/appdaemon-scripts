@@ -12,6 +12,12 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         """Initialize the app."""
         # Keep track of active callbacks
         self.callback_handles: list[Any] = []
+        self.strat = cs.STRATEGIES
+        self.mgr = self.get_app(self.schdl["manager"])
+        if not self.mgr:
+            self.log(f"__ERROR: {self.schdl['manager']} app not found!", level="ERROR")
+            return
+
         # Define the entities and attributes to listen to
         #
         # Initialize current strategy and today's and tomorrow's list of strategies
@@ -54,9 +60,8 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         #     new = f"{int(new)}"
         # except (ValueError, TypeError):
         #     pass
-        # self.log(f"State changed for {entity} ({attribute}): {old} -> {new}")
         self.now_strategy = new
-        self.log(f"_New strategy = {self.now_strategy} for {entity}")
+        self.mgr.tell(self.price["name"], f"New strategy = {self.now_strategy} for {entity}")
 
     def get_strategies(self, date) -> list[int]:
         """Get the energy strategies for a specific date."""

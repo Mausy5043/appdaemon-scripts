@@ -62,10 +62,9 @@ class Schedules(hass.Hass):  # type: ignore[misc]
             new = f"{int(new)}"
         except (ValueError, TypeError):
             pass
-        # self.log(f"{entity} ({attribute}) changed : {old} -> {new}")
         self.schdl["actual"] = int(new)
         proposal: str = "NOM"
-        self.log(f"__New schedule = {self.schdl["actual"]}")
+        self.mgr.tell(self.price["name"], f"New schedule = {self.schdl["actual"]}")
         if self.schdl["actual"] > 0:
             proposal = "DISCHARGE"
         if self.schdl["actual"] < 0:
@@ -76,7 +75,6 @@ class Schedules(hass.Hass):  # type: ignore[misc]
 
     def schedules_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy schedules."""
-        # self.log(f"Schedules changed: {old} -> {new}")
         # Update today's and tomorrow's schedules
         today = dt.date.today()
         tomorrow = today + dt.timedelta(days=1)
@@ -86,9 +84,13 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         discharge_today = ut.sort_index(self.schdl["today"], rev=True)[:3]
         charge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[-3:]
         discharge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[:3]
-        self.log(f"__Today's schedules    :\n{self.schdl['today']} \n : {charge_today} {discharge_today}.")
-        self.log(
-            f"__Tomorrow's schedules :\n{self.schdl['tomor']} \n : {charge_tomorrow} {discharge_tomorrow}."
+        self.mgr.tell(
+            self.price["name"],
+            f"Today's schedules    :\n{self.schdl['today']} \n : {charge_today} {discharge_today}.",
+        )
+        self.mgr.tell(
+            self.price["name"],
+            f"Tomorrow's schedules :\n{self.schdl['tomor']} \n : {charge_tomorrow} {discharge_tomorrow}.",
         )
 
     def get_schedules(self, date) -> list[int]:

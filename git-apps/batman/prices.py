@@ -56,10 +56,9 @@ class Prices(hass.Hass):  # type: ignore[misc]
             new = f"{float(new):.5f}"
         except (ValueError, TypeError):
             pass
-        # self.log(f"State changed for {entity} ({attribute}): {old} -> {new}")
         _p: list[float] = [float(new)]
         self.price["actual"] = self.total_price(_p)[0]
-        self.log(f"_____New price = {self.price['actual']:.3f} cents/kWh")
+        self.mgr.tell(self.price["name"], f"New price = {self.price['actual']:.3f} cents/kWh")
         self.eval_price()
 
     def eval_price(self):
@@ -94,7 +93,6 @@ class Prices(hass.Hass):  # type: ignore[misc]
 
     def prices_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy prices."""
-        # self.log(f"Prices changed: {old} -> {new}")
         # Update today's and tomorrow's prices
         today = dt.date.today()
         tomorrow = today + dt.timedelta(days=1)
@@ -108,8 +106,8 @@ class Prices(hass.Hass):  # type: ignore[misc]
         self.price["today"]["q3"] = quantiles(_p, n=4, method="inclusive")[2]
         self.price["today"]["max"] = max(_p)
 
-        self.log(f"_____Today's prices    :\n{_p}\n .")
-        self.log(self.format_price_statistics(self.price["today"]))
+        self.mgr.tell(self.price["name"], f"_____Today's prices    :\n{_p}\n .")
+        self.mgr.tell(self.price["name"], self.format_price_statistics(self.price["today"]))
 
         # update list of prices for tomorrow
         _p = self.get_prices(tomorrow)
@@ -121,8 +119,8 @@ class Prices(hass.Hass):  # type: ignore[misc]
         self.price["tomor"]["q3"] = quantiles(_p, n=4, method="inclusive")[2]
         self.price["tomor"]["max"] = max(_p)
 
-        self.log(f"_____Tomorrow's prices :\n{_p}\n .")
-        self.log(self.format_price_statistics(self.price["tomor"]))
+        self.mgr.tell(self.price["name"], f"_____Tomorrow's prices :\n{_p}\n .")
+        self.mgr.tell(self.price["name"], self.format_price_statistics(self.price["tomor"]))
 
     @staticmethod
     def format_price_statistics(price: dict) -> str:

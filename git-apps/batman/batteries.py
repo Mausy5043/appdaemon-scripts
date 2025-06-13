@@ -57,7 +57,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
             else:
                 soc_list.append(0.0)
         soc_now: float = sum(soc_list) / len(soc_list) if soc_list else 0.0
-        self.log(f"__Total SoC = {soc_now} % <- {soc_list} %")
+        self.mgr.tell(self.bats["name"] , f"Total SoC = {soc_now} % <- {soc_list} %")
         return soc_now, soc_list
 
     def update_soc_cb(self, **kwargs) -> None:
@@ -72,7 +72,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         # Keep only a few speeds to avoid too much influence on prediction
         if len(self.bats["soc"]["speeds"]) > 3:
             self.bats["soc"]["speeds"].pop(0)
-        self.log(f"__Speed of change = {self.bats["soc"]["speed"]:.2f} %/h")
+        self.mgr.tell(self.bats["name"], f"Speed of change = {self.bats["soc"]["speed"]:.2f} %/h")
 
         # Update again in half an hour
         now = dt.datetime.now()
