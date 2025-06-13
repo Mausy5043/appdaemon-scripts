@@ -108,6 +108,14 @@ LIMIT_BAT_DISCHARGE = 1700  # W
 # api : power set-point is controlled externally (by HASS or other(!) app)
 #       used to transition bumplessly
 # STRATEGIES = ["nom", "eco", "roi", "idle", "api"]
+
+#solar optimal position
+# morning elevation > 28deg
+#         azimuth > 88deg
+# evening elevation < 21deg
+#         azimuth < 281deg
+
+
 ACT_STRATEGY = 0  # Default strategy index
 
 # Default values for logging
