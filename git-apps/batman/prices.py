@@ -69,8 +69,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
                 self.price["name"],
                 f"Current price {self.price['actual']:.3f} is below Q1 ({self.price["today"]['q1']:.3f })",
             )
-            # Trigger actions, e.g., turn on a device or notify
-            # self.mgr.trigger_action("price_below_threshold")
+            self.mgr.vote(self.price["name"], "CHARGE")
         if self.price["actual"] > self.price["today"]["q3"]:
             self.mgr.tell(
                 self.price["name"],
@@ -82,8 +81,9 @@ class Prices(hass.Hass):  # type: ignore[misc]
                 self.price["name"],
                 f"Current price {self.price['actual']:.3f} is between Q1 ({
                     self.price["today"]['q1']:.3f
-                }) and Q3 ({self.price["today"]['q3']:.3f}): NOM.",
+                }) and Q3 ({self.price["today"]['q3']:.3f})",
             )
+            self.mgr.vote(self.price["name"], "NOM")
 
     def prices_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy prices."""

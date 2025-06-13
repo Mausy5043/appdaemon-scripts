@@ -78,6 +78,8 @@ BATTERIES: dict = {
         "speed": 0.0,  # Speed of change %/h
         "speeds": [],  # List of speeds of change %/h
         "states": [],  # List of current SoCs
+        "lo_limit": 25,  # vote charge when SoC is below this limit
+        "hi_limit": 95,  # vote discharge when SoC is above this limit
     },
     "manager": "the_batman",
 }
@@ -109,7 +111,7 @@ LIMIT_BAT_DISCHARGE = 1700  # W
 #       used to transition bumplessly
 # STRATEGIES = ["nom", "eco", "roi", "idle", "api"]
 
-#solar optimal position
+# solar optimal position
 # morning elevation > 28deg
 #         azimuth > 88deg
 # evening elevation < 21deg
