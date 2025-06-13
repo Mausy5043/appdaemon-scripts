@@ -30,6 +30,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         # Set previous SoC and current SoC to actual values
         self.bats["soc"]["now"], self.bats["soc"]["states"] = self.get_soc()
         self.bats["soc"]["prev"] = self.bats["soc"]["now"]
+        self.update_socs()
 
         now = dt.datetime.now()
         # get number of seconds to the next polling interval
@@ -60,8 +61,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.mgr.tell(self.bats["name"], f"Total SoC = {soc_now} % <- {soc_list} %")
         return soc_now, soc_list
 
-    def update_soc_cb(self, **kwargs) -> None:
-        """Callback to update state of charge."""
+    def update_socs(self):
         # remember previous SoC and calculate new SoC
         self.bats["soc"]["prev"] = self.bats["soc"]["now"]
         self.bats["soc"]["now"], self.bats["soc"]["states"] = self.get_soc()
@@ -87,6 +87,9 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         else:
             self.mgr.vote(self.bats["name"], "NOM")
 
+    def update_soc_cb(self, **kwargs) -> None:
+        """Callback to update state of charge."""
+        self.update_socs()
         # Update again in half an hour
         now = dt.datetime.now()
         # get number of seconds to the next polling interval
