@@ -173,16 +173,18 @@ class Prices(hass.Hass):  # type: ignore[misc]
 
 
 """
+Voting:
+
 MAX
-    <- discharge [api, discharge_max] to x% SoC; x = aantal uren tot 09:00 volgende ochtend * 2.0%
+    <- DISCHARGE [api, discharge_max] to x% SoC; x = aantal uren tot 09:00 volgende ochtend * 2.0%
 Q3
-    <- nom
+    <- NOM
 : ongunstig om te importeren
 min(MED,AVG)
 : ongunstig om te exporteren
-    <- nom
+    <- NOM
 Q1
-    <- charge [api, charge_max] to 100% SoC
+    <- CHARGE [api, charge_max] to 100% SoC
 MIN
 
 

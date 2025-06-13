@@ -115,9 +115,10 @@ class Schedules(hass.Hass):  # type: ignore[misc]
 
 
 # schedule
-#  0 = nom
-#  (+)  || SoC > 75% || summerday |-> = discharge to 25%
-#  (-)  || SoC < 32% || winterday |-> = charge to 100%
+# Voting:
+#  0 = NOM
+#  (+)-ve = DISCHARGE  || SoC > 75% || summerday |-> = discharge to 25%
+#  (-)-ve = CHARGE     || SoC < 32% || winterday |-> = charge to 100%
 # definition of summerday is
 
 # summerday = 1st of May to 30th of September

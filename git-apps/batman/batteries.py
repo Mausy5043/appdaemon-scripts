@@ -79,3 +79,13 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         # get number of seconds to the next polling interval
         seconds_to_next_half_hour = (cs.POLL_SOC - now.minute % cs.POLL_SOC) * 60 - now.second
         self.run_in(self.update_soc_cb, dt.timedelta(seconds=seconds_to_next_half_hour))
+
+"""
+Voting:
+
+soc_limit = (speed of discharge) * (hours until 09:00)
+
+SoC > soc_limit     DISCHARGE
+SoC < soc_limit     NOM
+
+"""
