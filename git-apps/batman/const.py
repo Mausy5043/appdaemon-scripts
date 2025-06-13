@@ -120,7 +120,7 @@ ACT_STRATEGY = 0  # Default strategy index
 
 # Default values for logging
 LOG_LVL_INFO = "INFO"
-LOG_LVL_DEBUG = "INFO"
+LOG_LVL_DEBUG = "DEBUG"
 # Default values for price and strategy change log messages
 LOG_MSG_LISTENING = "\n\t*** Listening to entity: {}, attribute: {}"
 # Default values for price and strategy change log messages

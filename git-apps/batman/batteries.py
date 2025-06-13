@@ -25,7 +25,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         for bat in self.bats["entity"]:
             _e: dict[str, Any] = self.get_state(entity_id=bat, attribute="all")
             for _k, _v in _e.items():
-                self.log(f"_{bat}___{_k}: {_v}", level="INFO")
+                self.log(f"_{bat}___{_k}: {_v}", level="DEBUG")
 
         # Set previous SoC and current SoC to actual values
         self.bats["soc"]["now"], self.bats["soc"]["states"] = self.get_soc()

@@ -24,7 +24,7 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         # when debugging & first run: log everything
         _e: dict[str, Any] = self.get_state(entity_id=self.schdl["entity"], attribute="all")
         for _k, _v in _e.items():
-            self.log(f"____{_k}: {_v}", level="INFO")
+            self.log(f"____{_k}: {_v}", level="DEBUG")
         # Initialize today's and tomorrow's schedules
         self.schedules_changed("schedules", "", "none", "new")
         _s = self.get_state(entity_id=self.schdl["entity"], attribute=self.schdl["attr"]["actual"])

@@ -23,7 +23,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
         # when debugging & first run: log everything
         _e: dict[str, Any] = self.get_state(entity_id=self.price["entity"], attribute="all")
         for _k, _v in _e.items():
-            self.log(f"____{_k}: {_v}", level="INFO")
+            self.log(f"____{_k}: {_v}", level="DEBUG")
         # Update today's and tomorrow's prices
         self.prices_changed("prices", "", "none", "new")
         _p = self.get_state(entity_id=self.price["entity"], attribute=self.price["attr"]["current"])

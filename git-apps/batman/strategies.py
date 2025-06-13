@@ -21,10 +21,10 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         # when debugging & first run: log everything
         _e: dict[str, Any] = self.get_state(entity_id=cs.ENT_BAT1_STRATEGY, attribute="all")
         for _k, _v in _e.items():
-            self.log(f"____{_k}: {_v}", level="INFO")
+            self.log(f"____{_k}: {_v}", level="DEBUG")
         _e = self.get_state(entity_id=cs.ENT_BAT2_STRATEGY, attribute="all")
         for _k, _v in _e.items():
-            self.log(f"____{_k}: {_v}", level="INFO")
+            self.log(f"____{_k}: {_v}", level="DEBUG")
         # Initialize today's and tomorrow's strategies
         # self.strategies_changed("strategies", "", "none", "new")
         # _s = self.get_state(entity_id=cs.ENT_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
