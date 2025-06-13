@@ -14,6 +14,7 @@ class BatMan(hass.Hass):  # type: ignore[misc]
         self.log(f"===================================== BatMan v{cs.VERSION} ====")
         # Keep track of active callbacks
         self.callback_handles: list[Any] = []
+        self.votes = {}
 
     def terminate(self):
         """Clean up app."""
@@ -28,3 +29,7 @@ class BatMan(hass.Hass):  # type: ignore[misc]
     def tell(self, caller: str, message: str):
         """Log a message."""
         self.log(f"_BatMan: {caller} said {message}")
+
+    def vote(self, caller: str, vote: str):
+        self.log(f"_BatMan: {caller} voted \t\t : {message}")
+        self.votes[caller] = vote
