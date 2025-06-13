@@ -33,3 +33,7 @@ class BatMan(hass.Hass):  # type: ignore[misc]
     def vote(self, caller: str, vote: str):
         self.log(f"_BatMan: {caller} voted \t\t\t : {vote}")
         self.votes[caller] = vote
+
+        self.log("_BatMan:  votes sofar:")
+        for _k, _v in self.votes.items():
+            self.log(f"_______: \t{_k}:\t{_v}", level="INFO")
