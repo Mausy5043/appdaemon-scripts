@@ -65,7 +65,7 @@ STRATEGIES: dict = {
 
 # BATTERIES settings
 BATTERIES: dict = {
-    "name": "bat",
+    "name": "bats",
     "entity": ["sensor.bat1_state_of_charge", "sensor.bat2_state_of_charge"],
     "attr": {
         "soc": "state",
