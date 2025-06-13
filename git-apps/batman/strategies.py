@@ -61,7 +61,7 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         # except (ValueError, TypeError):
         #     pass
         self.now_strategy = new
-        self.mgr.tell(self.price["name"], f"New strategy = {self.now_strategy} for {entity}")
+        self.mgr.tell(self.strat["name"], f"New strategy = {self.now_strategy} for {entity}")
 
     def get_strategies(self, date) -> list[int]:
         """Get the energy strategies for a specific date."""

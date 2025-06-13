@@ -85,11 +85,11 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         charge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[-3:]
         discharge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[:3]
         self.mgr.tell(
-            self.price["name"],
+            self.schdl["name"],
             f"Today's schedules    :\n{self.schdl['today']} \n : {charge_today} {discharge_today}.",
         )
         self.mgr.tell(
-            self.price["name"],
+            self.schdl["name"],
             f"Tomorrow's schedules :\n{self.schdl['tomor']} \n : {charge_tomorrow} {discharge_tomorrow}.",
         )
 
