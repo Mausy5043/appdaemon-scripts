@@ -64,7 +64,7 @@ class Schedules(hass.Hass):  # type: ignore[misc]
             pass
         self.schdl["actual"] = int(new)
         proposal: str = "NOM"
-        self.mgr.tell(self.price["name"], f"New schedule = {self.schdl["actual"]}")
+        self.mgr.tell(self.schdl["name"], f"New schedule = {self.schdl["actual"]}")
         if self.schdl["actual"] > 0:
             proposal = "DISCHARGE"
         if self.schdl["actual"] < 0:
