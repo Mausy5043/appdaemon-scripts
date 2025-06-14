@@ -1,4 +1,5 @@
 import contextlib
+import statistics as stat
 from collections import deque
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
@@ -20,7 +21,8 @@ class EigenBedrijf_Avg(hass.Hass):  # type: ignore[misc]
 
     def calculate_average(self, **kwargs):
         if self.values:
-            avg_value = round(sum(self.values) / len(self.values), 1)
-            self.set_state(self.avg_sensor, state=avg_value)
+            # avg_value = round(sum(self.values) / len(self.values), 1)
+            med_value = stat.median(self.values)
+            self.set_state(self.avg_sensor, state=med_value)
         else:
             self.set_state(self.avg_sensor, state=0)
