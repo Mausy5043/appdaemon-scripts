@@ -54,11 +54,10 @@ PRICES: dict = {
 # STRATEGIES settings
 STRATEGIES: dict = {
     "name": "strat",
-    "actual": 0,  # index of the current strategy
-    "entity": "select.bat1_power_strategy",
+    "actual": "NOM",  # index of the current strategy
+    "entity": ["sensor.bat1_state_of_charge", "sensor.bat2_state_of_charge"],
     "attr": {
         "current": "state",
-        "list": "options",
     },
     "manager": "the_batman",
 }
@@ -69,7 +68,6 @@ BATTERIES: dict = {
     "entity": ["sensor.bat1_state_of_charge", "sensor.bat2_state_of_charge"],
     "attr": {
         "soc": "state",
-        "power": "attributes",
     },
     "speed": 0.0,  # Speed of change %/h
     "soc": {
@@ -81,7 +79,7 @@ BATTERIES: dict = {
         "ll_limit": 0.1, #
         "l_limit": 25.0,  # vote charge when SoC is below this limit
         "h_limit": 95.0,  # vote discharge when SoC is above this limit
-        "hh_limit": 99.9,  # 
+        "hh_limit": 99.9,  #
     },
     "manager": "the_batman",
 }
