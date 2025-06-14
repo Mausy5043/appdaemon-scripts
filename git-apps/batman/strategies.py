@@ -56,15 +56,16 @@ class Strategies(hass.Hass):  # type: ignore[misc]
 
         self.strat["strategies"] = self.get_strategy_list()
 
-    def get_strategy_list(self):
+    def get_strategy_list(self) -> list[str]:
         """Get current strategy for all batteries."""
         strat_list = []
         for bat in self.strat["entity"]:
             _s: Any | None = self.get_state(entity_id=bat, attribute=self.strat["attr"]["current"])
             if _s is not None:
-                strat_list.append(_s)
+                strat_list.append(_s.upper())
             else:
-                strat_list.append("")
+                # If status is unknown we report IDLE
+                strat_list.append("IDLE")
         self.mgr.tell(self.strat["name"], f"Current strategies = {strat_list} %")
         return strat_list
 
