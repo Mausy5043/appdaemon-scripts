@@ -77,7 +77,7 @@ BATTERIES: dict = {
         "speed": 0.0,  # Speed of change %/h
         "speeds": [],  # List of speeds of change %/h
         "states": [],  # List of current SoCs
-        "ll_limit": 0.1, #
+        "ll_limit": 0.1,
         "l_limit": 25.0,  # vote charge when SoC is below this limit
         "h_limit": 95.0,  # vote discharge when SoC is above this limit
         "hh_limit": 99.9,  #

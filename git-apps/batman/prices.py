@@ -69,7 +69,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
                 self.price["name"],
                 f"Current price {self.price['actual']:.3f} is below Q1 ({self.price['today']['q1']:.3f})",
             )
-            self.mgr.vote(self.price["name"], "API(-2200)")     # CHARGE
+            self.mgr.vote(self.price["name"], "API(-2200)")  # CHARGE
         if self.price["actual"] > self.price["today"]["q3"]:
             self.mgr.tell(
                 self.price["name"],

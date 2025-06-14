@@ -17,9 +17,11 @@ def sort_index(lst: list, rev=True):
     s: list = [i[0] for i in sorted(enumerate(lst), key=lambda x: x[1], reverse=rev)]
     return s
 
+
 def next_hour(stamp: dt.datetime) -> dt.datetime:
     """Return stamp with minutes, seconds and microseconds set to zero and hour increased by 1h."""
     return stamp.replace(minute=0, second=0, microsecond=0) + dt.timedelta(hours=1)
+
 
 def next_half_hour(stamp: dt.datetime) -> dt.datetime:
     """Return stamp with seconds and microseconds set to zero and time advanced to the next full half-hour."""

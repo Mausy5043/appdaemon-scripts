@@ -1,4 +1,3 @@
-import datetime as dt
 from typing import Any
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
@@ -61,7 +60,7 @@ class Strategies(hass.Hass):  # type: ignore[misc]
 
     def get_strategy_list(self):
         """Get current strategy for all batteries."""
-        strat_list= []
+        strat_list = []
         for bat in self.strat["entity"]:
             _s: Any | None = self.get_state(entity_id=bat, attribute=self.strat["attr"]["current"])
             if _s is not None:
@@ -70,7 +69,6 @@ class Strategies(hass.Hass):  # type: ignore[misc]
                 strat_list.append("")
         self.mgr.tell(self.strat["name"], f"Current strategies = {strat_list} %")
         return strat_list
-
 
     # CALLBACKS
 

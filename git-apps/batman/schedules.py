@@ -66,9 +66,9 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         proposal: str = "NOM"
         self.mgr.tell(self.schdl["name"], f"New schedule = {self.schdl['actual']}")
         if self.schdl["actual"] > 0:
-            proposal = f"API({self.schdl['actual']})"   # DISCHARGE
+            proposal = f"API({self.schdl['actual']})"  # DISCHARGE
         if self.schdl["actual"] < 0:
-            proposal = f"API({self.schdl['actual']})"   # CHARGE
+            proposal = f"API({self.schdl['actual']})"  # CHARGE
         self.mgr.tell(caller=self.schdl["name"], message=f"Current schedule is {self.schdl['actual']}.")
         self.mgr.vote(self.schdl["name"], f"{proposal.upper()}")
 
