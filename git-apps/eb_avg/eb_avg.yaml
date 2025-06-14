@@ -1,0 +1,3 @@
+eb_avg:
+  module: eb_avg
+  class: EB_Avg
