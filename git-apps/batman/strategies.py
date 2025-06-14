@@ -1,3 +1,5 @@
+import time
+import contextlib
 from typing import Any
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
@@ -31,8 +33,8 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         # activate callbacks
         for bat in self.strat["entity"]:
             self.callback_handles.append(
-            self.listen_state(self.strategy_current_cb, bat, attribute=self.strat["attr"]["current"])
-        )
+                self.listen_state(self.strategy_current_cb, bat, attribute=self.strat["attr"]["current"])
+            )
 
     def terminate(self):
         """Clean up app."""
@@ -62,15 +64,16 @@ class Strategies(hass.Hass):  # type: ignore[misc]
             if _s is not None:
                 strat_list.append(_s.upper())
             else:
-                # If status is unknown we report IDLE
-                strat_list.append("IDLE")
+                # If status is unknown we report UNKNOWN
+                strat_list.append("UNKNOWN")
         self.mgr.tell(self.strat["name"], f"Current strategies = {strat_list}")
         return strat_list
 
     # CALLBACKS
 
     def strategy_current_cb(self, entity, attribute, old, new, **kwargs):
-        """Callback for current strategy change."""
+        with contextlib.suppress(Exception):
+            time.sleep(1.0)  # this is frowned upon, but doing it anyway as impact is low and solution is too much work
         self.strategy_changed(entity, attribute, old, new, **kwargs)
 
 
