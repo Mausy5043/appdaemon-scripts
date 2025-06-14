@@ -26,7 +26,7 @@ class Strategies(hass.Hass):  # type: ignore[misc]
             for _k, _v in _e.items():
                 self.log(f"_{bat}___{_k}: {_v}", level="DEBUG")
 
-        self.strat["strategies"] = self.get_strategy_list()
+        self.strategy_changed("internal", "all", "old", "new")  # dummy parameters
 
         # activate callbacks
         for bat in self.strat["entity"]:
