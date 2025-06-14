@@ -30,7 +30,7 @@ class BatMan(hass.Hass):  # type: ignore[misc]
         """Log a message."""
         self.log(f"_BatMan: {caller} said {message}")
 
-    def vote(self, caller: str, vote: str, veto: bool = False):
+    def vote(self, caller: str, vote: list[str], veto: bool = False):
         self.log(f"_BatMan: {caller} voted \t\t\t : {vote}")
         self.votes[caller] = vote
 
