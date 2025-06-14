@@ -55,7 +55,7 @@ PRICES: dict = {
 STRATEGIES: dict = {
     "name": "strat",
     "actual": "NOM",  # index of the current strategy
-    "entity": ["sensor.bat1_state_of_charge", "sensor.bat2_state_of_charge"],
+    "entity": ["select.bat1_power_strategy", "select.bat2_power_strategy"],
     "attr": {
         "current": "state",
     },

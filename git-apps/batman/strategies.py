@@ -29,11 +29,9 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         self.strat["strategies"] = self.get_strategy_list()
 
         # activate callbacks
-        self.callback_handles.append(
-            self.listen_state(self.strategy_current_cb, cs.ENT_BAT1_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
-        )
-        self.callback_handles.append(
-            self.listen_state(self.strategy_current_cb, cs.ENT_BAT2_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
+        for bat in self.strat["entity"]:
+            self.callback_handles.append(
+            self.listen_state(self.strategy_current_cb, bat, attribute=self.strat["attr"]["current"])
         )
 
     def terminate(self):
