@@ -64,12 +64,12 @@ class Schedules(hass.Hass):  # type: ignore[misc]
             pass
         self.schdl["actual"] = int(new)
         proposal: str = "NOM"
-        self.mgr.tell(self.schdl["name"], f"New schedule = {self.schdl["actual"]}")
+        self.mgr.tell(self.schdl["name"], f"New schedule = {self.schdl['actual']}")
         if self.schdl["actual"] > 0:
-            proposal = "DISCHARGE"
+            proposal = f"API({self.schdl['actual']})"   # DISCHARGE
         if self.schdl["actual"] < 0:
-            proposal = "CHARGE"
-        self.mgr.tell(caller=self.schdl["name"], message=f"Current schedule is {self.schdl["actual"]}.")
+            proposal = f"API({self.schdl['actual']})"   # CHARGE
+        self.mgr.tell(caller=self.schdl["name"], message=f"Current schedule is {self.schdl['actual']}.")
         self.mgr.vote(self.schdl["name"], f"{proposal.upper()}")
 
     def schedules_changed(self, entity, attribute, old, new, **kwargs):

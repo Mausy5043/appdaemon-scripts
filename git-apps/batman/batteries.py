@@ -81,9 +81,9 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.mgr.tell(self.bats["name"], f"Speed of change = {self.bats["soc"]["speed"]:.2f} %/h")
 
         if self.bats["soc"]["now"] > self.bats["soc"]["hi_limit"]:
-            self.mgr.vote(self.bats["name"], "DISCHARGE")
+            self.mgr.vote(self.bats["name"], "API(1700)")   # DISCHARGE
         elif self.bats["soc"]["now"] < self.bats["soc"]["lo_limit"]:
-            self.mgr.vote(self.bats["name"], "CHARGE")
+            self.mgr.vote(self.bats["name"], "API(-2200)") # CHARGE
         else:
             self.mgr.vote(self.bats["name"], "NOM")
 
