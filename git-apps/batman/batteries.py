@@ -7,6 +7,8 @@ import utils as ut
 
 """Handle energy batteries for Batman app."""
 
+# TODO: also monitor: input_boolean.evneedspwr
+
 
 class Batteries(hass.Hass):  # type: ignore[misc]
     def initialize(self):
