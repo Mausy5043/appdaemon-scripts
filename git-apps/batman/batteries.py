@@ -38,7 +38,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         now = dt.datetime.now()
         run_at = ut.next_half_hour(now)
         # Update in half an hour
-        self.callback_handles.append(self.run_at(self.update_soc_cb, run_at))
+        self.run_at(self.update_soc_cb, run_at)
 
     def terminate(self):
         """Clean up app."""
@@ -101,7 +101,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         # Update again in half an hour
         now = dt.datetime.now()
         run_at = ut.next_half_hour(now)
-        self.callback_handles.append(self.run_at(self.update_soc_cb, run_at))
+        self.run_at(self.update_soc_cb, run_at)
 
 
 """
