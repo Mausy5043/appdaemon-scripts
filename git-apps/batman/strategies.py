@@ -22,7 +22,7 @@ class Strategies(hass.Hass):  # type: ignore[misc]
 
         # when debugging & first run:
         # log everything
-        for bat in self.bats["entity"]:
+        for bat in self.strat["entity"]:
             _e: dict[str, Any] = self.get_state(entity_id=bat, attribute="all")
             for _k, _v in _e.items():
                 self.log(f"_{bat}___{_k}: {_v}", level="DEBUG")
@@ -62,8 +62,8 @@ class Strategies(hass.Hass):  # type: ignore[misc]
     def get_strategy_list(self):
         """Get current strategy for all batteries."""
         strat_list= []
-        for bat in self.strats["entity"]:
-            _s: Any | None = self.get_state(entity_id=bat, attribute=self.strats["attr"]["current"])
+        for bat in self.strat["entity"]:
+            _s: Any | None = self.get_state(entity_id=bat, attribute=self.strat["attr"]["current"])
             if _s is not None:
                 strat_list.append(_s)
             else:
