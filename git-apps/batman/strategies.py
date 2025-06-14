@@ -1,5 +1,5 @@
-import time
 import contextlib
+import time
 from typing import Any
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
@@ -73,7 +73,8 @@ class Strategies(hass.Hass):  # type: ignore[misc]
 
     def strategy_current_cb(self, entity, attribute, old, new, **kwargs):
         with contextlib.suppress(Exception):
-            time.sleep(1.0)  # this is frowned upon, but doing it anyway as impact is low and solution is too much work
+            # this is frowned upon, but doing it anyway as impact is low and solution is too much work
+            time.sleep(1.0)
         self.strategy_changed(entity, attribute, old, new, **kwargs)
 
 
