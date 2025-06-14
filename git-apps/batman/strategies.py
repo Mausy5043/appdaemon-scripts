@@ -46,15 +46,13 @@ class Strategies(hass.Hass):  # type: ignore[misc]
 
     def strategy_changed(self, entity, attribute, old, new, **kwargs):
         """Log change of current strategy."""
-        # try:
-        #     old = f"{int(old)}"
-        #     new = f"{int(new)}"
-        # except (ValueError, TypeError):
-        #     pass
-        self.now_strategy = new
-        self.mgr.tell(self.strat["name"], f"New strategy = {self.now_strategy} for {entity}")
-
+        # update strategy for both batteries when one of them changes
         self.strat["strategies"] = self.get_strategy_list()
+
+        # voting logic will be called here
+        # ...
+        # ...
+        self.mgr.vote(self.strat["name"], self.strat["strategies"])
 
     def get_strategy_list(self) -> list[str]:
         """Get current strategy for all batteries."""
