@@ -64,7 +64,7 @@ class Strategies(hass.Hass):  # type: ignore[misc]
             else:
                 # If status is unknown we report IDLE
                 strat_list.append("IDLE")
-        self.mgr.tell(self.strat["name"], f"Current strategies = {strat_list} %")
+        self.mgr.tell(self.strat["name"], f"Current strategies = {strat_list}")
         return strat_list
 
     # CALLBACKS
