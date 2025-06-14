@@ -1,6 +1,6 @@
 """Provides constants for the Batman app."""
 
-VERSION = "0.0.5"
+VERSION = "0.0.8"
 
 # SCHEDULES settings
 # schedules are used to propose the charge/discharge power of the batteries for each hour
@@ -59,6 +59,7 @@ STRATEGIES: dict = {
     "attr": {
         "current": "state",
     },
+    "strategies": [],
     "manager": "the_batman",
 }
 

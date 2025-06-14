@@ -10,32 +10,26 @@ import const as cs
 class Strategies(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
+        self.log(f"================================= Strategies v{cs.VERSION} ====")
         # Keep track of active callbacks
         self.callback_handles: list[Any] = []
+
         self.strat = cs.STRATEGIES
         self.mgr = self.get_app(self.strat["manager"])
         if not self.mgr:
             self.log(f"__ERROR: {self.strat['manager']} app not found!", level="ERROR")
             return
 
-        # Define the entities and attributes to listen to
-        #
-        # Initialize current strategy and today's and tomorrow's list of strategies
-        self.bat1_strategy: int = cs.CUR_STRATEGY_IDX
-        self.bat2_strategy: int = cs.CUR_STRATEGY_IDX
-        self.log(f"================================= Strategies v{cs.VERSION} ====")
-        # when debugging & first run: log everything
-        _e: dict[str, Any] = self.get_state(entity_id=cs.ENT_BAT1_STRATEGY, attribute="all")
-        for _k, _v in _e.items():
-            self.log(f"____{_k}: {_v}", level="INFO")
-        _e = self.get_state(entity_id=cs.ENT_BAT2_STRATEGY, attribute="all")
-        for _k, _v in _e.items():
-            self.log(f"____{_k}: {_v}", level="INFO")
-        # Initialize today's and tomorrow's strategies
-        # self.strategies_changed("strategies", "", "none", "new")
-        # _s = self.get_state(entity_id=cs.ENT_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
-        # self.strategy_changed("strategy", cs.CUR_STRATEGY_ATTR, "none", _s)
+        # when debugging & first run:
+        # log everything
+        for bat in self.bats["entity"]:
+            _e: dict[str, Any] = self.get_state(entity_id=bat, attribute="all")
+            for _k, _v in _e.items():
+                self.log(f"_{bat}___{_k}: {_v}", level="DEBUG")
 
+        self.strat["strategies"] = self.get_strategy_list()
+
+        # activate callbacks
         self.callback_handles.append(
             self.listen_state(self.strategy_current_cb, cs.ENT_BAT1_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
         )
@@ -63,17 +57,20 @@ class Strategies(hass.Hass):  # type: ignore[misc]
         self.now_strategy = new
         self.mgr.tell(self.strat["name"], f"New strategy = {self.now_strategy} for {entity}")
 
-    def get_strategies(self, date) -> list[int]:
-        """Get the energy strategies for a specific date."""
-        no_strategies: list[int] = [0] * 24
-        _s: list[int] = no_strategies
-        if isinstance(date, dt.date):
-            date_str: str = date.strftime("%Y-%m-%d")
-            attr: dict = self.get_state(entity_id=cs.ENT_STRATEGY, attribute=cs.CUR_STRATEGY_ATTR)
-            _s = attr.get(date_str, no_strategies)
-        else:
-            self.log(f"Invalid date: {date}", level="ERROR")
-        return _s
+        self.strat["strategies"] = self.get_strategy_list()
+
+    def get_strategy_list(self):
+        """Get current strategy for all batteries."""
+        strat_list= []
+        for bat in self.strats["entity"]:
+            _s: Any | None = self.get_state(entity_id=bat, attribute=self.strats["attr"]["current"])
+            if _s is not None:
+                strat_list.append(_s)
+            else:
+                strat_list.append("")
+        self.mgr.tell(self.strat["name"], f"Current strategies = {strat_list} %")
+        return strat_list
+
 
     # CALLBACKS
 
