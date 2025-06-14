@@ -1,5 +1,6 @@
 import datetime as dt
 from typing import Any
+import utils as ut
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import const as cs
@@ -33,10 +34,9 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.update_socs()
 
         now = dt.datetime.now()
-        # get number of seconds to the next polling interval
-        seconds_to_next_half_hour: int = (cs.POLL_SOC - now.minute % cs.POLL_SOC) * 60 - now.second
+        run_at = ut.next_half_hour(now)
         # Update in half an hour
-        self.run_in(self.update_soc_cb, dt.timedelta(seconds=seconds_to_next_half_hour))
+        self.callback_handles.append(self.run_at(self.update_soc_cb, run_at))
 
     def terminate(self):
         """Clean up app."""
@@ -79,22 +79,27 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         if len(self.bats["soc"]["speeds"]) > 3:
             self.bats["soc"]["speeds"].pop(0)
         self.mgr.tell(self.bats["name"], f"Speed of change = {self.bats["soc"]["speed"]:.2f} %/h")
+        veto = False
+        vote = "NOM"
+        if self.bats["soc"]["now"] > self.bats["soc"]["h_limit"]:
+            vote = "API(1700)"   # DISCHARGE
+        if self.bats["soc"]["now"] > self.bats["soc"]["hh_limit"]:
+            vote = "API(1700)"   # BATTERY FULL
+        if self.bats["soc"]["now"] < self.bats["soc"]["l_limit"]:
+            vote = "API(-2200)"  # CHARGE
+        if self.bats["soc"]["now"] < self.bats["soc"]["ll_limit"]:
+            vote = "NOM"  # BATTERY EMPTY
+        self.mgr.vote(self.bats["name"], vote, veto)
 
-        if self.bats["soc"]["now"] > self.bats["soc"]["hi_limit"]:
-            self.mgr.vote(self.bats["name"], "API(1700)")   # DISCHARGE
-        elif self.bats["soc"]["now"] < self.bats["soc"]["lo_limit"]:
-            self.mgr.vote(self.bats["name"], "API(-2200)") # CHARGE
-        else:
-            self.mgr.vote(self.bats["name"], "NOM")
+    # CALLBACKS
 
     def update_soc_cb(self, **kwargs) -> None:
         """Callback to update state of charge."""
         self.update_socs()
         # Update again in half an hour
         now = dt.datetime.now()
-        # get number of seconds to the next polling interval
-        seconds_to_next_half_hour = (cs.POLL_SOC - now.minute % cs.POLL_SOC) * 60 - now.second
-        self.run_in(self.update_soc_cb, dt.timedelta(seconds=seconds_to_next_half_hour))
+        run_at = ut.next_half_hour(now)
+        self.callback_handles.append(self.run_at(self.update_soc_cb, run_at))
 
 
 """
