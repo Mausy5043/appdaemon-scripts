@@ -86,11 +86,11 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         veto = False
         vote: list = ["NOM"]
         if self.bats["soc"]["now"] > self.bats["soc"]["h_limit"]:
-            vote = ["API(1700)"]  # DISCHARGE
+            vote = ["API,1700"]  # DISCHARGE
         if self.bats["soc"]["now"] > self.bats["soc"]["hh_limit"]:
-            vote = ["API(1700)"]  # BATTERY FULL
+            vote = ["API,1700"]  # BATTERY FULL
         if self.bats["soc"]["now"] < self.bats["soc"]["l_limit"]:
-            vote = ["API(-2200)"]  # CHARGE
+            vote = ["API,-2200"]  # CHARGE
         if self.bats["soc"]["now"] < self.bats["soc"]["ll_limit"]:
             vote = ["NOM"]  # BATTERY EMPTY
         self.mgr.vote(self.bats["name"], vote, veto)
