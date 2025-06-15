@@ -81,7 +81,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
             self.bats["soc"]["speeds"].pop(0)
         self.mgr.tell(
             self.bats["name"],
-            f"SoC = {self.bats["soc"]["now"]:.1f} % changing at {self.bats["soc"]["speed"]:.2f} %/h",
+            f"Current SoC = {self.bats["soc"]["now"]:.1f} % changing at {self.bats["soc"]["speed"]:.2f} %/h",
         )
         veto = False
         vote: list = ["NOM"]
