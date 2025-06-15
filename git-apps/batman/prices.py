@@ -81,9 +81,9 @@ class Prices(hass.Hass):  # type: ignore[misc]
 
         now_hour = dt.datetime.now().hour
         if now_hour in self.price["cheap_hour"]:
-            _v += ["API,1700"]
-        if now_hour in self.price["expen_hour"]:
             _v += ["API,-2200"]
+        if now_hour in self.price["expen_hour"]:
+            _v += ["API,1700"]
 
         if _t:
             self.mgr.tell(self.price["name"], _t)

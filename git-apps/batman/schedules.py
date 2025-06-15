@@ -71,9 +71,9 @@ class Schedules(hass.Hass):  # type: ignore[misc]
 
         now_hour = dt.datetime.now().hour
         if now_hour in self.schdl["cheap_hour"]:
-            _v += ["API,1700"]
-        if now_hour in self.schdl["expen_hour"]:
             _v += ["API,-2200"]
+        if now_hour in self.schdl["expen_hour"]:
+            _v += ["API,1700"]
 
         self.mgr.tell(caller=self.schdl["name"], message=f"Current schedule is {self.schdl['actual']}.")
         self.mgr.vote(self.schdl["name"], _v)
