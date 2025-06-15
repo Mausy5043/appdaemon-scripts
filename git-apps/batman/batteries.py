@@ -60,7 +60,6 @@ class Batteries(hass.Hass):  # type: ignore[misc]
             else:
                 soc_list.append(0.0)
         soc_now: float = sum(soc_list) / len(soc_list) if soc_list else 0.0
-        self.mgr.tell(self.bats["name"], f"Total SoC = {soc_now} % <- {soc_list} %")
         return soc_now, soc_list
 
     def update_socs(self):
@@ -80,7 +79,10 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         # Keep only a few speeds to avoid too much influence on prediction
         if len(self.bats["soc"]["speeds"]) > 3:
             self.bats["soc"]["speeds"].pop(0)
-        self.mgr.tell(self.bats["name"], f"Speed of change = {self.bats["soc"]["speed"]:.2f} %/h")
+        self.mgr.tell(
+            self.bats["name"],
+            f"SoC = {self.bats["soc"]["now"]:.1f} % changing at {self.bats["soc"]["speed"]:.2f} %/h",
+        )
         veto = False
         vote: list = ["NOM"]
         if self.bats["soc"]["now"] > self.bats["soc"]["h_limit"]:
