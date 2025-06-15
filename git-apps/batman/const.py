@@ -74,7 +74,7 @@ BATTERIES: dict = {
         "soc": "state",
     },
     "speed": 0.0,  # Speed of change %/h
-    "baseload": 2.75, # %/h
+    "baseload": 2.75,  # %/h
     "soc": {
         "now": 0.0,
         "prev": 0.0,  # Previous state of charge
@@ -123,8 +123,8 @@ LOG_MSG_LISTENING = "\n\t*** Listening to entity: {}, attribute: {}"
 LOG_MSG_ENTITY = "____{}: {}"
 
 TALLY = {
-    "NOM": 0,
-    "API+": 0,
-    "API-": 0,
-    "IDLE": 0,
+    "NOM": 0,  # Keep P1 CT at 0 (no import from or export to grid)
+    "API+": 0,  # discharge (*to* the home/grid) votes
+    "API-": 0,  # charge (*from* the grid) votes
+    "IDLE": 0,  # hold votes (e.g.: EV charging)
 }
