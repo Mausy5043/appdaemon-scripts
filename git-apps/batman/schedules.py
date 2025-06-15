@@ -65,9 +65,9 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         self.schdl["actual"] = int(new)
         _v = ["NOM"]
         if self.schdl["actual"] > 0:
-            _v = [f"API({self.schdl['actual']})"]  # DISCHARGE
+            _v = [f"API,{self.schdl['actual']}"]  # DISCHARGE
         if self.schdl["actual"] < 0:
-            _v = [f"API({self.schdl['actual']})"]  # CHARGE
+            _v = [f"API,{self.schdl['actual']}"]  # CHARGE
 
         now_hour = dt.datetime.now().hour
         if now_hour in self.schdl["cheap_hour"]:
