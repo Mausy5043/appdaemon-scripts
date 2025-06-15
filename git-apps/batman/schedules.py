@@ -80,16 +80,21 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         self.schdl["today"] = self.get_schedules(today)
         self.schdl["tomor"] = self.get_schedules(tomorrow)
         charge_today = ut.sort_index(self.schdl["today"], rev=True)[-3:]
+        charge_today.sort()
         discharge_today = ut.sort_index(self.schdl["today"], rev=True)[:3]
+        discharge_today.sort()
         charge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[-3:]
+        charge_tomorrow.sort()
         discharge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[:3]
+        discharge_tomorrow.sort()
+
         self.mgr.tell(
             self.schdl["name"],
-            f"Today's schedules    :\n{self.schdl['today']} \n : {charge_today.sort()} {discharge_today.sort()}.",
+            f"Today's schedules    :\n{self.schdl['today']} \n : {charge_today} {discharge_today}.",
         )
         self.mgr.tell(
             self.schdl["name"],
-            f"Tomorrow's schedules :\n{self.schdl['tomor']} \n : {charge_tomorrow.sort()} {discharge_tomorrow.sort()}.",
+            f"Tomorrow's schedules :\n{self.schdl['tomor']} \n : {charge_tomorrow} {discharge_tomorrow}.",
         )
 
     def get_schedules(self, date) -> list[int]:

@@ -98,8 +98,10 @@ class Prices(hass.Hass):  # type: ignore[misc]
         self.price["today"]["q3"] = quantiles(_p, n=4, method="inclusive")[2]
         self.price["today"]["max"] = max(_p)
 
-        charge_today = ut.sort_index(_p, rev=True)[-3:].sort()
-        discharge_today = ut.sort_index(_p, rev=True)[:3].sort()
+        charge_today = ut.sort_index(_p, rev=True)[-3:]
+        charge_today.sort()
+        discharge_today = ut.sort_index(_p, rev=True)[:3]
+        discharge_today.sort()
         _s = self.format_price_statistics(self.price["today"])
         self.mgr.tell(self.price["name"], f"Today's prices    :\n{_p}\n {_s} : {charge_today} {discharge_today}.")
 
@@ -114,14 +116,15 @@ class Prices(hass.Hass):  # type: ignore[misc]
         self.price["tomor"]["max"] = max(_p)
 
         charge_tomor = ut.sort_index(_p, rev=True)[-3:]
+        charge_tomor.sort()
         discharge_tomor = ut.sort_index(_p, rev=True)[:3]
-
+        discharge_tomor.sort()
 
         if min(_p) < max(_p):
             # only communicate prices for tomorrow if they are known (minimum is not maximum)
             _s = self.format_price_statistics(self.price["tomor"])
             self.mgr.tell(
-            self.price["name"], f"Tomorrow's prices :\n{_p}\n {_s} : {charge_tomor.sort()} {discharge_tomor.sort()}."
+            self.price["name"], f"Tomorrow's prices :\n{_p}\n {_s} : {charge_tomor} {discharge_tomor}."
             )
 
     @staticmethod
