@@ -88,14 +88,18 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         discharge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[:3]
         discharge_tomorrow.sort()
 
+        self.schdl["cheap_hour"] = charge_today
+        self.schdl["expen_hour"] = discharge_today
+
         self.mgr.tell(
             self.schdl["name"],
             f"Today's schedules    :\n{self.schdl['today']} \n : {charge_today} {discharge_today}.",
         )
-        self.mgr.tell(
-            self.schdl["name"],
-            f"Tomorrow's schedules :\n{self.schdl['tomor']} \n : {charge_tomorrow} {discharge_tomorrow}.",
-        )
+        if min(self.schdl['tomor']) == max(self.schdl['tomor']);
+            self.mgr.tell(
+                self.schdl["name"],
+                f"Tomorrow's schedules :\n{self.schdl['tomor']} \n : {charge_tomorrow} {discharge_tomorrow}.",
+            )
 
     def get_schedules(self, date) -> list[int]:
         """Get the energy schedules for a specific date."""
