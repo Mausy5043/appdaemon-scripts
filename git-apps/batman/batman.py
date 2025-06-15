@@ -44,5 +44,7 @@ class BatMan(hass.Hass):  # type: ignore[misc]
         tally: dict[str, int] = cs.TALLY.copy()
         for _k, votes in self.votes.items():
             for vote in votes:
+                if "API" in vote:
+                    vote = "API"
                 tally[vote] += 1
         self.log(f"{tally} => {max(tally, key=lambda k: tally[k])}")
