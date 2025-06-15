@@ -69,12 +69,14 @@ class Prices(hass.Hass):  # type: ignore[misc]
         # Check if the current price is below the threshold
         if self.price["actual"] < self.price["today"]["q1"]:
             _t = f"Current price is below Q1 ({self.price['today']['q1']:.3f}): {self.price['actual']:.3f}"
-            _v =  ["API(-2200)"]  # CHARGE
+            _v = ["API(-2200)"]  # CHARGE
         if self.price["actual"] > self.price["today"]["q3"]:
             _t = f"Current price is above Q3 ({self.price['today']['q3']:.3f}): {self.price['actual']:.3f}"
             _v = ["API(1700)"]  # DISCHARGE
         if self.price["today"]["q1"] < self.price["actual"] < self.price["today"]["q3"]:
-            _t = f"Current price is between Q1 ({self.price['today']['q1']:.3f}) and Q3 ({self.price['today']['q3']:.3f}): {self.price['actual']:.3f}"
+            _t = f"Current price is between Q1 ({self.price['today']['q1']:.3f}) and Q3 ({
+                self.price['today']['q3']:.3f
+            }): {self.price['actual']:.3f}"
             _v = ["NOM"]
 
         now_hour = dt.datetime.now().hour
@@ -86,8 +88,6 @@ class Prices(hass.Hass):  # type: ignore[misc]
         if _t:
             self.mgr.tell(self.price["name"], _t)
         self.mgr.vote(self.price["name"], _v)
-
-
 
     def prices_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy prices."""
@@ -113,7 +113,9 @@ class Prices(hass.Hass):  # type: ignore[misc]
         self.price["expen_hour"] = discharge_today
 
         _s = self.format_price_statistics(self.price["today"])
-        self.mgr.tell(self.price["name"], f"Today's prices    :\n{_p}\n {_s} : {charge_today} {discharge_today}.")
+        self.mgr.tell(
+            self.price["name"], f"Today's prices    :\n{_p}\n {_s} : {charge_today} {discharge_today}."
+        )
 
         # update list of prices for tomorrow
         _p = self.get_prices(tomorrow)
@@ -125,7 +127,6 @@ class Prices(hass.Hass):  # type: ignore[misc]
         self.price["tomor"]["q3"] = quantiles(_p, n=4, method="inclusive")[2]
         self.price["tomor"]["max"] = max(_p)
 
-
         if min(_p) < max(_p):
             # only communicate prices for tomorrow if they are known (minimum is not maximum)
             charge_tomor = ut.sort_index(_p, rev=True)[-3:]
@@ -135,7 +136,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
 
             _s = self.format_price_statistics(self.price["tomor"])
             self.mgr.tell(
-            self.price["name"], f"Tomorrow's prices :\n{_p}\n {_s} : {charge_tomor} {discharge_tomor}."
+                self.price["name"], f"Tomorrow's prices :\n{_p}\n {_s} : {charge_tomor} {discharge_tomor}."
             )
 
     @staticmethod

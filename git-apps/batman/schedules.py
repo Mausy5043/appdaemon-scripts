@@ -102,7 +102,7 @@ class Schedules(hass.Hass):  # type: ignore[misc]
             self.schdl["name"],
             f"Today's schedules    :\n{self.schdl['today']} \n : {charge_today} {discharge_today}.",
         )
-        if min(self.schdl['tomor']) < max(self.schdl['tomor']):
+        if min(self.schdl["tomor"]) < max(self.schdl["tomor"]):
             self.mgr.tell(
                 self.schdl["name"],
                 f"Tomorrow's schedules :\n{self.schdl['tomor']} \n : {charge_tomorrow} {discharge_tomorrow}.",
