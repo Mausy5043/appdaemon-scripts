@@ -64,7 +64,6 @@ class Schedules(hass.Hass):  # type: ignore[misc]
             pass
         self.schdl["actual"] = int(new)
         _v = ["NOM"]
-        # self.mgr.tell(self.schdl["name"], f"New schedule = {self.schdl['actual']}")
         if self.schdl["actual"] > 0:
             _v = [f"API({self.schdl['actual']})"]  # DISCHARGE
         if self.schdl["actual"] < 0:
@@ -77,7 +76,7 @@ class Schedules(hass.Hass):  # type: ignore[misc]
             _v += ["API(-2200)"]
 
         self.mgr.tell(caller=self.schdl["name"], message=f"Current schedule is {self.schdl['actual']}.")
-        self.mgr.vote(self.schdl["name"], [f"{_v}"])
+        self.mgr.vote(self.schdl["name"], _v)
 
     def schedules_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy schedules."""
