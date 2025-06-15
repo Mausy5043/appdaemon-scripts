@@ -42,7 +42,7 @@ class BatMan(hass.Hass):  # type: ignore[misc]
 
     def judge(self):
         tally: dict[str, int] = cs.TALLY
-        for _k, votes in self.votes:
+        for _k, votes in self.votes.items():
             for vote in votes:
                 tally[vote] += 1
         self.log(f"{tally}")
