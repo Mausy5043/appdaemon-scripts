@@ -79,10 +79,10 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         tomorrow = today + dt.timedelta(days=1)
         self.schdl["today"] = self.get_schedules(today)
         self.schdl["tomor"] = self.get_schedules(tomorrow)
-        charge_today = ut.sort_index(self.schdl["today"], rev=True)[-3:]
-        discharge_today = ut.sort_index(self.schdl["today"], rev=True)[:3]
-        charge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[-3:]
-        discharge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[:3]
+        charge_today = ut.sort_index(self.schdl["today"], rev=True)[-3:].sort()
+        discharge_today = ut.sort_index(self.schdl["today"], rev=True)[:3].sort()
+        charge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[-3:].sort()
+        discharge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[:3].sort()
         self.mgr.tell(
             self.schdl["name"],
             f"Today's schedules    :\n{self.schdl['today']} \n : {charge_today} {discharge_today}.",
