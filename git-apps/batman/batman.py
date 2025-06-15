@@ -45,4 +45,4 @@ class BatMan(hass.Hass):  # type: ignore[misc]
         for _k, votes in self.votes.items():
             for vote in votes:
                 tally[vote] += 1
-        self.log(f"{tally}")
+        self.log(f"{tally} => {max(tally, key=lambda k: tally[k])}")
