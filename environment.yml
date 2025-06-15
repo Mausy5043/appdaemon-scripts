@@ -1,6 +1,6 @@
 ---
 
-# conda -v env update --file environment.ym
+# conda -v env update --file environment.yml
 
 name: appdaemon
 
@@ -19,3 +19,4 @@ dependencies:
 - pre-commit
 - black
 - isort
+- types-pytz
