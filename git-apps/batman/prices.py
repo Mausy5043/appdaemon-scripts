@@ -58,7 +58,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
             pass
         _p: list[float] = [float(new)]
         self.price["actual"] = self.total_price(_p)[0]
-        self.mgr.tell(self.price["name"], f"New price = {self.price['actual']:.3f} cents/kWh")
+        # self.mgr.tell(self.price["name"], f"New price = {self.price['actual']:.3f} cents/kWh")
         self.eval_price()
 
     def eval_price(self):
@@ -67,22 +67,19 @@ class Prices(hass.Hass):  # type: ignore[misc]
         if self.price["actual"] < self.price["today"]["q1"]:
             self.mgr.tell(
                 self.price["name"],
-                f"Current price {self.price['actual']:.3f} is below Q1 ({self.price['today']['q1']:.3f})",
+                f"Current price is below Q1 ({self.price['today']['q1']:.3f}): {self.price['actual']:.3f} ct/kWh",
             )
             self.mgr.vote(self.price["name"], ["API(-2200)"])  # CHARGE
         if self.price["actual"] > self.price["today"]["q3"]:
             self.mgr.tell(
                 self.price["name"],
-                f"Current price {self.price['actual']:.3f} is above Q3 ({self.price['today']['q3']:.3f})",
+                f"Current price is above Q3 ({self.price['today']['q3']:.3f}): {self.price['actual']:.3f} ct/kWh",
             )
             self.mgr.vote(self.price["name"], ["API(1700)"])  # DISCHARGE
         if self.price["today"]["q1"] < self.price["actual"] < self.price["today"]["q3"]:
             self.mgr.tell(
                 self.price["name"],
-                f"Current price {self.price['actual']:.3f} is between Q1 ({
-                    self.price['today']['q1']:.3f
-                }) and Q3 ({self.price['today']['q3']:.3f})",
-            )
+                f"Current price is between Q1 ({self.price['today']['q1']:.3f}) and Q3 ({self.price['today']['q3']:.3f}): {self.price['actual']:.3f} ct/kWh")
             self.mgr.vote(self.price["name"], ["NOM"])
 
     def prices_changed(self, entity, attribute, old, new, **kwargs):
@@ -113,8 +110,10 @@ class Prices(hass.Hass):  # type: ignore[misc]
         self.price["tomor"]["q3"] = quantiles(_p, n=4, method="inclusive")[2]
         self.price["tomor"]["max"] = max(_p)
 
-        self.mgr.tell(self.price["name"], f"Tomorrow's prices :\n{_p}\n .")
-        self.mgr.tell(self.price["name"], self.format_price_statistics(self.price["tomor"]))
+        if min(_p) < max(_p):
+            # only communicate prices for tomorrow if they are known (minimum is not maximum)
+            self.mgr.tell(self.price["name"], f"Tomorrow's prices :\n{_p}\n .")
+            self.mgr.tell(self.price["name"], self.format_price_statistics(self.price["tomor"]))
 
     @staticmethod
     def format_price_statistics(price: dict) -> str:
