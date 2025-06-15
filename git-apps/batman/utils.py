@@ -1,8 +1,8 @@
 import datetime as dt
-
-import pytz
-import const as cs
 import math
+
+import const as cs
+import pytz
 
 """Utility functions for the Batman apps."""
 
@@ -21,9 +21,11 @@ def sort_index(lst: list, rev=True):
     s: list = [i[0] for i in sorted(enumerate(lst), key=lambda x: x[1], reverse=rev)]
     return s
 
+
 def next_hour(stamp: dt.datetime) -> dt.datetime:
     """Return stamp with minutes, seconds and microseconds set to zero and hour increased by 1h."""
     return stamp.replace(minute=0, second=0, microsecond=0) + dt.timedelta(hours=1)
+
 
 def next_half_hour(stamp: dt.datetime) -> dt.datetime:
     """Return stamp with seconds and microseconds set to zero and time advanced to the next full half-hour."""
@@ -34,6 +36,7 @@ def next_half_hour(stamp: dt.datetime) -> dt.datetime:
         next_time += dt.timedelta(hours=1)
 
     return next_time
+
 
 def hours_until_next_10am() -> int:
     """Calculate the number of hours until the next 10 A.M."""

@@ -2,7 +2,7 @@
 
 VERSION = "0.0.8"
 
-TZ = 'Europe/Amsterdam'
+TZ = "Europe/Amsterdam"
 
 # SCHEDULES settings
 # schedules are used to propose the charge/discharge power of the batteries for each hour
