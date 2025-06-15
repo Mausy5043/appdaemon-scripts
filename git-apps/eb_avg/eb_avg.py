@@ -14,7 +14,7 @@ class EigenBedrijf_Avg(hass.Hass):  # type: ignore[misc]
         self.log(f"===================================== EigenBedrijf_Avg v{VERSION} ====")
         self.sensor = "sensor.eigen_bedrijf"
         self.avg_sensor = "sensor.eigen_bedrijf_avg"
-        self.values = deque(maxlen=6)  # Stores up to 60 values
+        self.values: deque[float] = deque(maxlen=6)
         self.listen_state(self.collect_value, self.sensor)
         self.run_every(self.calculate_average, "now", 60)
 
