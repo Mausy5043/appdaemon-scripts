@@ -6,9 +6,11 @@ import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 
 """Calculate moving average of Eigen Bedrijf to dampen peaks."""
 
+VERSION = "1.0.0"
 
 class EigenBedrijf_Avg(hass.Hass):  # type: ignore[misc]
     def initialize(self):
+        self.log(f"===================================== EigenBedrijf_Avg v{VERSION} ====")
         self.sensor = "sensor.eigen_bedrijf"
         self.avg_sensor = "sensor.eigen_bedrijf_avg"
         self.values = deque(maxlen=6)  # Stores up to 60 values
