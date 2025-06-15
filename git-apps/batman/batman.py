@@ -41,7 +41,7 @@ class BatMan(hass.Hass):  # type: ignore[misc]
         self.judge()
 
     def judge(self):
-        tally: dict[str, int] = cs.TALLY
+        tally: dict[str, int] = cs.TALLY.copy()
         for _k, votes in self.votes.items():
             for vote in votes:
                 tally[vote] += 1
