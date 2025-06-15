@@ -79,17 +79,17 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         tomorrow = today + dt.timedelta(days=1)
         self.schdl["today"] = self.get_schedules(today)
         self.schdl["tomor"] = self.get_schedules(tomorrow)
-        charge_today = ut.sort_index(self.schdl["today"], rev=True)[-3:].sort()
-        discharge_today = ut.sort_index(self.schdl["today"], rev=True)[:3].sort()
-        charge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[-3:].sort()
-        discharge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[:3].sort()
+        charge_today = ut.sort_index(self.schdl["today"], rev=True)[-3:]
+        discharge_today = ut.sort_index(self.schdl["today"], rev=True)[:3]
+        charge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[-3:]
+        discharge_tomorrow = ut.sort_index(self.schdl["tomor"], rev=True)[:3]
         self.mgr.tell(
             self.schdl["name"],
-            f"Today's schedules    :\n{self.schdl['today']} \n : {charge_today} {discharge_today}.",
+            f"Today's schedules    :\n{self.schdl['today']} \n : {charge_today.sort()} {discharge_today.sort()}.",
         )
         self.mgr.tell(
             self.schdl["name"],
-            f"Tomorrow's schedules :\n{self.schdl['tomor']} \n : {charge_tomorrow} {discharge_tomorrow}.",
+            f"Tomorrow's schedules :\n{self.schdl['tomor']} \n : {charge_tomorrow.sort()} {discharge_tomorrow.sort()}.",
         )
 
     def get_schedules(self, date) -> list[int]:

@@ -68,19 +68,19 @@ class Prices(hass.Hass):  # type: ignore[misc]
         if self.price["actual"] < self.price["today"]["q1"]:
             self.mgr.tell(
                 self.price["name"],
-                f"Current price is below Q1 ({self.price['today']['q1']:.3f}): {self.price['actual']:.3f} ct/kWh",
+                f"Current price is below Q1 ({self.price['today']['q1']:.3f}): {self.price['actual']:.3f}",
             )
             self.mgr.vote(self.price["name"], ["API(-2200)"])  # CHARGE
         if self.price["actual"] > self.price["today"]["q3"]:
             self.mgr.tell(
                 self.price["name"],
-                f"Current price is above Q3 ({self.price['today']['q3']:.3f}): {self.price['actual']:.3f} ct/kWh",
+                f"Current price is above Q3 ({self.price['today']['q3']:.3f}): {self.price['actual']:.3f}",
             )
             self.mgr.vote(self.price["name"], ["API(1700)"])  # DISCHARGE
         if self.price["today"]["q1"] < self.price["actual"] < self.price["today"]["q3"]:
             self.mgr.tell(
                 self.price["name"],
-                f"Current price is between Q1 ({self.price['today']['q1']:.3f}) and Q3 ({self.price['today']['q3']:.3f}): {self.price['actual']:.3f} ct/kWh")
+                f"Current price is between Q1 ({self.price['today']['q1']:.3f}) and Q3 ({self.price['today']['q3']:.3f}): {self.price['actual']:.3f}")
             self.mgr.vote(self.price["name"], ["NOM"])
 
     def prices_changed(self, entity, attribute, old, new, **kwargs):
@@ -113,15 +113,15 @@ class Prices(hass.Hass):  # type: ignore[misc]
         self.price["tomor"]["q3"] = quantiles(_p, n=4, method="inclusive")[2]
         self.price["tomor"]["max"] = max(_p)
 
-        charge_tomor = ut.sort_index(_p, rev=True)[-3:].sort()
-        discharge_tomor = ut.sort_index(_p, rev=True)[:3].sort()
+        charge_tomor = ut.sort_index(_p, rev=True)[-3:]
+        discharge_tomor = ut.sort_index(_p, rev=True)[:3]
 
 
         if min(_p) < max(_p):
             # only communicate prices for tomorrow if they are known (minimum is not maximum)
             _s = self.format_price_statistics(self.price["tomor"])
             self.mgr.tell(
-            self.price["name"], f"Tomorrow's prices :\n{_p}\n {_s} : {charge_tomor} {discharge_tomor}."
+            self.price["name"], f"Tomorrow's prices :\n{_p}\n {_s} : {charge_tomor.sort()} {discharge_tomor.sort()}."
             )
 
     @staticmethod
