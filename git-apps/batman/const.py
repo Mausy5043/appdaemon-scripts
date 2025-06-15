@@ -2,6 +2,8 @@
 
 VERSION = "0.0.8"
 
+TZ = 'Europe/Amsterdam'
+
 # SCHEDULES settings
 # schedules are used to propose the charge/discharge power of the batteries for each hour
 SCHEDULES: dict = {
@@ -62,6 +64,7 @@ STRATEGIES: dict = {
     "strategies": [],
     "manager": "the_batman",
 }
+#
 
 # BATTERIES settings
 BATTERIES: dict = {
@@ -71,6 +74,7 @@ BATTERIES: dict = {
         "soc": "state",
     },
     "speed": 0.0,  # Speed of change %/h
+    "baseload": 2.75, # %/h
     "soc": {
         "now": 0.0,
         "prev": 0.0,  # Previous state of charge
@@ -89,14 +93,6 @@ POLL_SOC = 30  # minutes: Poll every half hour
 
 # Defaults and settings for stategy & battery power management
 EXTERNAL_OVERRIDE = False
-CUR_STRATEGY_IDX = 0  # Default strategy index
-CUR_STRATEGY_ATTR = "state"
-ENT_STRATEGY = None
-ENT_BAT1_STRATEGY = "select.bat1_power_strategy"
-SET_BAT1_STRATEGY = "nom"
-SET_BAT1_POWER = 0
-ENT_BAT2_STRATEGY = "select.bat2_power_strategy"
-SET_BAT2_STRATEGY = "nom"
 SET_BAT2_POWER = 0
 LIMIT_BAT_CHARGE = -2200  # W
 LIMIT_BAT_DISCHARGE = 1700  # W
@@ -118,9 +114,6 @@ LIMIT_BAT_DISCHARGE = 1700  # W
 # evening elevation < 21deg
 #         azimuth < 281deg
 
-
-ACT_STRATEGY = 0  # Default strategy index
-
 # Default values for logging
 LOG_LVL_INFO = "INFO"
 LOG_LVL_DEBUG = "DEBUG"
@@ -128,13 +121,6 @@ LOG_LVL_DEBUG = "DEBUG"
 LOG_MSG_LISTENING = "\n\t*** Listening to entity: {}, attribute: {}"
 # Default values for price and strategy change log messages
 LOG_MSG_ENTITY = "____{}: {}"
-
-
-# # add opslag=0.021 + extra=2.000 + taxes=10.15 = 12.171
-# PRICE_HIKE = 0.021
-# PRICE_XTRA = 2.0
-# PRICE_TAXS = 10.15
-# PRICE_BTW = 1.21
 
 TALLY = {
     "NOM": 0,
