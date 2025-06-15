@@ -4,6 +4,7 @@ from typing import Any
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import const as cs
+import utils as ut
 
 """Handle energy prices for Batman app."""
 
@@ -97,8 +98,10 @@ class Prices(hass.Hass):  # type: ignore[misc]
         self.price["today"]["q3"] = quantiles(_p, n=4, method="inclusive")[2]
         self.price["today"]["max"] = max(_p)
 
-        self.mgr.tell(self.price["name"], f"Today's prices    :\n{_p}\n .")
-        self.mgr.tell(self.price["name"], self.format_price_statistics(self.price["today"]))
+        charge_today = ut.sort_index(_p, rev=True)[-3:]
+        discharge_today = ut.sort_index(_p, rev=True)[:3]
+        _s = self.format_price_statistics(self.price["today"])
+        self.mgr.tell(self.price["name"], f"Today's prices    :\n{_p}\n {_s} : {charge_today} {discharge_today}.")
 
         # update list of prices for tomorrow
         _p = self.get_prices(tomorrow)
@@ -110,10 +113,16 @@ class Prices(hass.Hass):  # type: ignore[misc]
         self.price["tomor"]["q3"] = quantiles(_p, n=4, method="inclusive")[2]
         self.price["tomor"]["max"] = max(_p)
 
+        charge_tomor = ut.sort_index(_p, rev=True)[-3:]
+        discharge_tomor = ut.sort_index(_p, rev=True)[:3]
+
+
         if min(_p) < max(_p):
             # only communicate prices for tomorrow if they are known (minimum is not maximum)
-            self.mgr.tell(self.price["name"], f"Tomorrow's prices :\n{_p}\n .")
-            self.mgr.tell(self.price["name"], self.format_price_statistics(self.price["tomor"]))
+            _s = self.format_price_statistics(self.price["tomor"])
+            self.mgr.tell(
+            self.price["name"], f"Tomorrow's prices :\n{_p}\n {_s} : {charge_tomor} {discharge_tomor}."
+            )
 
     @staticmethod
     def format_price_statistics(price: dict) -> str:
