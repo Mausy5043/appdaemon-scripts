@@ -124,6 +124,7 @@ LOG_MSG_ENTITY = "____{}: {}"
 
 TALLY = {
     "NOM": 0,
-    "API": 0,
+    "API+": 0,
+    "API-": 0,
     "IDLE": 0,
 }

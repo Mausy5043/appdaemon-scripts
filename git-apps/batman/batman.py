@@ -45,6 +45,16 @@ class BatMan(hass.Hass):  # type: ignore[misc]
         for _k, votes in self.votes.items():
             for vote in votes:
                 if "API" in vote:
-                    vote = "API"
+                    vote = self.api_pos_or_neg(vote.split(',')[1])
                 tally[vote] += 1
         self.log(f"{tally} => {max(tally, key=lambda k: tally[k])}")
+
+    def api_pos_or_neg(self, reqpwr: str):
+        pon = "NOM"
+        try:
+            pwr = int(reqpwr)
+            if pwr < 0:
+                pon = "API+" if pwr > 0 else "API-"
+        except Exception:
+            pass
+        return pon
