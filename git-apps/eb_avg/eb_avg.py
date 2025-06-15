@@ -22,7 +22,7 @@ class EigenBedrijf_Avg(hass.Hass):  # type: ignore[misc]
     def calculate_average(self, **kwargs):
         if self.values:
             # avg_value = round(sum(self.values) / len(self.values), 1)
-            med_value = stat.median(self.values)
+            med_value = int(round(stat.median(self.values), 0))
             self.set_state(self.avg_sensor, state=med_value)
         else:
             self.set_state(self.avg_sensor, state=0)
