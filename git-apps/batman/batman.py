@@ -54,7 +54,9 @@ class BatMan(hass.Hass):  # type: ignore[misc]
         try:
             pwr = int(reqpwr)
             if pwr < 0:
-                pon = "API+" if pwr > 0 else "API-"
-        except Exception:
+                pon = "API-"
+            if pwr > 0:
+                pon = "API+"
+        except ValueError:
             pass
         return pon
