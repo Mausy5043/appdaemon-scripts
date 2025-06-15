@@ -64,24 +64,30 @@ class Prices(hass.Hass):  # type: ignore[misc]
 
     def eval_price(self):
         """Evaluate the current price and inform manager."""
+        _t = ""
+        _v = ["NOM"]
         # Check if the current price is below the threshold
         if self.price["actual"] < self.price["today"]["q1"]:
-            self.mgr.tell(
-                self.price["name"],
-                f"Current price is below Q1 ({self.price['today']['q1']:.3f}): {self.price['actual']:.3f}",
-            )
-            self.mgr.vote(self.price["name"], ["API(-2200)"])  # CHARGE
+            _t = f"Current price is below Q1 ({self.price['today']['q1']:.3f}): {self.price['actual']:.3f}"
+            _v =  ["API(-2200)"]  # CHARGE
         if self.price["actual"] > self.price["today"]["q3"]:
-            self.mgr.tell(
-                self.price["name"],
-                f"Current price is above Q3 ({self.price['today']['q3']:.3f}): {self.price['actual']:.3f}",
-            )
-            self.mgr.vote(self.price["name"], ["API(1700)"])  # DISCHARGE
+            _t = f"Current price is above Q3 ({self.price['today']['q3']:.3f}): {self.price['actual']:.3f}"
+            _v = ["API(1700)"]  # DISCHARGE
         if self.price["today"]["q1"] < self.price["actual"] < self.price["today"]["q3"]:
-            self.mgr.tell(
-                self.price["name"],
-                f"Current price is between Q1 ({self.price['today']['q1']:.3f}) and Q3 ({self.price['today']['q3']:.3f}): {self.price['actual']:.3f}")
-            self.mgr.vote(self.price["name"], ["NOM"])
+            _t = f"Current price is between Q1 ({self.price['today']['q1']:.3f}) and Q3 ({self.price['today']['q3']:.3f}): {self.price['actual']:.3f}"
+            _v = ["NOM"]
+
+        now_hour = dt.datetime.now().hour
+        if now_hour in self.price["cheap_hour"]:
+            _v += ["API(1700)"]
+        if now_hour in self.price["expen_hour"]:
+            _v += ["API(-2200)"]
+
+        if _t:
+            self.mgr.tell(self.price["name"], _t)
+        self.mgr.vote(self.price["name"], _v)
+
+
 
     def prices_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy prices."""

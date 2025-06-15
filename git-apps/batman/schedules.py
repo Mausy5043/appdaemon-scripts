@@ -63,14 +63,21 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         except (ValueError, TypeError):
             pass
         self.schdl["actual"] = int(new)
-        proposal: str = "NOM"
+        _v = ["NOM"]
         # self.mgr.tell(self.schdl["name"], f"New schedule = {self.schdl['actual']}")
         if self.schdl["actual"] > 0:
-            proposal = f"API({self.schdl['actual']})"  # DISCHARGE
+            _v = [f"API({self.schdl['actual']})"]  # DISCHARGE
         if self.schdl["actual"] < 0:
-            proposal = f"API({self.schdl['actual']})"  # CHARGE
+            _v = [f"API({self.schdl['actual']})"]  # CHARGE
+        
+        now_hour = dt.datetime.now().hour
+        if now_hour in self.price["cheap_hour"]:
+            _v += ["API(1700)"]
+        if now_hour in self.price["expen_hour"]:
+            _v += ["API(-2200)"]
+
         self.mgr.tell(caller=self.schdl["name"], message=f"Current schedule is {self.schdl['actual']}.")
-        self.mgr.vote(self.schdl["name"], [f"{proposal.upper()}"])
+        self.mgr.vote(self.schdl["name"], [f"{_v}"])
 
     def schedules_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy schedules."""
