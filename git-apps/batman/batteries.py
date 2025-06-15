@@ -84,7 +84,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
             f"Current SoC = {self.bats["soc"]["now"]:.1f} % changing at {self.bats["soc"]["speed"]:.2f} %/h",
         )
         veto = False
-        vote: list = ["NOM,0"]
+        vote: list = ["NOM"]
         if self.bats["soc"]["now"] > self.bats["soc"]["h_limit"]:
             vote = ["API,1701"]  # DISCHARGE
         if self.bats["soc"]["now"] > self.bats["soc"]["hh_limit"]:
@@ -92,7 +92,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         if self.bats["soc"]["now"] < self.bats["soc"]["l_limit"]:
             vote = ["API,-2201"]  # CHARGE
         if self.bats["soc"]["now"] < self.bats["soc"]["ll_limit"]:
-            vote = ["NOM,2"]  # BATTERY EMPTY
+            vote = ["NOM"]  # BATTERY EMPTY
 
         required_soc = ut.hours_until_next_10am()  * self.bats["baseload"]
         self.mgr.tell(self.bats["name"], f"Need {required_soc:.1f} % to last until next morning")
