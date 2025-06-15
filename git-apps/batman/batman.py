@@ -37,3 +37,12 @@ class BatMan(hass.Hass):  # type: ignore[misc]
         self.log("_BatMan:  votes sofar:")
         for _k, _v in self.votes.items():
             self.log(f"_______: \t{_k}:\t{_v}")
+        # do this via a callback:
+        self.judge()
+
+    def judge(self):
+        tally: dict[str, int] = cs.TALLY
+        for _k, votes in self.votes:
+            for vote in votes:
+                tally[vote] += 1
+        self.log(f"{tally}")

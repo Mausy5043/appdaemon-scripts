@@ -135,3 +135,8 @@ LOG_MSG_ENTITY = "____{}: {}"
 # PRICE_XTRA = 2.0
 # PRICE_TAXS = 10.15
 # PRICE_BTW = 1.21
+
+TALLY = {"NOM": 0,
+         "API": 0,
+         "IDLE": 0,
+         }
