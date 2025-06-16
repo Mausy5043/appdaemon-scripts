@@ -74,7 +74,7 @@ BATTERIES: dict = {
         "soc": "state",
     },
     "speed": 0.0,  # Speed of change %/h
-    "baseload": 2.75,  # %/h
+    "baseload": 2.0,  # %/h
     "soc": {
         "now": 0.0,
         "prev": 0.0,  # Previous state of charge
