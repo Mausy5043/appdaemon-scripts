@@ -99,7 +99,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
 
         self.mgr.tell(self.bats["name"], f"Need {required_soc:.1f} % to last until next morning")
         if 0 < min_to_req < 60:
-            self.mgr.tell(self.bats["name"], f"At full discharge rate this will be reached in {min_to_req} min"])
+            self.mgr.tell(self.bats["name"], f"At full discharge rate this will be reached in {min_to_req} min")
         self.mgr.vote(self.bats["name"], vote, veto)
 
     # CALLBACKS
