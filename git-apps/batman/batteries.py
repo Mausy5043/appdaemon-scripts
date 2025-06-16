@@ -92,7 +92,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         if self.bats["soc"]["now"] < self.bats["soc"]["l_limit"]:
             vote = ["API,-2201"]  # CHARGE
         if self.bats["soc"]["now"] < self.bats["soc"]["ll_limit"]:
-            vote = ["NOM"]  # BATTERY EMPTY
+            vote = ["API,-2202"]  # BATTERY EMPTY
 
         required_soc = ut.hours_until_next_10am() * self.bats["baseload"]
         self.mgr.tell(self.bats["name"], f"Need {required_soc:.1f} % to last until next morning")
