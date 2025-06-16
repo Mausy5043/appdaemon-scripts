@@ -111,7 +111,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
 """
 Voting:
 
-soc_limit = 2 * (hours until 09:00)
+required_soc = 2 * (hours until 09:00)
 
 (1)
 SoC > h_limit   DISCHARGE
