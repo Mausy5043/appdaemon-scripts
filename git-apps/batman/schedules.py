@@ -1,3 +1,4 @@
+import contextlib
 import datetime as dt
 from typing import Any
 
@@ -57,12 +58,10 @@ class Schedules(hass.Hass):  # type: ignore[misc]
 
     def schedule_changed(self, entity, attribute, old, new, **kwargs):
         """Log change of current schedule."""
-        try:
-            old = f"{int(old)}"
-            new = f"{int(new)}"
-        except (ValueError, TypeError):
-            pass
-        self.schdl["actual"] = int(new)
+        new_schedule: int = -1
+        with contextlib.suppress(ValueError, TypeError):
+            new_schedule = int(new)
+        self.schdl["actual"] = new_schedule
         _v = ["NOM"]
         if self.schdl["actual"] > 0:
             _v = [f"API,{self.schdl['actual']}"]  # DISCHARGE
@@ -71,9 +70,9 @@ class Schedules(hass.Hass):  # type: ignore[misc]
 
         now_hour = dt.datetime.now().hour
         if now_hour in self.schdl["cheap_hour"]:
-            _v += ["API,-2200"]
+            _v += ["API,-2201"]
         if now_hour in self.schdl["expen_hour"]:
-            _v += ["API,1700"]
+            _v += ["API,1701"]
 
         self.mgr.tell(caller=self.schdl["name"], message=f"Current schedule is {self.schdl['actual']}.")
         self.mgr.vote(self.schdl["name"], _v)
