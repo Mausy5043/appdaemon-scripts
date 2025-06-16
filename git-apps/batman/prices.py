@@ -114,7 +114,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
 
         _s = self.format_price_statistics(self.price["today"])
         self.mgr.tell(
-            self.price["name"], f"Today's prices    :\n{_p}\n {_s} : {charge_today} {discharge_today}."
+            self.price["name"], f"Today's prices    :\n{_p}\n {_s} \n : {charge_today} {discharge_today}."
         )
 
         # update list of prices for tomorrow
@@ -136,7 +136,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
 
             _s = self.format_price_statistics(self.price["tomor"])
             self.mgr.tell(
-                self.price["name"], f"Tomorrow's prices :\n{_p}\n {_s} : {charge_tomor} {discharge_tomor}."
+                self.price["name"], f"Tomorrow's prices :\n{_p}\n {_s} \n : {charge_tomor} {discharge_tomor}."
             )
 
     @staticmethod
