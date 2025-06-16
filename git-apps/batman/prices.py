@@ -81,9 +81,18 @@ class Prices(hass.Hass):  # type: ignore[misc]
 
         now_hour = dt.datetime.now().hour
         if now_hour in self.price["cheap_hour"]:
-            _v += ["API,-2200"]
+            _v += ["API,-2200"]  # CHARGE
         if now_hour in self.price["expen_hour"]:
-            _v += ["API,1700"]
+            _v += ["API,1700"]  # DISCHARGE
+
+        # The "greedy bastard" vote
+        now = self.price["actual"]
+        if now > self.price["top"]:
+            # sell at high price
+            _v += ["API,1700"]  # DISCHARGE
+        if now < self.price["nul"]:
+            # buy free electricity
+            _v += ["API,-2200"]  # CHARGE
 
         if _t:
             self.mgr.tell(self.price["name"], _t)
@@ -190,8 +199,8 @@ class Prices(hass.Hass):  # type: ignore[misc]
 """
 Voting:
 
-MAX
-    <- DISCHARGE [api, discharge_max] to x% SoC; x = aantal uren tot 09:00 volgende ochtend * 2.0%
+MAX > __ ct/kWh DISCHARGE. (greedy)
+    <- DISCHARGE [api, discharge_max] to x% SoC; x = aantal uren tot 09:00 volgende ochtend * __ %
 Q3
     <- NOM
 : ongunstig om te importeren
@@ -200,7 +209,7 @@ min(MED,AVG)
     <- NOM
 Q1
     <- CHARGE [api, charge_max] to 100% SoC
-MIN
+MIN /  < 0 ct/kWh = CHARGE. (greedy)
 
 
 """

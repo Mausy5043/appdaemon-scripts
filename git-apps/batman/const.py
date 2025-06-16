@@ -24,6 +24,8 @@ SCHEDULES: dict = {
 # prices are used to determine the best time to charge/discharge the batteries
 PRICES: dict = {
     "name": "price",
+    "nul": 0.0,     # below this, electricity is considered for free
+    "top": 35.0,    # above this, electricity is considered very expensive
     "actual": 25.0,  # cents/kWh
     "entity": "sensor.bat1_energy_price",
     "attr": {
