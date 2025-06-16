@@ -53,7 +53,7 @@ class Strategies(hass.Hass):  # type: ignore[misc]
 
         # voting logic will be called here
         # ...
-        # ...
+        # ... for now: vote whatever the current state of the batteries is
         self.mgr.vote(self.strat["name"], self.strat["strategies"])
 
     def get_strategy_list(self) -> list[str]:
