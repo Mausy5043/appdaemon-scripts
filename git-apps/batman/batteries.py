@@ -4,6 +4,7 @@ from typing import Any
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import const as cs
 import utils as ut
+from collections import deque
 
 """Handle energy batteries for Batman app."""
 
@@ -33,6 +34,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         # Set previous SoC and current SoC to actual values
         self.bats["soc"]["now"], self.bats["soc"]["states"] = self.get_soc()
         self.bats["soc"]["prev"] = self.bats["soc"]["now"]
+        self.bats["soc"]["speeds"] = deque(maxlen=3)
         self.update_socs()
 
         now = dt.datetime.now()
@@ -68,17 +70,12 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.bats["soc"]["now"], self.bats["soc"]["states"] = self.get_soc()
 
         # calculate speed of change
-        self.bats["soc"]["speeds"].append(
-            (self.bats["soc"]["now"] - self.bats["soc"]["prev"]) / (cs.POLL_SOC / 60)
-        )
-        self.bats["soc"]["speed"] = (
-            sum(self.bats["soc"]["speeds"]) / len(self.bats["soc"]["speeds"])
-            if self.bats["soc"]["speeds"]
-            else 0.0
-        )
-        # Keep only a few speeds to avoid too much influence on prediction
-        if len(self.bats["soc"]["speeds"]) > 3:
-            self.bats["soc"]["speeds"].pop(0)
+        current_speed = (self.bats["soc"]["now"] - self.bats["soc"]["prev"]) / (cs.POLL_SOC / 60)
+        # keep a list of recent speeds. (list automagically keeps a length of 3; deque)
+        self.bats["soc"]["speeds"].append(current_speed)
+        # calculate average of recent speeds
+        self.bats["soc"]["speed"] = sum(self.bats["soc"]["speeds"]) / len(self.bats["soc"]["speeds"])
+
         self.mgr.tell(
             self.bats["name"],
             f"Current SoC = {self.bats["soc"]["now"]:.1f} % changing at {self.bats["soc"]["speed"]:.2f} %/h",
