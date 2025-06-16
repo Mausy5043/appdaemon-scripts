@@ -95,7 +95,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
             vote = ["API,-2202"]  # BATTERY EMPTY, CHARGE
 
         soc_avail = self.bats["soc"]["now"] - required_soc
-        min_to_req = soc_avail / 34.0 * 60
+        min_to_req: int = int(soc_avail / 34.0 * 60)
 
         self.mgr.tell(self.bats["name"], f"Need {required_soc:.1f} % to last until next morning")
         if 0 < min_to_req < 60:
