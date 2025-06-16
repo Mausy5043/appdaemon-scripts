@@ -1,10 +1,10 @@
 import datetime as dt
+from collections import deque
 from typing import Any
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import const as cs
 import utils as ut
-from collections import deque
 
 """Handle energy batteries for Batman app."""
 
@@ -94,7 +94,12 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         if self.bats["soc"]["now"] < self.bats["soc"]["ll_limit"]:
             vote = ["API,-2202"]  # BATTERY EMPTY, CHARGE
 
+        soc_avail = self.bats["soc"]["now"] - required_soc
+        min_to_req = soc_avail / 34.0 * 60
+
         self.mgr.tell(self.bats["name"], f"Need {required_soc:.1f} % to last until next morning")
+        if 0 < min_to_req < 60:
+            self.mgr.tell(self.bats["name", f"At full discharge rate this will be reached in {min_to_req} min"])
         self.mgr.vote(self.bats["name"], vote, veto)
 
     # CALLBACKS
