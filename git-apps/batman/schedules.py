@@ -75,7 +75,10 @@ class Schedules(hass.Hass):  # type: ignore[misc]
             _v += ["API,1701"]
 
         self.mgr.tell(caller=self.schdl["name"], message=f"Current schedule is {self.schdl['actual']}.")
-        self.mgr.vote(self.schdl["name"], _v)
+        # `schedules` does not participate in the voting
+        # Sessy schedule is sometimes less accurate. `prices` is more accurate at predicting the best hours.
+        # self.mgr.vote(self.schdl["name"], _v)
+        self.mgr.vote(self.schdl["name"], f"My vote would have been: {_v}")
 
     def schedules_changed(self, entity, attribute, old, new, **kwargs):
         """Handle changes in the energy schedules."""
