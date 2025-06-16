@@ -199,6 +199,7 @@ class Prices(hass.Hass):  # type: ignore[misc]
 """
 Voting:
 
+(1)
 MAX > __ ct/kWh DISCHARGE. (greedy)
     <- DISCHARGE [api, discharge_max] to x% SoC; x = aantal uren tot 09:00 volgende ochtend * __ %
 Q3
@@ -211,5 +212,11 @@ Q1
     <- CHARGE [api, charge_max] to 100% SoC
 MIN /  < 0 ct/kWh = CHARGE. (greedy)
 
+(2)
+cheap hour = CHARGE
+expensive hour = DISCHARGE
+
+(3)
+greedy bastard (DIS)CHARGING on extreme price
 
 """

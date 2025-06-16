@@ -114,9 +114,13 @@ class Batteries(hass.Hass):  # type: ignore[misc]
 """
 Voting:
 
-soc_limit = (speed of discharge) * (hours until 09:00)
+soc_limit = 2 * (hours until 09:00)
 
-SoC > soc_limit     DISCHARGE
-SoC < soc_limit     NOM
+(1)
+SoC > h_limit   DISCHARGE
+SoC < l_limit   CHARGE
+
+(2)
+SoC < soc_limit NOM
 
 """

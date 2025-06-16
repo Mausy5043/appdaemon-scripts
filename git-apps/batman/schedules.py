@@ -130,17 +130,15 @@ class Schedules(hass.Hass):  # type: ignore[misc]
         self.schedules_changed(entity, attribute, old, new, **kwargs)
 
 
-# schedule
-# Voting:
-#  0 = NOM
-#  (+)-ve = DISCHARGE  || SoC > 75% || summerday |-> = discharge to 25%
-#  (-)-ve = CHARGE     || SoC < 32% || winterday |-> = charge to 100%
-# definition of summerday is
+"""
+Voting:
 
-# summerday = 1st of May to 30th of September
-# sensors that detect summerday or winterday:
-#  - sensor.batman_summerday
-#  - sensor.batman_winterday
-#  - sensor.batman_tommorow_summerday
-#  - sensor.batman_tommorow_winterday
-#  winterday = 1st of October to 30th of April
+(1)
+  0     = NOM
+ (+)-ve = DISCHARGE
+ (-)-ve = CHARGE
+
+(2)
+cheap hour = CHARGE
+expensive hour = DISCHARGE
+"""
