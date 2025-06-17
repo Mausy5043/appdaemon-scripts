@@ -19,7 +19,9 @@ class Batteries(hass.Hass):  # type: ignore[misc]
 
         self.app_ctrl = "unknown"
         self.ev_needs_pwr = "unknown"
+        self.interlock = False
         self.update_time: float = 0.0
+        self.keep_vote = "NOM"
 
         self.bats = cs.BATTERIES
         self.mgr = self.get_app(self.bats["manager"])
@@ -98,7 +100,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
             )
             veto = False
             required_soc = ut.hours_until_next_10am() * self.bats["baseload"]
-            vote: list = ["NOM"]
+            vote: list = self.keep_vote
             if self.bats["soc"]["now"] > self.bats["soc"]["h_limit"]:
                 vote = ["API,1701"]  # DISCHARGE
             if self.bats["soc"]["now"] > self.bats["soc"]["hh_limit"]:
@@ -109,7 +111,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
                 vote = ["API,-2201"]  # CHARGE
             if self.bats["soc"]["now"] < self.bats["soc"]["ll_limit"]:
                 vote = ["API,-2202"]  # BATTERY EMPTY, CHARGE
-
+            self.keep_vote = vote
             # available part of SoC allowing for minimum required SoC
             soc_avail = self.bats["soc"]["now"] - required_soc
             # number of minutes left to reaching minimum required SoC if discharging at maximum rate
@@ -126,6 +128,13 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.ev_needs_pwr = self.get_state(self.bats["evneedspwr"])
         self.log(f"EV charging status changed {old} -> {self.ev_needs_pwr}")
         self.update_socs()
+        if self.ev_needs_pwr == "on":
+            # EV power usage forces batteries to IDLE. Activate the interlock
+            self.interlock = True
+        if self.ev_needs_pwr == "off":
+            # EV stopped charging. Deactivate the interlock
+            self.interlock = False
+
 
     def ctrl_by_app_changed(self, entity, attribute, old, new, **kwargs):
         self.app_ctrl = self.get_state(self.bats["ctrlbyapp"])
