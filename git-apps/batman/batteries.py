@@ -21,7 +21,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.ev_needs_pwr = "unknown"
         self.interlock = False
         self.update_time: float = 0.0
-        self.keep_vote = "NOM"
+        self.keep_vote = ["NOM"]
 
         self.bats = cs.BATTERIES
         self.mgr = self.get_app(self.bats["manager"])
