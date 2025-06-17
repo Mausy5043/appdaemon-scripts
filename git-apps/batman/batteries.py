@@ -1,4 +1,5 @@
 import datetime as dt
+import time
 from collections import deque
 from typing import Any
 
@@ -7,8 +8,6 @@ import const as cs
 import utils as ut
 
 """Handle energy batteries for Batman app."""
-
-# TODO: also monitor: input_boolean.evneedspwr
 
 
 class Batteries(hass.Hass):  # type: ignore[misc]
@@ -20,6 +19,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
 
         self.app_ctrl = "unknown"
         self.ev_needs_pwr = "unknown"
+        self.update_time: float = 0.0
 
         self.bats = cs.BATTERIES
         self.mgr = self.get_app(self.bats["manager"])
@@ -38,8 +38,10 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.bats["soc"]["now"], self.bats["soc"]["states"] = self.get_soc()
         self.bats["soc"]["prev"] = self.bats["soc"]["now"]
         self.bats["soc"]["speeds"] = deque(maxlen=3)
+        # update battery state info
         self.update_socs()
-        self.ev_charging_changed("","",self.ev_needs_pwr,"new")
+        # update switch states
+        self.ev_charging_changed("", "", self.ev_needs_pwr, "new")
         self.ctrl_by_app_changed("", "", self.app_ctrl, "new")
 
         now = dt.datetime.now()
@@ -48,14 +50,9 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.run_at(self.update_soc_cb, run_at)
 
         # callback when EV charging starts or stops
-        self.callback_handles.append(
-            self.listen_state(self.ev_charging_cb, self.bats["evneedspwr"])
-            )
+        self.callback_handles.append(self.listen_state(self.ev_charging_cb, self.bats["evneedspwr"]))
         # callback when manual override changes
-        self.callback_handles.append(
-            self.listen_state(self.ctrl_by_app_cb, self.bats["ctrlbyapp"])
-            )
-
+        self.callback_handles.append(self.listen_state(self.ctrl_by_app_cb, self.bats["ctrlbyapp"]))
 
     def terminate(self):
         """Clean up app."""
@@ -80,42 +77,48 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         return soc_now, soc_list
 
     def update_socs(self):
-        # remember previous SoC and calculate new SoC
-        self.bats["soc"]["prev"] = self.bats["soc"]["now"]
-        self.bats["soc"]["now"], self.bats["soc"]["states"] = self.get_soc()
+        if (time.time() - self.update_time) > 60:
+            self.update_time = time.time()
+            # remember previous SoC and calculate new SoC
+            self.bats["soc"]["prev"] = self.bats["soc"]["now"]
+            self.bats["soc"]["now"], self.bats["soc"]["states"] = self.get_soc()
 
-        # calculate speed of change
-        current_speed = (self.bats["soc"]["now"] - self.bats["soc"]["prev"]) / (cs.POLL_SOC / 60)
-        # keep a list of recent speeds. (list automagically keeps a length of 3; deque)
-        self.bats["soc"]["speeds"].append(current_speed)
-        # calculate average of recent speeds
-        self.bats["soc"]["speed"] = sum(self.bats["soc"]["speeds"]) / len(self.bats["soc"]["speeds"])
+            # calculate speed of change
+            current_speed = (self.bats["soc"]["now"] - self.bats["soc"]["prev"]) / (cs.POLL_SOC / 60)
+            # keep a list of recent speeds. (list automagically keeps a length of 3; deque)
+            self.bats["soc"]["speeds"].append(current_speed)
+            # calculate average of recent speeds
+            self.bats["soc"]["speed"] = sum(self.bats["soc"]["speeds"]) / len(self.bats["soc"]["speeds"])
 
-        self.mgr.tell(
-            self.bats["name"],
-            f"Current SoC = {self.bats["soc"]["now"]:.1f} % changing at {self.bats["soc"]["speed"]:.2f} %/h",
-        )
-        veto = False
-        required_soc = ut.hours_until_next_10am() * self.bats["baseload"]
-        vote: list = ["NOM"]
-        if self.bats["soc"]["now"] > self.bats["soc"]["h_limit"]:
-            vote = ["API,1701"]  # DISCHARGE
-        if self.bats["soc"]["now"] > self.bats["soc"]["hh_limit"]:
-            vote = ["API,1702"]  # BATTERY FULL, DISCHARGE
-        if self.bats["soc"]["now"] < required_soc:
-            vote = ["NOM"]  # NOM to survive the night
-        if self.bats["soc"]["now"] < self.bats["soc"]["l_limit"]:
-            vote = ["API,-2201"]  # CHARGE
-        if self.bats["soc"]["now"] < self.bats["soc"]["ll_limit"]:
-            vote = ["API,-2202"]  # BATTERY EMPTY, CHARGE
+            self.mgr.tell(
+                self.bats["name"],
+                f"Current SoC = {self.bats["soc"]["now"]:.1f} % changing at {
+                    self.bats["soc"]["speed"]:.2f
+                } %/h",
+            )
+            veto = False
+            required_soc = ut.hours_until_next_10am() * self.bats["baseload"]
+            vote: list = ["NOM"]
+            if self.bats["soc"]["now"] > self.bats["soc"]["h_limit"]:
+                vote = ["API,1701"]  # DISCHARGE
+            if self.bats["soc"]["now"] > self.bats["soc"]["hh_limit"]:
+                vote = ["API,1702"]  # BATTERY FULL, DISCHARGE
+            if self.bats["soc"]["now"] < required_soc:
+                vote = ["NOM"]  # NOM to survive the night
+            if self.bats["soc"]["now"] < self.bats["soc"]["l_limit"]:
+                vote = ["API,-2201"]  # CHARGE
+            if self.bats["soc"]["now"] < self.bats["soc"]["ll_limit"]:
+                vote = ["API,-2202"]  # BATTERY EMPTY, CHARGE
 
-        soc_avail = self.bats["soc"]["now"] - required_soc
-        min_to_req: int = int(soc_avail / 34.0 * 60)
+            soc_avail = self.bats["soc"]["now"] - required_soc
+            min_to_req: int = int(soc_avail / 34.0 * 60)
 
-        self.mgr.tell(self.bats["name"], f"Need {required_soc:.1f} % to last until next morning")
-        if 0 < min_to_req < 60:
-            self.mgr.tell(self.bats["name"], f"At full discharge rate this will be reached in {min_to_req} min")
-        self.mgr.vote(self.bats["name"], vote, veto)
+            self.mgr.tell(self.bats["name"], f"Need {required_soc:.1f} % to last until next morning")
+            if 0 < min_to_req < 60:
+                self.mgr.tell(
+                    self.bats["name"], f"At full discharge rate this will be reached in {min_to_req} min"
+                )
+            self.mgr.vote(self.bats["name"], vote, veto)
 
     def ev_charging_changed(self, entity, attribute, old, new, **kwargs):
         self.ev_needs_pwr = self.get_state(self.bats["evneedspwr"])
