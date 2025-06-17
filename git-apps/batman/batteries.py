@@ -44,11 +44,11 @@ class Batteries(hass.Hass):  # type: ignore[misc]
 
         # callback when EV charging starts or stops
         self.callback_handles.append(
-            self.listen_state(self.ev_charging_cb, self.bats["evneedspwr"][0])
+            self.listen_state(self.ev_charging_cb, self.bats["evneedspwr"])
             )
         # callback when manual override changes
         self.callback_handles.append(
-            self.listen_state(self.ev_charging_cb, self.bats["ctrlbyapp"][0])
+            self.listen_state(self.ctrl_by_app_cb, self.bats["ctrlbyapp"])
             )
 
 
