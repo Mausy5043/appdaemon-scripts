@@ -123,7 +123,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
                     self.bats["name"], f"At full discharge rate this will be reached in {min_to_req} min"
                 )
                 run_at = dt.datetime.now() + dt.timedelta(minutes=min_to_req)
-                self.run_at(self.update_soc_cb, run_at)
+                self.run_at(self.minimum_soc_cb, run_at)
             self.mgr.vote(self.bats["name"], vote, veto)
 
     def ev_charging_changed(self, entity, attribute, old, new, **kwargs):
@@ -150,6 +150,12 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         # Update again in half an hour
         run_at = ut.next_half_hour(dt.datetime.now())
         self.run_at(self.update_soc_cb, run_at)
+
+    def minimum_soc_cb(self, **kwargs) -> None:
+        """Callback to update state of charge and take action for minimum SoC."""
+        self.update_socs()
+        # Do stuff to stop discharging
+
 
     def ev_charging_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for EV charging state change."""
