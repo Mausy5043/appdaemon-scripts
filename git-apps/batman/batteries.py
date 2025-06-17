@@ -114,9 +114,9 @@ class Batteries(hass.Hass):  # type: ignore[misc]
             self.keep_vote = vote
             # available part of SoC allowing for minimum required SoC
             soc_avail = self.bats["soc"]["now"] - required_soc
+
             # number of minutes left to reaching minimum required SoC if discharging at maximum rate
             min_to_req: int = int(soc_avail / 34.0 * 60)
-
             self.mgr.tell(self.bats["name"], f"Need {required_soc:.1f} % to last until next morning")
             if 0 < min_to_req < 60:
                 self.mgr.tell(
