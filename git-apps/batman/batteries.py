@@ -122,6 +122,8 @@ class Batteries(hass.Hass):  # type: ignore[misc]
                 self.mgr.tell(
                     self.bats["name"], f"At full discharge rate this will be reached in {min_to_req} min"
                 )
+                run_at = dt.datetime.now() + dt.timedelta(minutes=min_to_req)
+                self.run_at(self.update_soc_cb, run_at)
             self.mgr.vote(self.bats["name"], vote, veto)
 
     def ev_charging_changed(self, entity, attribute, old, new, **kwargs):
@@ -135,7 +137,6 @@ class Batteries(hass.Hass):  # type: ignore[misc]
             # EV stopped charging. Deactivate the interlock
             self.interlock = False
 
-
     def ctrl_by_app_changed(self, entity, attribute, old, new, **kwargs):
         self.app_ctrl = self.get_state(self.bats["ctrlbyapp"])
         self.log(f"App ctrl status changed {str(old)} -> {self.app_ctrl}")
@@ -147,8 +148,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         """Callback to update state of charge."""
         self.update_socs()
         # Update again in half an hour
-        now = dt.datetime.now()
-        run_at = ut.next_half_hour(now)
+        run_at = ut.next_half_hour(dt.datetime.now())
         self.run_at(self.update_soc_cb, run_at)
 
     def ev_charging_cb(self, entity, attribute, old, new, **kwargs):
