@@ -18,6 +18,9 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         # Keep track of active callbacks
         self.callback_handles: list[Any] = []
 
+        self.app_ctrl = "unknown"
+        self.ev_needs_pwr = "unknown"
+
         self.bats = cs.BATTERIES
         self.mgr = self.get_app(self.bats["manager"])
         if not self.mgr:
@@ -36,6 +39,8 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.bats["soc"]["prev"] = self.bats["soc"]["now"]
         self.bats["soc"]["speeds"] = deque(maxlen=3)
         self.update_socs()
+        self.ev_charging_changed("","",self.ev_needs_pwr,"new")
+        self.ctrl_by_app_changed("", "", self.app_ctrl, "new")
 
         now = dt.datetime.now()
         run_at = ut.next_half_hour(now)
@@ -113,10 +118,14 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.mgr.vote(self.bats["name"], vote, veto)
 
     def ev_charging_changed(self, entity, attribute, old, new, **kwargs):
-        self.log(f"EV charging status changed {str(old)} -> {str(new)}")
+        self.ev_needs_pwr = self.get_state(self.bats["evneedspwr"])
+        self.log(f"EV charging status changed {old} -> {self.ev_needs_pwr}")
+        self.update_socs()
 
     def ctrl_by_app_changed(self, entity, attribute, old, new, **kwargs):
-        self.log(f"Manual override status changed {str(old)} -> {str(new)}")
+        self.app_ctrl = self.get_state(self.bats["ctrlbyapp"])
+        self.log(f"App ctrl status changed {str(old)} -> {self.app_ctrl}")
+        self.update_socs()
 
     # CALLBACKS
 
@@ -133,7 +142,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         self.ev_charging_changed(entity, attribute, old, new, **kwargs)
 
     def ctrl_by_app_cb(self, entity, attribute, old, new, **kwargs):
-        """Callback for CtrolByApp state change."""
+        """Callback for CtrlByApp state change."""
         self.ctrl_by_app_changed(entity, attribute, old, new, **kwargs)
 
 
