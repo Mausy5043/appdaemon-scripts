@@ -42,6 +42,16 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         # Update in half an hour
         self.run_at(self.update_soc_cb, run_at)
 
+        # callback when EV charging starts or stops
+        self.callback_handles.append(
+            self.listen_state(self.ev_charging_cb, self.bats["evneedspwr"][0], self.bats["evneedspwr"][1])
+            )
+        # callback when manual override changes
+        self.callback_handles.append(
+            self.listen_state(self.ev_charging_cb, self.bats["ctrlbyapp"][0], self.bats["ctrlbyapp"][1])
+            )
+
+
     def terminate(self):
         """Clean up app."""
         self.log("__Terminating Batteries...")
@@ -102,6 +112,12 @@ class Batteries(hass.Hass):  # type: ignore[misc]
             self.mgr.tell(self.bats["name"], f"At full discharge rate this will be reached in {min_to_req} min")
         self.mgr.vote(self.bats["name"], vote, veto)
 
+    def ev_charging_changed(self, entity, attribute, old, new, **kwargs):
+        self.log(f"EV charging status changed {str(old)} -> {str(new)}")
+
+    def ctrl_by_app_changed(self, entity, attribute, old, new, **kwargs):
+        self.log(f"Manual override status changed {str(old)} -> {str(new)}")
+
     # CALLBACKS
 
     def update_soc_cb(self, **kwargs) -> None:
@@ -111,6 +127,14 @@ class Batteries(hass.Hass):  # type: ignore[misc]
         now = dt.datetime.now()
         run_at = ut.next_half_hour(now)
         self.run_at(self.update_soc_cb, run_at)
+
+    def ev_charging_cb(self, entity, attribute, old, new, **kwargs):
+        """Callback for EV charging state change."""
+        self.ev_charging_changed(entity, attribute, old, new, **kwargs)
+
+    def ctrl_by_app_cb(self, entity, attribute, old, new, **kwargs):
+        """Callback for CtrolByApp state change."""
+        self.ctrl_by_app_changed(entity, attribute, old, new, **kwargs)
 
 
 """

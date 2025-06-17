@@ -72,6 +72,8 @@ STRATEGIES: dict = {
 BATTERIES: dict = {
     "name": "bats",
     "entity": ["sensor.bat1_state_of_charge", "sensor.bat2_state_of_charge"],
+    "evneedspwr": ["input_boolean.evneedspwr", "state"],
+    "ctrlbyapp": ["input_boolean.bat_ctrl_app", "state"],
     "attr": {
         "soc": "state",
     },
