@@ -67,10 +67,10 @@ class Prices(hass.Hass):  # type: ignore[misc]
         _t = ""
         _v = ["NOM"]
         # Check if the current price is below the threshold
-        if self.price["actual"] < self.price["today"]["q1"]:
+        if cs.TRADING and self.price["actual"] < self.price["today"]["q1"]:
             _t = f"Current price is below Q1 ({self.price['today']['q1']:.3f}): {self.price['actual']:.3f}"
             _v = ["API,-2200"]  # CHARGE
-        if self.price["actual"] > self.price["today"]["q3"]:
+        if cs.TRADING and self.price["actual"] > self.price["today"]["q3"]:
             _t = f"Current price is above Q3 ({self.price['today']['q3']:.3f}): {self.price['actual']:.3f}"
             _v = ["API,1700"]  # DISCHARGE
         if self.price["today"]["q1"] < self.price["actual"] < self.price["today"]["q3"]:
