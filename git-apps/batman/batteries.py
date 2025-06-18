@@ -115,7 +115,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
             self.keep_vote = vote
             rate = 0
             with contextlib.suppress(IndexError):
-                rate = vote.split(",")[1]
+                rate = vote[0].split(",")[1]
             # available part of SoC allowing for minimum required SoC
             soc_avail = self.bats["soc"]["now"] - required_soc
 
