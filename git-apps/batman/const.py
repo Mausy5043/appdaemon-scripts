@@ -4,6 +4,13 @@ VERSION = "0.0.8"
 
 TZ = "Europe/Amsterdam"
 
+# maximum rates per battery
+MAX_CHARGE = -2200
+MAX_DISCHARGE = 1700
+
+# set to True to enable more aggressive (dis)charging when prices are favourable
+TRADING = False
+
 # SCHEDULES settings
 # schedules are used to propose the charge/discharge power of the batteries for each hour
 SCHEDULES: dict = {
