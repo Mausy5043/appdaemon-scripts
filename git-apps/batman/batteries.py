@@ -141,11 +141,13 @@ class Batteries(hass.Hass):  # type: ignore[misc]
             self.interlock = True
         if self.ev_needs_pwr == "off":
             # EV stopped charging. Deactivate the interlock
+            self.keep_vote = "NOM"
             self.interlock = False
 
     def ctrl_by_app_changed(self, entity, attribute, old, new, **kwargs):
         self.app_ctrl = self.get_state(self.bats["ctrlbyapp"])
         self.log(f"App ctrl status changed {str(old)} -> {self.app_ctrl}")
+        self.keep_vote = "NOM"
         self.update_socs()
 
     # CALLBACKS
