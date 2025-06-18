@@ -1,3 +1,4 @@
+import contextlib
 import datetime as dt
 import time
 from collections import deque
@@ -112,6 +113,9 @@ class Batteries(hass.Hass):  # type: ignore[misc]
             if self.bats["soc"]["now"] < self.bats["soc"]["ll_limit"]:
                 vote = ["API,-2202"]  # BATTERY EMPTY, CHARGE
             self.keep_vote = vote
+            rate = 0
+            with contextlib.suppress(IndexError):
+                rate = vote.split(",")[1]
             # available part of SoC allowing for minimum required SoC
             soc_avail = self.bats["soc"]["now"] - required_soc
 
@@ -122,8 +126,10 @@ class Batteries(hass.Hass):  # type: ignore[misc]
                 self.mgr.tell(
                     self.bats["name"], f"At full discharge rate this will be reached in {min_to_req} min"
                 )
-                run_at = dt.datetime.now() + dt.timedelta(minutes=min_to_req)
-                self.run_at(self.minimum_soc_cb, run_at)
+                if rate > 850:
+                    # callback to manage low SoC only when discharging
+                    run_at = dt.datetime.now() + dt.timedelta(minutes=min_to_req)
+                    self.run_at(self.minimum_soc_cb, run_at)
             self.mgr.vote(self.bats["name"], vote, veto)
 
     def ev_charging_changed(self, entity, attribute, old, new, **kwargs):
@@ -154,8 +160,7 @@ class Batteries(hass.Hass):  # type: ignore[misc]
     def minimum_soc_cb(self, **kwargs) -> None:
         """Callback to update state of charge and take action for minimum SoC."""
         self.update_socs()
-        # Do stuff to stop discharging
-
+        # Do stuff to stop discharging.
 
     def ev_charging_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for EV charging state change."""
