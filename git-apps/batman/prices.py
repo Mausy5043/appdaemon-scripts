@@ -26,7 +26,8 @@ class Prices(hass.Hass):  # type: ignore[misc]
         for _k, _v in _e.items():
             self.log(f"____{_k}: {_v}", level="DEBUG")
         # Update today's and tomorrow's prices
-        self.prices_changed("prices", "", "none", "new")
+        _p = self.get_state(entity_id=self.price["entity"], attribute=self.price["attr"]["list"])
+        self.prices_changed("prices", "", "none", _p)
         _p = self.get_state(entity_id=self.price["entity"], attribute=self.price["attr"]["current"])
         self.price_changed("price", self.price["attr"]["current"], "none", _p)
 
