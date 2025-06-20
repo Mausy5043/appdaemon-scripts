@@ -4,6 +4,8 @@ import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import const2 as cs
 import utils2 as ut
 
+import datetime as dt
+
 """BatMan2 App
 Listen to changes in the battery state and control the charging/discharging based on energy prices and strategies.
 """
@@ -38,7 +40,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.pv_current: float = 0.0  # A
         self.pv_power: int = 0  # W
         self.soc: float = 0.0  # % average state of charge
-        self.soc_list: list[float] = []  # % state of charge for each battery
+        self.soc_list: list[float] = [0.0, 0.0]  # %; state of charge for each battery
+        self.pwr_sp_list: list[int] = [0, 0] # W; power setpoints of batteries
         self.update_states()
 
         self.set_call_backs()
@@ -82,8 +85,19 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 soc_list.append(float(_soc))
             else:
                 soc_list.append(0.0)
-        soc_now: float = sum(soc_list) / len(soc_list) if soc_list else 0.0
+        soc_now: float = sum(soc_list) / len(soc_list)
         return soc_now, soc_list
+
+    def get_pwr_sp(self) -> list[int]:
+        """Get current power setpoints for all batteries."""
+        pwr_list: list[int] = []
+        for bat in cs.SETPOINTS:
+            _sp: Any | None = self.get_state(entity_id=bat, attribute="state")
+            if _sp is not None:
+                pwr_list.append(int(_sp))
+            else:
+                pwr_list.append(0)
+        return pwr_list
 
     def update_states(self):
         """Update internal states based on current conditions."""
@@ -97,6 +111,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # get current SoC
         self.soc, self.soc_list = self.get_soc()
         self.log(f"BAT current SoC             = {self.soc:.1f} %. <- {self.soc_list}")
+        # get battery power setpoints
+        self.pwr_sp_list = self.get_pwr_sp()
+        self.log(f"Current setpoints           = {self.pwr_sp_list}")
         # get PV current and power values
         _pvc: Any = self.get_state(cs.PV_CURRENT)
         self.pv_current = float(_pvc)
@@ -158,6 +175,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # log the current price
         if self.debug:
             self.log(f"New current price           = {_p:.3f}")
+        self.choose_stance()
+        self.set_stance()
 
     def price_list_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for price list change."""
@@ -202,28 +221,76 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def choose_stance(self):
         """Choose the current stance based on the current price and battery state."""
-        # Get the current state of the battery
-        # soc = self.get_state(cs.BATTERY["entity"], attribute=cs.BATTERY["attr"]["soc"])
-        # soc = float(soc) if soc else 0.0
+        stance: str = self.stance  # Keep the current stance
+        if self.ctrl_by_me is False:
+            # we are switched off
+            self.log("*** Control by app is disabled. No stance change! ***")
+            return
 
-        # Decide stance based on price and SoC
-        # if self.stance == cs.NOM:
-        #     if self.greedy == -1 or (self.price["now"] < self.price["stats"]["nul"] and soc < cs.BAT_MIN_SOC):
-        #         self.start_charge()
-        #     elif self.greedy == 1 or (
-        #         self.ev_assist and self.price["now"] > self.price["stats"]["q3"] and soc > cs.BAT_MIN_SOC
-        #     ):
-        #         self.start_discharge()
-        #     else:
-        #         self.start_idle()
-        # elif self.stance == cs.IDLE:
-        #     if self.greedy == -1 or (self.price["now"] < self.price["stats"]["nul"] and soc < cs.BAT_MIN_SOC):
-        #         self.start_charge()
-        #     elif self.greedy == 1 or (self.ev_assist and self.price["now"] > cs.PRICE_Q3 and soc > cs.BAT_MIN_SOC):
-        #         self.start_discharge()
-        #     else:
-        #         pass
-        pass  # Placeholder for future logic
+        if self.ev_charging:
+            # automation will have switched the batteries to IDLE.
+            stance = cs.IDLE
+            # we overrule this only if ev_assist is true
+            #   and the price is above Q3
+            #   and the SoC is above bats_min_soc
+            _q3 = self.price["stats"]["q3"]
+            if self.ev_assist and self.price["now"] > _q3 and self.soc > self.bats_min_soc:
+                self.log(f"EV is charging but price is above {_q3:.3f}. Switching to DISCHARGE stance.")
+                self.start_discharge()
+                stance = cs.DISCHARGE
+
+        match self.greedy:
+            case -1:
+                self.log("Greedy for CHARGE. Switching to CHARGE stance.")
+                stance = cs.CHARGE
+            case 1:
+                self.log("Greedy for DISCHARGE. Switching to CHARGE stance.")
+                stance = cs.DISCHARGE
+            case _:
+                pass  # not greedy, do nothing
+
+        # if it is a sunny day, batteries will charge automatically
+        # we may want to discharge during the expensive hours
+        # check if now().hour is in self.price["expen_hour"]
+        _hr: int = dt.datetime.now().hour
+        _min_soc = self.bats_min_soc + (2 * cs.DISCHARGE_PWR /100)
+        if self.datum["sunny"] and (self.soc > _min_soc) and (_hr in self.price["expen_hour"]):
+            self.log(f"Sunny day, expensive hours and enough SoC (> {_min_soc}%). Switching to DISCHARGE stance.")
+            stance = cs.DISCHARGE
+        if not self.datum["sunny"] and (self.soc < self.bats_min_soc) and (_hr in self.price["cheap_hour"]):
+            self.log(f"Not a sunny day, hour is cheap and SoC below {self.bats_min_soc}%. Switching to CHARGE stance.")
+            stance = cs.CHARGE
+
+        # next calculate the power setpoints for the current stance
+        if stance == cs.NOM:
+            self.log("No action required. Keeping current setpoints.")
+        elif stance == cs.IDLE:
+            self.log("Keeping IDLE stance. No power setpoints.")
+            self.pwr_sp_list = [0, 0]
+        elif stance == cs.CHARGE:
+            self.log(f"Setting power setpoints to CHARGE: {cs.CHARGE_PWR} W.")
+            self.pwr_sp_list = [cs.CHARGE_PWR, cs.CHARGE_PWR]
+        elif stance == cs.DISCHARGE:
+            self.log(f"Setting power setpoints to DISCHARGE: {cs.DISCHARGE_PWR} W.")
+            self.pwr_sp_list = [cs.DISCHARGE_PWR, cs.DISCHARGE_PWR]
+        else:
+            self.log("No action required. Keeping current setpoints.")
+        self.stance = stance
+
+    def set_stance(self):
+        """Set the current stance based on the current state."""
+        match self.stance:
+            case cs.NOM:
+                self.start_nom()
+            case cs.IDLE:
+                self.start_idle()
+            case cs.CHARGE:
+                self.start_charge()
+            case cs.DISCHARGE:
+                self.start_discharge()
+            case _:
+                self.log(f"Unknown stance: {self.stance}. Switching to NOM.")
+
 
     def start_nom(self):
         """Start the NOM stance."""
@@ -264,17 +331,17 @@ NOM:
 default stance
 
 IDLE:
-- EV_charging (automation)
+o EV_charging (automation)
 
 API- (charge) START @:
-|| greedy: price < nul
-|| !sunnyday && SoC < sensor.bats_minimum_soc && cheap_hours
+o|| greedy: price < nul
+o|| !sunnyday && SoC < sensor.bats_minimum_soc && cheap_hours
 STOP @ SoC = 100%
 
 API+ (discharge) START @:
-|| greedy: price > top
-|| EV_charging && EV_assist && price > Q3 && SoC > sensor.bats_minimum_soc
-|| sunnyday && SoC > __ % && expen_hours
+o|| greedy: price > top
+o|| EV_charging && EV_assist && price > Q3 && SoC > sensor.bats_minimum_soc
+o|| sunnyday && SoC > {2*17+ minsoc} % && expen_hours
 STOP @ SoC = sensor.bats_minimum_soc
 
  """
