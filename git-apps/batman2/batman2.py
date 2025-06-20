@@ -19,6 +19,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
         # create internals
         self.debug: bool = cs.DEBUG
+        self.greedy: int = 0  # 0 = not greedy, 1 = greedy hi price, -1 = greedy low price
         self.datum: dict = ut.get_these_days()
         self.price: dict = {
             "today": [],
@@ -65,8 +66,14 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def price_current_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for current price change."""
         self.price["now"] = ut.total_price([float(new)])[0]
+        self.greedy = 0
+        if self.price["now"] < cs.PRICES["nul"]:
+            self.greedy = -1
+        if self.price["now"] > cs.PRICES["top"]:
+            self.greedy = 1
+        _s = "greedy for low price" if self.greedy == -1 else "greedy for high price" if self.greedy == 1 else "not greedy"
         if self.debug:
-            self.log(f"New current price          = {self.price['now']:.3f}")
+            self.log(f"New current price          = {self.price['now']:.3f} ({_s})")
         # every time the current price changes, we update other stuff too:
         self.datum = ut.get_these_days()
 
