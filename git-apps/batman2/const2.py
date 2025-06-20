@@ -25,10 +25,12 @@ DEFAULT_STANCE = NOM
 EV_ASSIST = False
 EV_REQ_PWR = "input_boolean.evneedspwr"
 BAT_MIN_SOC = "sensor.bats_minimum_soc"
+CTRL_BY_ME = "input_boolean.bat_ctrl_app"
 # ENT_BASELOAD = "input_number.home_baseload"
 # ENT_HOURS_TILL_10AM = "sensor.hours_till_10am"
 PV_CURRENT = "sensor.pv_kwh_meter_current"
 PV_POWER = "sensor.pv_kwh_meter_power"
+BATTERIES = ["sensor.bat1_state_of_charge", "sensor.bat2_state_of_charge"]
 
 # ### PRICES SETTINGS ### #
 PRICES: dict = {

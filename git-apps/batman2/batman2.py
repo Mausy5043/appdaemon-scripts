@@ -33,9 +33,12 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # various monitors
         self.ev_assist = cs.EV_ASSIST
         self.ev_charging: bool = False
+        self.ctrl_by_me: bool = True  # whether the app is allowed to control the batteries
         self.bats_min_soc: float = 0.0
         self.pv_current: float = 0.0  # A
         self.pv_power: int = 0  # W
+        self.soc: float = 0.0  # % average state of charge
+        self.soc_list: list[float] = []  # % state of charge for each battery
         self.update_states()
 
         self.set_call_backs()
@@ -61,19 +64,37 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             "entity", "list", "none", self.get_state(cs.PRICES["entity"], attribute=cs.PRICES["attr"]["now"])
         )
 
+    def get_soc(self) -> tuple[float, list[float]]:
+        """Get current state of charge (SoC) for all batteries."""
+        soc_list: list[float] = []
+        for bat in cs.BATTERIES:
+            _soc: Any | None = self.get_state(entity_id=bat, attribute="state")
+            if _soc is not None:
+                soc_list.append(float(_soc))
+            else:
+                soc_list.append(0.0)
+        soc_now: float = sum(soc_list) / len(soc_list) if soc_list else 0.0
+        return soc_now, soc_list
+
     def update_states(self):
         """Update internal states based on current conditions."""
         self.log("--------------------------- v ------------------------")
         # update the current date
         self.datum = ut.get_these_days()
         # minimum SoC required to provide power until 10:00 next morning
-        self.bats_min_soc = self.get_state(cs.BAT_MIN_SOC, "state")
-        self.log(f"BAT minimum SoC             = {self.bats_min_soc} %")
+        _bms: Any = self.get_state(cs.BAT_MIN_SOC)
+        self.bats_min_soc =  float(_bms)
+        self.log(f"BAT minimum SoC             = {self.bats_min_soc:.1f} %")
+        # get current SoC
+        self.soc, self.soc_list = self.get_soc()
+        self.log(f"BAT current SoC             = {self.bats_soc:.1f} %")
         # get PV current and power values
-        self.pv_current = self.get_state(cs.PV_CURRENT, "state")
-        self.log(f"PV actual current           = {self.pv_current} A")
-        self.pv_power = self.get_state(cs.PV_POWER, "state")
-        self.log(f"PV actual power             = {self.pv_power} W")
+        _pvc: Any = self.get_state(cs.PV_CURRENT)
+        self.pv_current = float(_pvc)
+        self.log(f"PV actual current           = {self.pv_current:.1f} A")
+        _pvp: Any = self.get_state(cs.PV_POWER)
+        self.pv_power = float(_pvp)
+        self.log(f"PV actual power             = {self.pv_power:.1f} W")
         # check if we are greedy (price must have been updated already!)
         self.greedy = ut.get_greedy(self.price["now"])
         match self.greedy:
@@ -85,15 +106,26 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 _s = "not greedy"
         self.log(f"Greed                       = {_s}")
         # check whether the EV is currently charging
-        self.ev_charging = self.get_state(cs.EV_REQ_PWR)
+        _evc: Any = self.get_state(cs.EV_REQ_PWR)
+        self.ev_charging = False
+        if str(_evc) == "on":
+            self.ev_charging = True
         if self.ev_charging:
-            self.log(f"EV charging                 = {self.ev_charging}")
+            self.log(f"EV charging                 = {str(_evc).upper()}")
         # check if we are going to assist the EV
         self.ev_assist = cs.EV_ASSIST
         if self.price["now"] > self.price["stats"]["q3"]:
             self.ev_assist = True
         if self.ev_assist:
             self.log("EV assist                   = ENABLED")
+        _ctrl: Any = self.get_state(cs.CTRL_BY_ME)
+        self.ctrl_by_me = False
+        if str(_ctrl) == "on":
+            self.ctrl_by_me = True
+        if self.ctrl_by_me:
+            self.log("Control by app              = ENABLED")
+        else:
+            self.log("Control by app              = DISABLED")
         self.log("--------------------------- ^ ------------------------")
 
     def terminate(self):
@@ -196,8 +228,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 """
 sunnyday = march equinox to september equinox
 
-sensor.pv_kwh_meter_current <= +/-21 A
-sensor.pv_kwh_meter_power <= +/-5000 W
+o sensor.pv_kwh_meter_current <= +/-21 A
+o sensor.pv_kwh_meter_power <= +/-5000 W
 
 EV assist when price > Q3
 
