@@ -1,26 +1,27 @@
 ---
 
-the_batman:
-  module: batman
-  class: BatMan
-  priority: 80
 
-schedules:
-  module: schedules
-  class: Schedules
-  priority: 81
+# the_batman:
+#   module: batman
+#   class: BatMan
+#   priority: 80
 
-prices:
-  module: prices
-  class: Prices
-  priority: 82
+# schedules:
+#   module: schedules
+#   class: Schedules
+#   priority: 81
 
-batteries:
-  module: batteries
-  class: Batteries
-  priority: 83
+# prices:
+#   module: prices
+#   class: Prices
+#   priority: 82
 
-strategies:
-  module: strategies
-  class: Strategies
-  priority: 84
+# batteries:
+#   module: batteries
+#   class: Batteries
+#   priority: 83
+
+# strategies:
+#   module: strategies
+#   class: Strategies
+#   priority: 84
