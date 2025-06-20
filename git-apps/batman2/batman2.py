@@ -151,26 +151,26 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def choose_stance(self):
         """Choose the current stance based on the current price and battery state."""
         # Get the current state of the battery
-        soc = self.get_state(cs.BATTERY["entity"], attribute=cs.BATTERY["attr"]["soc"])
-        soc = float(soc) if soc else 0.0
+        # soc = self.get_state(cs.BATTERY["entity"], attribute=cs.BATTERY["attr"]["soc"])
+        # soc = float(soc) if soc else 0.0
 
         # Decide stance based on price and SoC
-        if self.stance == cs.NOM:
-            if self.greedy == -1 or (self.price["now"] < self.price["stats"]["nul"] and soc < cs.MIN_SOC):
-                self.start_charge()
-            elif self.greedy == 1 or (
-                self.ev_assist and self.price["now"] > self.price["stats"]["q3"] and soc > cs.MIN_SOC
-            ):
-                self.start_discharge()
-            else:
-                self.start_idle()
-        elif self.stance == cs.IDLE:
-            if self.greedy == -1 or (self.price["now"] < self.price["stats"]["nul"] and soc < cs.MIN_SOC):
-                self.start_charge()
-            elif self.greedy == 1 or (self.ev_assist and self.price["now"] > cs.PRICE_Q3 and soc > cs.MIN_SOC):
-                self.start_discharge()
-            else:
-                pass
+        # if self.stance == cs.NOM:
+        #     if self.greedy == -1 or (self.price["now"] < self.price["stats"]["nul"] and soc < cs.BAT_MIN_SOC):
+        #         self.start_charge()
+        #     elif self.greedy == 1 or (
+        #         self.ev_assist and self.price["now"] > self.price["stats"]["q3"] and soc > cs.BAT_MIN_SOC
+        #     ):
+        #         self.start_discharge()
+        #     else:
+        #         self.start_idle()
+        # elif self.stance == cs.IDLE:
+        #     if self.greedy == -1 or (self.price["now"] < self.price["stats"]["nul"] and soc < cs.BAT_MIN_SOC):
+        #         self.start_charge()
+        #     elif self.greedy == 1 or (self.ev_assist and self.price["now"] > cs.PRICE_Q3 and soc > cs.BAT_MIN_SOC):
+        #         self.start_discharge()
+        #     else:
+        #         pass
 
     def start_nom(self):
         """Start the NOM stance."""
