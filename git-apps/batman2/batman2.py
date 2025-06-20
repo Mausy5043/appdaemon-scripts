@@ -96,7 +96,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.log(
                 f"New pricelist for today    = {self.price["today"]}\n :   cheap hours     = {
                     self.price['cheap_hour']
-                }\n :   expensive hours = {self.price['expen_hour']}\n :   STATISTICS\n{self.price['stats']['text']}"
+                }\n :   expensive hours = {self.price['expen_hour']}\n :   STATISTICS\n :     {self.price['stats']['text']}"
             )
             self.log(f"New pricelist for tomorrow = {self.price["tomor"]}")
 
