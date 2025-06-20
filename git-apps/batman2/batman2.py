@@ -54,6 +54,15 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.callback_handles.append(
             self.listen_state(self.price_current_cb, cs.PRICES["entity"], attribute=cs.PRICES["attr"]["now"])
         )
+        # Set-up callbacks for watchdog changes
+        # EV starts charging
+        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.EV_REQ_PWR, "state"))
+        # App control is allowed or prohibited
+        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.CTRL_BY_ME, "state"))
+        # Minimum SoC is reached
+        #self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.BAT_MIN_SOC_WD, "state"))
+        # PV overcurrent detected
+        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.PV_CURRENT_WD, "state"))
 
     def get_price_states(self):
         # Get current states for prices
@@ -83,7 +92,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.datum = ut.get_these_days()
         # minimum SoC required to provide power until 10:00 next morning
         _bms: Any = self.get_state(cs.BAT_MIN_SOC)
-        self.bats_min_soc =  float(_bms)
+        self.bats_min_soc = float(_bms)
         self.log(f"BAT minimum SoC             = {self.bats_min_soc:.1f} %")
         # get current SoC
         self.soc, self.soc_list = self.get_soc()
@@ -99,11 +108,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.greedy = ut.get_greedy(self.price["now"])
         match self.greedy:
             case -1:
-                _s = "greedy to charge"
+                _s = "greedy to CHARGE"
             case 1:
-                _s = "greedy for discharge"
+                _s = "greedy for DISCHARGE"
             case _:
-                _s = "not greedy"
+                _s = "NOT greedy"
         self.log(f"Greed                       = {_s}")
         # check whether the EV is currently charging
         _evc: Any = self.get_state(cs.EV_REQ_PWR)
@@ -178,6 +187,17 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             )
             self.log(f"New pricelist for tomorrow = {self.price["tomor"]}")
 
+    def watchdog_cb(self, entity, attribute, old, new, **kwargs):
+        """Callback for changes to monitored automations."""
+        # Update the current state of the system
+        self.log(f"*** Watchdog triggered by {entity} ({attribute}) change: {old} -> {new}")
+        self.update_states()
+        # Decide stance based on the current state
+        self.choose_stance()
+        # Log the current stance
+        if self.debug:
+            self.log(f"Current stance             = {self.stance}")
+
     # CONTROL LOGIC
 
     def choose_stance(self):
@@ -203,6 +223,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         #         self.start_discharge()
         #     else:
         #         pass
+        pass  # Placeholder for future logic
 
     def start_nom(self):
         """Start the NOM stance."""

@@ -24,11 +24,12 @@ DEFAULT_STANCE = NOM
 # when False, the app will not assist the EV charging
 EV_ASSIST = False
 EV_REQ_PWR = "input_boolean.evneedspwr"
-BAT_MIN_SOC = "sensor.bats_minimum_soc"
 CTRL_BY_ME = "input_boolean.bat_ctrl_app"
-# ENT_BASELOAD = "input_number.home_baseload"
-# ENT_HOURS_TILL_10AM = "sensor.hours_till_10am"
+BAT_MIN_SOC = "sensor.bats_minimum_soc"
+BAT_MIN_SOC_WD = ""  # battery minimum state of charge watch dog
 PV_CURRENT = "sensor.pv_kwh_meter_current"
+PV_CURRENT_WD = "input_boolean.pvovercurrent"  # PV-current watch dog > 21 A || < -21 A
+PV_CURRENT_MAX = 21.0  # A;abs
 PV_POWER = "sensor.pv_kwh_meter_power"
 BATTERIES = ["sensor.bat1_state_of_charge", "sensor.bat2_state_of_charge"]
 
