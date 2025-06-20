@@ -1,6 +1,8 @@
 #!/bin/env bash
 # sync the repository with git and update the local files
 
+update_app = "/${1}"
+
 branch_name="master"
 
 repo_dir="/addon_configs/git/appdaemon-scripts"
@@ -39,8 +41,8 @@ fi
     git reset --hard "origin/${branch_name}" && git clean -f -d
     # copy apps to the apps directory
     echo "Copying apps from ${repo_apps_dir} to ${apps_dir}"
-    cp -rv "${repo_apps_dir}"/* "${apps_dir}/" || {
-        echo "Failed to copy apps from ${repo_apps_dir} to ${apps_dir}"
+    cp -rv "${repo_apps_dir}${update_app}"/* "${apps_dir}${update_app}/" || {
+        echo "Failed to copy apps from ${repo_apps_dir}${update_app} to ${apps_dir}${update_app}"
         exit 1
     }
     echo "Apps updated successfully."
