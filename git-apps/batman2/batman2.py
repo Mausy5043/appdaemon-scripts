@@ -75,7 +75,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.greedy = ut.get_greedy(_p)
         _s = "greedy for low price" if self.greedy == -1 else "greedy for high price" if self.greedy == 1 else "not greedy"
         # check if we are going to assist the EV
-        if _p > self.price["stats"]["Q3"]:
+        if _p > self.price["stats"]["q3"]:
             self.ev_assist = True
         else:
             self.ev_assist = cs.EV_ASSIST
@@ -100,7 +100,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         discharge_today.sort()
         self.price["cheap_hour"] = charge_today
         self.price["expen_hour"] = discharge_today
-        
+
         # update tomorrow's prices
         self.price["tomor"] = ut.total_price(new[self.datum["tomor"].strftime("%Y-%m-%d")])
         if self.debug:
