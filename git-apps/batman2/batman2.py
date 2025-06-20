@@ -87,7 +87,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.log(f"BAT minimum SoC             = {self.bats_min_soc:.1f} %")
         # get current SoC
         self.soc, self.soc_list = self.get_soc()
-        self.log(f"BAT current SoC             = {self.bats_soc:.1f} %")
+        self.log(f"BAT current SoC             = {self.soc:.1f} %. <- {self.soc_list}")
         # get PV current and power values
         _pvc: Any = self.get_state(cs.PV_CURRENT)
         self.pv_current = float(_pvc)
