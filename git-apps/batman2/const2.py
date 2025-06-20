@@ -13,7 +13,7 @@ MAX_DISCHARGE = 1700
 TRADING = False
 # stances
 NOM = "NOM"
-DISCHARGEE = "API"  # (+)-ve power setting
+DISCHARGE = "API"  # (+)-ve power setting
 DISCHARGE_PWR = 1700  # W
 CHARGE = "API"  # (-)-ve power setting
 CHARGE_PWR = -2200  # W
