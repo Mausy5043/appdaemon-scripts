@@ -1,4 +1,4 @@
-import datetime as dt
+
 from typing import Any
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
@@ -30,7 +30,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             "stats": {},
         }
         self.stance: str = cs.DEFAULT_STANCE
-        self.get_states()
+        self.get_price_states()
         self.set_call_backs()
 
     def set_call_backs(self):
@@ -42,7 +42,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.listen_state(self.price_current_cb, cs.PRICES["entity"], attribute=cs.PRICES["attr"]["now"])
         )
 
-    def get_states(self):
+    def get_price_states(self):
         # Get current states for prices
         self.price_list_cb(
             "entity", "list", "none", self.get_state(cs.PRICES["entity"], attribute=cs.PRICES["attr"]["list"])
@@ -103,8 +103,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
 
 """
-SoC > 75% || sunnyday |-> = discharge to 25%
-SoC < __% || !sunnyday |-> = charge to 100%
 
 definition of summerday = 1st of May to 30th of September
  winterday = 1st of October to 30th of April
@@ -123,15 +121,18 @@ Default requirements:
 NOM:
 default stance
 
-API- (charge)
-- greedy: price < nul
-- winter: cheap hours & SoC < sensor.bats_minimum_soc
-
-API+ (discharge)
-- greedy: price > top
-- EV is charging & price > Q3 & SoC > sensor.bats_minimum_soc
-
 IDLE:
-- EV is charging
+- EV_charging (automation)
+
+API- (charge) START @:
+|| greedy: price < nul
+|| !sunnyday && SoC < sensor.bats_minimum_soc && cheap_hours
+STOP @ SoC = 100%
+
+API+ (discharge) START @:
+|| greedy: price > top
+|| EV_charging && EV_assist && price > Q3 && SoC > sensor.bats_minimum_soc
+|| sunnyday && SoC > __ % && expen_hours
+STOP @ SoC = sensor.bats_minimum_soc
 
  """
