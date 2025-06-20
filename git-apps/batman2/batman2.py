@@ -68,11 +68,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.datum = ut.get_these_days()
         # minimum SoC required to provide power until 10:00 next morning
         self.bats_min_soc = self.get_state(cs.BAT_MIN_SOC)
-        self.log(f"BAT minimum SoC.            = {self.bats_min_soc:.1f} %")
+        self.log(f"BAT minimum SoC             = {self.bats_min_soc} %")
         # get PV current and power values
-        self.pv_current = self.get_state(cs.PV_CURRENT, "state")
-        self.log(f"PV actual current           = {self.pv_current:.1f} A")
-        self.pv_power = self.get_state(cs.PV_POWER, "state")
+        self.pv_current = self.get_state(cs.PV_CURRENT)
+        self.log(f"PV actual current           = {self.pv_current} A")
+        self.pv_power = self.get_state(cs.PV_POWER)
         self.log(f"PV actual power             = {self.pv_power} W")
         # check if we are greedy (price must have been updated already!)
         self.greedy = ut.get_greedy(self.price["now"])
