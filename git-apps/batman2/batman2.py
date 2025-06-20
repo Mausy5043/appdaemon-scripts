@@ -87,7 +87,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # check whether the EV is currently charging
         self.ev_charging = self.get_state(cs.EV_REQ_PWR)
         if self.ev_charging:
-            self.log("EV charging                 = ENABLED")
+            self.log(f"EV charging                 = {self.ev_charging}")
         # check if we are going to assist the EV
         self.ev_assist = cs.EV_ASSIST
         if self.price["now"] > self.price["stats"]["q3"]:
@@ -116,7 +116,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.update_states()
         # log the current price
         if self.debug:
-            self.log(f"New current price          = {_p:.3f}")
+            self.log(f"New current price           = {_p:.3f}")
 
     def price_list_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for price list change."""
