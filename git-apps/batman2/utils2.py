@@ -65,12 +65,14 @@ def is_sunny_day(datum: dt.date) -> bool:
     autumn_equinox = dt.date(year, 9, 21)
     return spring_equinox <= datum <= autumn_equinox
 
+
 def get_these_days() -> dict:
     return {
         "today": dt.date.today(),
         "tomor": dt.date.today() + dt.timedelta(days=1),
         "sunny": is_sunny_day(dt.date.today()),
     }
+
 
 def total_price(pricelist: list[float]) -> list[float]:
     """Convert a given list of raw prices."""
@@ -84,6 +86,7 @@ def total_price(pricelist: list[float]) -> list[float]:
     # add BTW
     _p = [round(i * cs.PRICES["adjust"]["btw"], 3) for i in _p]
     return _p
+
 
 def price_statistics(prices: list) -> dict:
     """Calculate and return price statistics."""
@@ -105,6 +108,7 @@ def price_statistics(prices: list) -> dict:
         f"Max: {price_stats.get('max', 'N/A'):.3f}"
     )
     return price_stats
+
 
 def get_greedy(price: float) -> int:
     """Determine if the price is low, high, or neutral."""

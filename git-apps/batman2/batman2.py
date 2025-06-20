@@ -1,4 +1,3 @@
-
 from typing import Any
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
@@ -21,6 +20,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.debug: bool = cs.DEBUG
         self.greedy: int = 0  # 0 = not greedy, 1 = greedy hi price, -1 = greedy low price
         self.datum: dict = ut.get_these_days()
+        self.stance: str = cs.DEFAULT_STANCE
         self.price: dict = {
             "today": [],
             "tomor": [],
@@ -29,10 +29,19 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             "expen_hour": [],
             "stats": {},
         }
-        self.stance: str = cs.DEFAULT_STANCE
         self.get_price_states()
-        self.set_call_backs()
+        # various monitors
         self.ev_assist = cs.EV_ASSIST
+        self.ev_charging: bool = False
+        self.bats_min_soc: float = 0.0
+        self.pv_current: float = 0.0    # A
+        self.pv_power: int = 0   # W
+        self.update_states()
+
+        self.set_call_backs()
+
+        # start in NOM stance
+        self.start_nom()
 
     def set_call_backs(self):
         # Set-up callbacks for price changes
@@ -52,6 +61,41 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             "entity", "list", "none", self.get_state(cs.PRICES["entity"], attribute=cs.PRICES["attr"]["now"])
         )
 
+    def update_states(self):
+        """Update internal states based on current conditions."""
+        self.log("--------------------------- v ------------------------")
+        # update the current date
+        self.datum = ut.get_these_days()
+        # minimum SoC required to provide power until 10:00 next morning
+        self.bats_min_soc = self.get_state(cs.BAT_MIN_SOC)
+        self.log(f"BAT minimum SoC.            = {self.bats_min_soc:.1f} %")
+        # get PV current and power values
+        self.pv_current = self.get_state(cs.PV_CURRENT, "state")
+        self.log(f"PV actual current           = {self.pv_current:.1f} A")
+        self.pv_power = self.get_state(cs.PV_POWER, "state")
+        self.log(f"PV actual power             = {self.pv_power} W")
+        # check if we are greedy (price must have been updated already!)
+        self.greedy = ut.get_greedy(self.price["now"])
+        match self.greedy:
+            case -1:
+                _s = "greedy to charge"
+            case 1:
+                _s = "greedy for discharge"
+            case _:
+                _s = "not greedy"
+        self.log(f"Greed                       = {_s}")
+        # check whether the EV is currently charging
+        self.ev_charging = self.get_state(cs.EV_REQ_PWR)
+        if self.ev_charging:
+            self.log("EV charging                 = ENABLED")
+        # check if we are going to assist the EV
+        self.ev_assist = cs.EV_ASSIST
+        if self.price["now"] > self.price["stats"]["q3"]:
+            self.ev_assist = True
+        if self.ev_assist:
+            self.log("EV assist                   = ENABLED")
+        self.log("--------------------------- ^ ------------------------")
+
     def terminate(self):
         """Clean up app."""
         self.log("__Terminating BatMan2...")
@@ -69,21 +113,10 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _p = ut.total_price([float(new)])[0]
         self.price["now"] = _p
         # every time the current price changes, we update other stuff too:
-        self.datum = ut.get_these_days()
-
-        # check if we are greedy
-        self.greedy = ut.get_greedy(_p)
-        _s = "greedy for low price" if self.greedy == -1 else "greedy for high price" if self.greedy == 1 else "not greedy"
-        # check if we are going to assist the EV
-        if _p > self.price["stats"]["q3"]:
-            self.ev_assist = True
-        else:
-            self.ev_assist = cs.EV_ASSIST
+        self.update_states()
         # log the current price
         if self.debug:
-            self.log(f"New current price          = {_p:.3f} ({_s})")
-            if self.ev_assist:
-                self.log("EV assist                   = ENABLED")
+            self.log(f"New current price          = {_p:.3f}")
 
     def price_list_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for price list change."""
@@ -107,11 +140,37 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.log(
                 f"New pricelist for today    = {self.price["today"]}\n :   cheap hours     = {
                     self.price['cheap_hour']
-                }\n :   expensive hours = {self.price['expen_hour']}\n :   STATISTICS\n :     {self.price['stats']['text']}"
+                }\n :   expensive hours = {self.price['expen_hour']}\n :   STATISTICS\n :     {
+                    self.price['stats']['text']
+                }"
             )
             self.log(f"New pricelist for tomorrow = {self.price["tomor"]}")
 
     # CONTROL LOGIC
+
+    def choose_stance(self):
+        """Choose the current stance based on the current price and battery state."""
+        # Get the current state of the battery
+        soc = self.get_state(cs.BATTERY["entity"], attribute=cs.BATTERY["attr"]["soc"])
+        soc = float(soc) if soc else 0.0
+
+        # Decide stance based on price and SoC
+        if self.stance == cs.NOM:
+            if self.greedy == -1 or (self.price["now"] < self.price["stats"]["nul"] and soc < cs.MIN_SOC):
+                self.start_charge()
+            elif self.greedy == 1 or (
+                self.ev_assist and self.price["now"] > self.price["stats"]["q3"] and soc > cs.MIN_SOC
+            ):
+                self.start_discharge()
+            else:
+                self.start_idle()
+        elif self.stance == cs.IDLE:
+            if self.greedy == -1 or (self.price["now"] < self.price["stats"]["nul"] and soc < cs.MIN_SOC):
+                self.start_charge()
+            elif self.greedy == 1 or (self.ev_assist and self.price["now"] > cs.PRICE_Q3 and soc > cs.MIN_SOC):
+                self.start_discharge()
+            else:
+                pass
 
     def start_nom(self):
         """Start the NOM stance."""
@@ -143,8 +202,8 @@ sensor.pv_kwh_meter_power <= +/-5000 W
 EV assist when price > Q3
 
 Default requirements:
-- default stance = NOM
-- sensor.bats_minimum_soc = SoC required to provide 200 W (input_number.home_baseload) until 10:00 next morning (sensor.hours_till_10am)
+o default stance = NOM
+o sensor.bats_minimum_soc = SoC required to provide 200 W (input_number.home_baseload) until 10:00 next morning (sensor.hours_till_10am)
 - battery contents is available to the home
 - only when surplus is high, battery contents may be offloaded
 

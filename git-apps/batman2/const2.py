@@ -23,7 +23,12 @@ DEFAULT_STANCE = NOM
 # when True, the app will assist the EV charging when prices are high (>Q3)
 # when False, the app will not assist the EV charging
 EV_ASSIST = False
-
+EV_REQ_PWR = "input_boolean.evneedspwr"
+BAT_MIN_SOC = "sensor.bats_minimum_soc"
+# ENT_BASELOAD = "input_number.home_baseload"
+# ENT_HOURS_TILL_10AM = "sensor.hours_till_10am"
+PV_CURRENT = "sensor.pv_kwh_meter_current"
+PV_POWER = "sensor.pv_kwh_meter_power"
 
 # ### PRICES SETTINGS ### #
 PRICES: dict = {
