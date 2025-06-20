@@ -51,3 +51,29 @@ def hours_until_next_10am() -> int:
     hours_until_10am = math.ceil(time_diff.total_seconds() / 3600)
 
     return hours_until_10am
+
+
+def is_sunny_day(datum: dt.date) -> bool:
+    """Check if the given date is likely to be a sunny day.
+    A sunny day is defined as a day between the spring and autumn approximate equinoxes.
+    It is expected that power production is high enough during this period.
+    """
+    year = datum.year
+    # Approximate equinox dates (can be adjusted for precision)
+    spring_equinox = dt.date(year, 3, 21)
+    autumn_equinox = dt.date(year, 9, 21)
+    return spring_equinox <= datum <= autumn_equinox
+
+
+def total_price(pricelist: list[float]) -> list[float]:
+    """Convert a given list of raw prices."""
+    # cents to Euro
+    _p: list[float] = [i * 100 for i in pricelist]
+    # add costs and taxes
+    _p = [
+        i + (cs.PRICES["adjust"]["hike"] + cs.PRICES["adjust"]["extra"] + cs.PRICES["adjust"]["taxes"])
+        for i in _p
+    ]
+    # add BTW
+    _p = [round(i * cs.PRICES["adjust"]["btw"], 5) for i in _p]
+    return _p
