@@ -32,6 +32,7 @@ PV_CURRENT_WD = "input_boolean.pvovercurrent"  # PV-current watch dog > 21 A || 
 PV_CURRENT_MAX = 21.0  # A;abs
 PV_POWER = "sensor.pv_kwh_meter_power"
 BATTERIES = ["sensor.bat1_state_of_charge", "sensor.bat2_state_of_charge"]
+SETPOINTS = ["number.bat1_power_setpoint", "number.bat1_power_setpoint"]
 
 # ### PRICES SETTINGS ### #
 PRICES: dict = {
