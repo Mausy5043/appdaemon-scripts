@@ -18,13 +18,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.callback_handles: list[Any] = []
 
         # create internals
-        self.debug = cs.DEBUG
-        self.datum = {
-            "today": dt.date.today(),
-            "tomor": dt.date.today() + dt.timedelta(days=1),
-            "sunny": ut.is_sunny_day(dt.date.today()),
-        }
-        self.price = {
+        self.debug: bool = cs.DEBUG
+        self.datum: dict = ut.get_these_days()
+        self.price: dict = {
             "today": [],
             "tomor": [],
             "now": 0.0,
@@ -32,7 +28,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             "expen_hour": [],
             "stats": {},
         }
-        self.stance = cs.DEFAULT_STANCE
+        self.stance: str = cs.DEFAULT_STANCE
         self.get_states()
         self.set_call_backs()
 
@@ -71,15 +67,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.price["now"] = ut.total_price([float(new)])[0]
         if self.debug:
             self.log(f"New price for now.         = {self.price['now']:.3f}")
+        # every time the current price changes, we update other stuff too:
+        self.datum = ut.get_these_days()
 
     def price_list_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for price list change."""
         # update dates
-        self.datum = {
-            "today": dt.date.today(),
-            "tomor": dt.date.today() + dt.timedelta(days=1),
-            "sunny": ut.is_sunny_day(dt.date.today()),
-        }
+        self.datum = ut.get_these_days()
         # update prices
         _p = ut.total_price(new[self.datum["today"].strftime("%Y-%m-%d")])
         self.price["today"] = _p
