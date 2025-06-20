@@ -105,3 +105,13 @@ def price_statistics(prices: list) -> dict:
         f"Max: {price_stats.get('max', 'N/A'):.3f}"
     )
     return price_stats
+
+def get_greedy(price: float) -> int:
+    """Determine if the price is low, high, or neutral."""
+    _g = 0  # not greedy
+    if price < cs.PRICES["nul"]:
+        _g = -1  # greedy for low price
+    if price > cs.PRICES["top"]:
+        _g = 1  # greedy for high price
+
+    return _g
