@@ -1,7 +1,7 @@
 import datetime as dt
 import math
 
-import const2 as cs
+import const as cs
 import pytz
 
 """Utility functions for the Batman apps."""
