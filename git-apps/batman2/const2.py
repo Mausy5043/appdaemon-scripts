@@ -1,4 +1,4 @@
-"""Provides constants for the Batman app."""
+"""Provides constants for the Batman2 app."""
 
 # ### GENERAL SETTINGS ### #
 VERSION = "0.1.0"

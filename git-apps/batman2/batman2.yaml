@@ -1,6 +1,6 @@
 ---
 
-# batman2:
-#   module: batman2
-#   class: BatMan2
-#   priority: 80
+batman2:
+  module: batman2
+  class: BatMan2
+  priority: 80

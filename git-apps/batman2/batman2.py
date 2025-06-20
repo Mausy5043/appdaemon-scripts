@@ -3,14 +3,14 @@ from typing import Any
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import const2 as cs
-import utils as ut
+import utils2 as ut
 
 """BatMan2 App
 Listen to changes in the battery state and control the charging/discharging based on energy prices and strategies.
 """
 
 
-class BatMan(hass.Hass):  # type: ignore[misc]
+class BatMan2(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
         self.log(f"===================================== BatMan2 v{cs.VERSION} ====")
