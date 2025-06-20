@@ -34,8 +34,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.ev_assist = cs.EV_ASSIST
         self.ev_charging: bool = False
         self.bats_min_soc: float = 0.0
-        self.pv_current: float = 0.0    # A
-        self.pv_power: int = 0   # W
+        self.pv_current: float = 0.0  # A
+        self.pv_power: int = 0  # W
         self.update_states()
 
         self.set_call_backs()
