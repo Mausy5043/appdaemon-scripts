@@ -56,13 +56,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         )
         # Set-up callbacks for watchdog changes
         # EV starts charging
-        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.EV_REQ_PWR, "state"))
+        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.EV_REQ_PWR))
         # App control is allowed or prohibited
-        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.CTRL_BY_ME, "state"))
+        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.CTRL_BY_ME))
         # Minimum SoC is reached
-        #self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.BAT_MIN_SOC_WD, "state"))
+        #self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.BAT_MIN_SOC_WD))
         # PV overcurrent detected
-        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.PV_CURRENT_WD, "state"))
+        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.PV_CURRENT_WD))
 
     def get_price_states(self):
         # Get current states for prices
