@@ -8,7 +8,7 @@ import pytz
 """Utility functions for the Batman apps."""
 
 
-def log_entity_attr(hass, entity_id, attribute="all", level="DEBUG"):
+def log_entity_attr(hass, entity_id, attribute="all", level="DEBUG") -> None:
     """Log everything we can known about an entity."""
     entity_state = hass.get_state(entity_id, attribute=attribute)
     if isinstance(entity_state, dict):
@@ -18,7 +18,7 @@ def log_entity_attr(hass, entity_id, attribute="all", level="DEBUG"):
         hass.log(f"____{entity_id} ({attribute}): {entity_state}", level=level)
 
 
-def sort_index(lst: list, rev=True):
+def sort_index(lst: list, rev=True) -> list:
     s: list = [i[0] for i in sorted(enumerate(lst), key=lambda x: x[1], reverse=rev)]
     return s
 
@@ -65,6 +65,12 @@ def is_sunny_day(datum: dt.date) -> bool:
     autumn_equinox = dt.date(year, 9, 21)
     return spring_equinox <= datum <= autumn_equinox
 
+def get_these_days() -> dict:
+    return {
+        "today": dt.date.today(),
+        "tomor": dt.date.today() + dt.timedelta(days=1),
+        "sunny": is_sunny_day(dt.date.today()),
+    }
 
 def total_price(pricelist: list[float]) -> list[float]:
     """Convert a given list of raw prices."""
@@ -78,7 +84,6 @@ def total_price(pricelist: list[float]) -> list[float]:
     # add BTW
     _p = [round(i * cs.PRICES["adjust"]["btw"], 3) for i in _p]
     return _p
-
 
 def price_statistics(prices: list) -> dict:
     """Calculate and return price statistics."""
