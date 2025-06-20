@@ -28,6 +28,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             "today": [],
             "tomor": [],
             "now": 0.0,
+            "cheap_hour": [],
+            "expen_hour": [],
+            "stats": {},
         }
         self.stance = cs.DEFAULT_STANCE
         self.get_states()
@@ -67,7 +70,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """Callback for current price change."""
         self.price["now"] = ut.total_price([float(new)])[0]
         if self.debug:
-            self.log(f"New price = {self.price['now']:.5f}")
+            self.log(f"New price for now.         = {self.price['now']:.3f}")
 
     def price_list_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for price list change."""
@@ -78,10 +81,23 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             "sunny": ut.is_sunny_day(dt.date.today()),
         }
         # update prices
-        self.price["today"] = ut.total_price(new[self.datum["today"].strftime("%Y-%m-%d")])
+        _p = ut.total_price(new[self.datum["today"].strftime("%Y-%m-%d")])
+        self.price["today"] = _p
+        self.price["stats"] = ut.price_statistics(_p)
+        charge_today = ut.sort_index(_p, rev=True)[-3:]
+        charge_today.sort()
+        discharge_today = ut.sort_index(_p, rev=True)[:3]
+        discharge_today.sort()
+        self.price["cheap_hour"] = charge_today
+        self.price["expen_hour"] = discharge_today
+        # update tomorrow's prices
         self.price["tomor"] = ut.total_price(new[self.datum["tomor"].strftime("%Y-%m-%d")])
         if self.debug:
-            self.log(f"New pricelist for today    = {self.price["today"]}")
+            self.log(
+                f"New pricelist for today    = {self.price["today"]}\n :   cheap hours     = {
+                    self.price['cheap_hour']
+                }\n :   expensive hours = {self.price['expen_hour']}\n :   STATISTICS\n{self.price['stats']}"
+            )
             self.log(f"New pricelist for tomorrow = {self.price["tomor"]}")
 
 
