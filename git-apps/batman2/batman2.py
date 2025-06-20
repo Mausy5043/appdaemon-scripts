@@ -66,7 +66,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """Callback for current price change."""
         self.price["now"] = ut.total_price([float(new)])[0]
         if self.debug:
-            self.log(f"New current price           = {self.price['now']:.3f}")
+            self.log(f"New current price          = {self.price['now']:.3f}")
         # every time the current price changes, we update other stuff too:
         self.datum = ut.get_these_days()
 
