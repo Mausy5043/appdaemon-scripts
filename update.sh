@@ -1,7 +1,7 @@
 #!/bin/env bash
 # sync the repository with git and update the local files
 
-update_app = "/${1}"
+update_app="/${1}"
 
 branch_name="master"
 
