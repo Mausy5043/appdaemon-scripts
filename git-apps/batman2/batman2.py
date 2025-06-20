@@ -65,14 +65,24 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def price_current_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for current price change."""
-        self.price["now"] = ut.total_price([float(new)])
+        self.price["now"] = ut.total_price([float(new)])[0]
         if self.debug:
             self.log(f"New price = {self.price['now']:.5f}")
 
     def price_list_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for price list change."""
+        # update dates
+        self.datum = {
+            "today": dt.date.today(),
+            "tomor": dt.date.today() + dt.timedelta(days=1),
+            "sunny": ut.is_sunny_day(dt.date.today()),
+        }
+        # update prices
+        self.price["today"] = ut.total_price(new[self.datum["today"].strftime("%Y-%m-%d")])
+        self.price["tomor"] = ut.total_price(new[self.datum["tomor"].strftime("%Y-%m-%d")])
         if self.debug:
-            self.log(f"New pricelist = {new}")
+            self.log(f"New pricelist for today    = {self.price["today"]}")
+            self.log(f"New pricelist for tomorrow = {self.price["tomor"]}")
 
 
 """
