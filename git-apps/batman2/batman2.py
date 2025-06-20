@@ -32,6 +32,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.stance: str = cs.DEFAULT_STANCE
         self.get_price_states()
         self.set_call_backs()
+        self.ev_assist = cs.EV_ASSIST
 
     def set_call_backs(self):
         # Set-up callbacks for price changes
@@ -65,17 +66,24 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def price_current_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for current price change."""
-        self.price["now"] = ut.total_price([float(new)])[0]
-        self.greedy = 0
-        if self.price["now"] < cs.PRICES["nul"]:
-            self.greedy = -1
-        if self.price["now"] > cs.PRICES["top"]:
-            self.greedy = 1
-        _s = "greedy for low price" if self.greedy == -1 else "greedy for high price" if self.greedy == 1 else "not greedy"
-        if self.debug:
-            self.log(f"New current price          = {self.price['now']:.3f} ({_s})")
+        _p = ut.total_price([float(new)])[0]
+        self.price["now"] = _p
         # every time the current price changes, we update other stuff too:
         self.datum = ut.get_these_days()
+
+        # check if we are greedy
+        self.greedy = ut.get_greedy(_p)
+        _s = "greedy for low price" if self.greedy == -1 else "greedy for high price" if self.greedy == 1 else "not greedy"
+        # check if we are going to assist the EV
+        if _p > self.price["stats"]["Q3"]:
+            self.ev_assist = True
+        else:
+            self.ev_assist = cs.EV_ASSIST
+        # log the current price
+        if self.debug:
+            self.log(f"New current price          = {_p:.3f} ({_s})")
+            if self.ev_assist:
+                self.log("EV assist                   = ENABLED")
 
     def price_list_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for price list change."""
@@ -85,12 +93,14 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _p = ut.total_price(new[self.datum["today"].strftime("%Y-%m-%d")])
         self.price["today"] = _p
         self.price["stats"] = ut.price_statistics(_p)
+        # make a list of cheap and expensive hours
         charge_today = ut.sort_index(_p, rev=True)[-3:]
         charge_today.sort()
         discharge_today = ut.sort_index(_p, rev=True)[:3]
         discharge_today.sort()
         self.price["cheap_hour"] = charge_today
         self.price["expen_hour"] = discharge_today
+        
         # update tomorrow's prices
         self.price["tomor"] = ut.total_price(new[self.datum["tomor"].strftime("%Y-%m-%d")])
         if self.debug:
@@ -101,16 +111,36 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             )
             self.log(f"New pricelist for tomorrow = {self.price["tomor"]}")
 
+    # CONTROL LOGIC
+
+    def start_nom(self):
+        """Start the NOM stance."""
+        self.stance = cs.NOM
+        self.log(f"Starting BatMan2 in {self.stance} stance.")
+
+    def start_idle(self):
+        """Start the IDLE stance."""
+        self.stance = cs.IDLE
+        self.log(f"Starting BatMan2 in {self.stance} stance.")
+
+    def start_charge(self, power: int = cs.CHARGE_PWR):
+        """Start the API- stance."""
+        self.stance = cs.CHARGE
+        self.log(f"Starting BatMan2 in {self.stance} stance.")
+
+    def start_discharge(self, power: int = cs.DISCHARGE_PWR):
+        """Start the API+ stance."""
+        self.stance = cs.DISCHARGE
+        self.log(f"Starting BatMan2 in {self.stance} stance.")
+
 
 """
-
-definition of summerday = 1st of May to 30th of September
- winterday = 1st of October to 30th of April
+sunnyday = march equinox to september equinox
 
 sensor.pv_kwh_meter_current <= +/-21 A
 sensor.pv_kwh_meter_power <= +/-5000 W
 
-EV assist while charging when price > Q3
+EV assist when price > Q3
 
 Default requirements:
 - default stance = NOM
