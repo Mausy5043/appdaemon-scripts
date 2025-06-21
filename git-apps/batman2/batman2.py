@@ -133,7 +133,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.pv_current = float(_pvc)
         self.log(f"PV actual current           = {self.pv_current:.1f} A")
         _pvp: Any = self.get_state(cs.PV_POWER)
-        self.pv_power = int(_pvp)
+        self.pv_power = int(float(_pvp))
         self.log(f"PV actual power             = {self.pv_power:.1f} W")
         # check if we are greedy (price must have been updated already!)
         self.greedy = ut.get_greedy(self.price["now"])
