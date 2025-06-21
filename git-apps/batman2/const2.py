@@ -46,3 +46,10 @@ PRICES: dict = {
     },
     "adjust": {"hike": 0.021, "extra": 2.0, "taxes": 10.15, "btw": 1.21},
 }
+
+# Due to some hardware configuration issues the sign of various sensors
+# may be confusing.
+# Care should be taken when interpreting values.
+# BATTERIES: DISCHARGING power is positive, CHARGING power is negative
+# PV_POWER: negative when supplying power to the home/grid, positive when CHARGING the batteries
+# PV_CURRENT: is always positive regardless of the direction of the current
