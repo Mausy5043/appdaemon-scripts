@@ -115,25 +115,25 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # minimum SoC required to provide power until 10:00 next morning
         _bms: Any = self.get_state(cs.BAT_MIN_SOC)
         self.bats_min_soc = float(_bms)
-        self.log(f"BAT minimum SoC             = {self.bats_min_soc:.1f} %")
+        self.log(f"BAT minimum SoC             = {self.bats_min_soc:+.1f} %")
         # get current SoC
         self.soc, self.soc_list = self.get_soc()
-        self.log(f"BAT current SoC             = {self.soc:.1f} %  <- {self.soc_list}")
+        self.log(f"BAT current SoC             = {self.soc:+.1f} %  <- {self.soc_list}")
         # get battery power setpoints
         self.pwr_sp_list = self.get_pwr_sp()
         _ssp = sum(self.pwr_sp_list)
-        self.log(f"BAT actual setpoints        = {_ssp} W  <- {self.pwr_sp_list}")
+        self.log(f"BAT actual setpoints        = {_ssp:+} W  <- {self.pwr_sp_list}")
         # get battery power stances
         self.stance_list = self.get_bat_strat()
-        self.log(f"BAT current stance          = {self.stance_list}")
+        self.log(f"BAT current stance          =  {self.stance_list}")
         # get PV current and power values
         _pvc: Any = self.get_state(cs.PV_CURRENT)
         self.pv_current = float(_pvc)
-        self.log(f"PV actual current           = {self.pv_current:.2f} A")
+        self.log(f"PV actual current           = {self.pv_current:+.2f} A")
         _pvv: Any = self.get_state(cs.PV_VOLTAGE)
         self.pv_volt = int(float(_pvv))
-        self.log(f"PV actual voltage           = {self.pv_volt:.2f} V")
-        self.log(f"PV calculated power (I x U) =  {(self.pv_current * self.pv_volt):.1f} W")
+        self.log(f"PV actual voltage           = {self.pv_volt:+.2f} V")
+        self.log(f"PV calculated power (I x U) =  {(self.pv_current * self.pv_volt):+.1f} W")
         _pvp: Any = self.get_state(cs.PV_POWER)
         self.pv_power = int(float(_pvp))
         self.log(
@@ -150,28 +150,28 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 _s = "greedy for DISCHARGE"
             case _:
                 _s = "NOT greedy"
-        self.log(f"Greed                       = {_s}")
+        self.log(f"Greed                       =  {_s}")
         # check whether the EV is currently charging
         _evc: Any = self.get_state(cs.EV_REQ_PWR)
         self.ev_charging = False
         if str(_evc) == "on":
             self.ev_charging = True
-        self.log(f"EV charging                 = {str(_evc).upper()}")
+        self.log(f"EV charging                 =  {str(_evc).upper()}")
         # check if we are going to assist the EV
         self.ev_assist = cs.EV_ASSIST
         if self.price["now"] > self.price["stats"]["q3"]:
             self.ev_assist = True
-            self.log("EV assist                   = ENABLED")
+            self.log("EV assist                   =  ENABLED")
         else:
-            self.log("EV assist                   = DISABLED")
+            self.log("EV assist                   =  DISABLED")
         # check if we are allowed to control the batteries
         _ctrl: Any = self.get_state(cs.CTRL_BY_ME)
         self.ctrl_by_me = False
         if str(_ctrl) == "on":
             self.ctrl_by_me = True
-            self.log("Control by app              = ENABLED")
+            self.log("Control by app              =  ENABLED")
         else:
-            self.log("Control by app              = DISABLED")
+            self.log("Control by app              =  DISABLED")
         # self.log("---------------------------   ------------------------")
 
     def terminate(self):
@@ -194,7 +194,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.update_states()
         # log the current price
         if self.debug:
-            self.log(f"New current price           = {_p:.3f}")
+            self.log(f"New current price           = {_p:+.3f}")
         self.calc_stance()
         self.set_stance()
 
