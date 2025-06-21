@@ -134,7 +134,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _pvv: Any = self.get_state(cs.PV_VOLTAGE)
         self.pv_volt = int(float(_pvv))
         self.log(f"PV actual voltage           = {self.pv_volt:.2f} V")
-        self.log(f"PV calculated power (I x U) =  {_pvc * _pvv:.1f} W")
+        self.log(f"PV calculated power (I x U) =  {(_pvc * _pvv):.1f} W")
         _pvp: Any = self.get_state(cs.PV_POWER)
         self.pv_power = int(float(_pvp))
         self.log(f"PV actual power             = {self.pv_power:+} W  (delta={abs(abs(_pvp) - (_pvv * _pvc))})")
