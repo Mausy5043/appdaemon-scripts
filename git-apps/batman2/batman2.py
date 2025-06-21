@@ -1,10 +1,9 @@
+import datetime as dt
 from typing import Any
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import const2 as cs
 import utils2 as ut
-
-import datetime as dt
 
 """BatMan2 App
 Listen to changes in the battery state and control the charging/discharging based on energy prices and strategies.
@@ -41,8 +40,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.pv_power: int = 0  # W
         self.soc: float = 0.0  # % average state of charge
         self.soc_list: list[float] = [0.0, 0.0]  # %; state of charge for each battery
-        self.pwr_sp_list: list[int] = [0, 0] # W; power setpoints of batteries
-        self.stance_list: list[str] = ["NOM", "NOM"] # current control stance for each battery
+        self.pwr_sp_list: list[int] = [0, 0]  # W; power setpoints of batteries
+        self.stance_list: list[str] = ["NOM", "NOM"]  # current control stance for each battery
         self.update_states()
         self.set_call_backs()
 
@@ -63,7 +62,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # App control is allowed or prohibited
         self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.CTRL_BY_ME))
         # Minimum SoC is reached
-        #self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.BAT_MIN_SOC_WD))
+        # self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.BAT_MIN_SOC_WD))
         # PV overcurrent detected
         self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.PV_CURRENT_WD))
 
@@ -134,7 +133,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.pv_current = float(_pvc)
         self.log(f"PV actual current           = {self.pv_current:.1f} A")
         _pvp: Any = self.get_state(cs.PV_POWER)
-        self.pv_power = float(_pvp)
+        self.pv_power = int(_pvp)
         self.log(f"PV actual power             = {self.pv_power:.1f} W")
         # check if we are greedy (price must have been updated already!)
         self.greedy = ut.get_greedy(self.price["now"])
@@ -269,12 +268,18 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # we may want to discharge during the expensive hours
         # check if now().hour is in self.price["expen_hour"]
         _hr: int = dt.datetime.now().hour
-        _min_soc = self.bats_min_soc + (2 * cs.DISCHARGE_PWR /100)
+        _min_soc = self.bats_min_soc + (2 * cs.DISCHARGE_PWR / 100)
         if self.datum["sunny"] and (self.soc > _min_soc) and (_hr in self.price["expen_hour"]):
-            self.log(f"Sunny day, expensive hours and enough SoC (> {_min_soc}%). Switching to DISCHARGE stance.")
+            self.log(
+                f"Sunny day, expensive hours and enough SoC (> {_min_soc}%). Switching to DISCHARGE stance."
+            )
             stance = cs.DISCHARGE
         if not self.datum["sunny"] and (self.soc < self.bats_min_soc) and (_hr in self.price["cheap_hour"]):
-            self.log(f"Not a sunny day, hour is cheap and SoC below {self.bats_min_soc}%. Switching to CHARGE stance.")
+            self.log(
+                f"Not a sunny day, hour is cheap and SoC below {
+                    self.bats_min_soc
+                }%. Switching to CHARGE stance."
+            )
             stance = cs.CHARGE
 
         # next calculate the power setpoints for the current stance
@@ -307,7 +312,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.start_discharge()
             case _:
                 self.log(f"Unknown stance: {self.stance}. Switching to NOM.")
-
 
     def start_nom(self):
         """Start the NOM stance."""
