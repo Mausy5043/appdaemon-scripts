@@ -30,6 +30,7 @@ BAT_MIN_SOC_WD = ""  # battery minimum state of charge watch dog
 PV_CURRENT = "sensor.pv_kwh_meter_current"
 PV_CURRENT_WD = "input_boolean.pvovercurrent"  # PV-current watch dog > 21 A || < -21 A
 PV_CURRENT_MAX = 21.0  # A;abs
+PV_VOLTAGE = "sensor.pv_kwh_meter_voltage"
 PV_POWER = "sensor.pv_kwh_meter_power"
 BATTERIES = ["sensor.bat1_state_of_charge", "sensor.bat2_state_of_charge"]
 SETPOINTS = ["number.bat1_power_setpoint", "number.bat2_power_setpoint"]

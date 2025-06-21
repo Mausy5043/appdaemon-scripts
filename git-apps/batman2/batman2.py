@@ -30,23 +30,22 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             "expen_hour": [],
             "stats": {},
         }
-        self.get_price_states()
         # various monitors
         self.ev_assist = cs.EV_ASSIST
         self.ev_charging: bool = False
         self.ctrl_by_me: bool = True  # whether the app is allowed to control the batteries
         self.bats_min_soc: float = 0.0
-        self.pv_current: float = 0.0  # A
+        self.pv_current: float = 0.0  # A; used to monitor PV overcurrent
+        self.pv_volt: float = 0.0  # V; used to control PV current
         self.pv_power: int = 0  # W
         self.soc: float = 0.0  # % average state of charge
         self.soc_list: list[float] = [0.0, 0.0]  # %; state of charge for each battery
         self.pwr_sp_list: list[int] = [0, 0]  # W; power setpoints of batteries
         self.stance_list: list[str] = ["NOM", "NOM"]  # current control stance for each battery
-        self.update_states()
-        self.set_call_backs()
 
-        # start in NOM stance
-        self.choose_stance()
+        self.set_call_backs()
+        self.get_price_states()
+
 
     def set_call_backs(self):
         # Set-up callbacks for price changes
@@ -132,6 +131,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _pvc: Any = self.get_state(cs.PV_CURRENT)
         self.pv_current = float(_pvc)
         self.log(f"PV actual current           = {self.pv_current:.1f} A")
+        _pvv: Any = self.get_state(cs.PV_VOLTAGE)
+        self.pv_volt = int(float(_pvv))
+        self.log(f"PV actual voltage             = {self.pv_volt:.1f} V")
         _pvp: Any = self.get_state(cs.PV_POWER)
         self.pv_power = int(float(_pvp))
         self.log(f"PV actual power             = {self.pv_power} W")
@@ -189,7 +191,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # log the current price
         if self.debug:
             self.log(f"New current price           = {_p:.3f}")
-        self.choose_stance()
+        self.calc_stance()
         self.set_stance()
 
     def price_list_cb(self, entity, attribute, old, new, **kwargs):
@@ -226,14 +228,14 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.log(f"*** Watchdog triggered by {entity} ({attribute}) change: {old} -> {new}")
         self.update_states()
         # Decide stance based on the current state
-        self.choose_stance()
+        self.calc_stance()
         # Log the current stance
         if self.debug:
             self.log(f"Current stance             = {self.stance}")
 
     # CONTROL LOGIC
 
-    def choose_stance(self):
+    def calc_stance(self):
         """Choose the current stance based on the current price and battery state."""
 
         self.log("===========================   ========================")
