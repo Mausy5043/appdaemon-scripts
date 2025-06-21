@@ -281,24 +281,28 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 }%. Switching to CHARGE stance."
             )
             stance = cs.CHARGE
-
-        # next calculate the power setpoints for the current stance
-        if stance == cs.NOM:
-            self.log("No action required. Keeping current setpoints.")
-        elif stance == cs.IDLE:
-            self.log("Keeping IDLE stance. No power setpoints.")
-            self.pwr_sp_list = [0, 0]
-        elif stance == cs.CHARGE:
-            self.log(f"Setting power setpoints to CHARGE: {cs.CHARGE_PWR} W.")
-            self.pwr_sp_list = [cs.CHARGE_PWR, cs.CHARGE_PWR]
-        elif stance == cs.DISCHARGE:
-            self.log(f"Setting power setpoints to DISCHARGE: {cs.DISCHARGE_PWR} W.")
-            self.pwr_sp_list = [cs.DISCHARGE_PWR, cs.DISCHARGE_PWR]
-        else:
-            self.log("No action required. Keeping current setpoints.")
         self.stance = stance
         self.log(f"Current stance set to: {self.stance}")
+        self.calc_pwr_sp(stance)
         self.log("===========================   ========================")
+
+    def calc_pwr_sp(self, stance):
+        """Calculate the power setpoints for the current stance."""
+        match stance:
+            case cs.NOM:
+                self.pwr_sp_list = [0, 0]
+                self.log("SP: No action required. Unit is in control (NOM).")
+            case cs.IDLE:
+                self.pwr_sp_list = [0, 0]
+                self.log("SP: No power setpoints. Unit is IDLE. ")
+            case cs.CHARGE:
+                self.pwr_sp_list = [cs.CHARGE_PWR, cs.CHARGE_PWR]
+                self.log(f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list}")
+            case cs.DISCHARGE:
+                self.pwr_sp_list = [cs.DISCHARGE_PWR, cs.DISCHARGE_PWR]
+                self.log(f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list}")
+            case _:
+                self.logf("SP: No power setpoints calculated for unknown stance {stance}. ")
 
     def set_stance(self):
         """Set the current stance based on the current state."""
