@@ -236,7 +236,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def choose_stance(self):
         """Choose the current stance based on the current price and battery state."""
 
-        self.log("=========================== v ========================")
+        self.log("===========================   ========================")
         stance: str = self.stance  # Keep the current stance
         if self.ctrl_by_me is False:
             # we are switched off
@@ -298,6 +298,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.log("No action required. Keeping current setpoints.")
         self.stance = stance
         self.log(f"Current stance set to: {self.stance}")
+        self.log("===========================   ========================")
 
     def set_stance(self):
         """Set the current stance based on the current state."""
