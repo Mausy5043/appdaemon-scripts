@@ -231,6 +231,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """Callback for changes to monitored automations."""
         # Update the current state of the system
         self.log(f"*** Watchdog triggered by {entity} ({attribute}) change: {old} -> {new}")
+        # watchdog changes are not immediate, so we run a watchdog_runin_cb after 1 second
+        # to allow the system to stabilize
+        self.run_in(self.watchdog_runin_cb, 2, entity=entity, attribute=attribute, old=old, new=new)
+
+    def watchdog_runin_cb(self, entity, attribute, old, new, **kwargs):
         self.update_states()
         # Decide stance based on the current state
         self.calc_stance()
