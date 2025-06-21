@@ -30,7 +30,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             "expen_hour": [],
             "stats": {},
         }
-        # various monitors
+        # initialise various monitors
         self.ev_assist = cs.EV_ASSIST
         self.ev_charging: bool = False
         self.ctrl_by_me: bool = True  # whether the app is allowed to control the batteries
@@ -44,10 +44,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.stance_list: list[str] = ["NOM", "NOM"]  # current control stance for each battery
 
         self.set_call_backs()
+        # update monitors with actual data
         self.get_price_states()
 
     def set_call_backs(self):
-        # Set-up callbacks for price changes
+        """Set-up callbacks for price changes and watchdogs."""
         self.callback_handles.append(
             self.listen_state(self.price_list_cb, cs.PRICES["entity"], attribute=cs.PRICES["attr"]["list"])
         )
@@ -60,12 +61,12 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # App control is allowed or prohibited
         self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.CTRL_BY_ME))
         # Minimum SoC is reached
-        # self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.BAT_MIN_SOC_WD))
+        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.BAT_MIN_SOC_WD))
         # PV overcurrent detected
         self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.PV_CURRENT_WD))
 
     def get_price_states(self):
-        # Get current states for prices
+        """Get current states for prices by calling the callbacks directly"""
         self.price_list_cb(
             "entity", "list", "none", self.get_state(cs.PRICES["entity"], attribute=cs.PRICES["attr"]["list"])
         )
@@ -240,7 +241,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     # CONTROL LOGIC
 
     def calc_stance(self):
-        """Choose the current stance based on the current price and battery state."""
+        """Choose the current stance based on the current price and battery state
+        and determine the battery power setpoint."""
 
         self.log("===========================   ========================")
         stance: str = self.stance  # Keep the current stance
@@ -256,10 +258,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             #   and the price is above Q3
             #   and the SoC is above bats_min_soc
             _q3 = self.price["stats"]["q3"]
-            if self.ev_assist and self.price["now"] > _q3 and self.soc > self.bats_min_soc:
+            if self.ev_assist and self.soc > self.bats_min_soc:     # or p1_power < -200
                 self.log(f"EV is charging but price is above {_q3:.3f}. Switching to DISCHARGE stance.")
                 stance = cs.DISCHARGE
 
+        # if prices are extremelly high or low, we get greedy and switch to resp. DISCHARGE or CHARGE stance
         match self.greedy:
             case -1:
                 self.log("Greedy for CHARGE. Switching to CHARGE stance.")
@@ -372,7 +375,7 @@ STOP @ SoC = 100%
 
 API+ (discharge) START @:
 o|| greedy: price > top
-o|| EV_charging && EV_assist && price > Q3 && SoC > sensor.bats_minimum_soc
+o|| EV_charging && EV_assist(= price > Q3 ) && SoC > sensor.bats_minimum_soc
 o|| sunnyday && SoC > {2*17+ minsoc} % && expen_hours
 STOP @ SoC = sensor.bats_minimum_soc
 
