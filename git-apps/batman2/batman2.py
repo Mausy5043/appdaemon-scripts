@@ -42,6 +42,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.soc: float = 0.0  # % average state of charge
         self.soc_list: list[float] = [0.0, 0.0]  # %; state of charge for each battery
         self.pwr_sp_list: list[int] = [0, 0] # W; power setpoints of batteries
+        self.stance_list: list[str] = ["NOM", "NOM"] # current control stance for each battery
         self.update_states()
         self.set_call_backs()
 
@@ -98,6 +99,17 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 pwr_list.append(0)
         return pwr_list
 
+    def get_bat_strat(self) -> list[str]:
+        """Get current control stance for all batteries."""
+        bat_list: list[str] = []
+        for bat in cs.BAT_STANCE:
+            _sp: Any | None = self.get_state(entity_id=bat, attribute="state")
+            if _sp is not None:
+                bat_list.append(str(_sp))
+            else:
+                bat_list.append("NOM")
+        return bat_list
+
     def update_states(self):
         """Update internal states based on current conditions."""
         self.log("---------------------------   ------------------------")
@@ -114,6 +126,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.pwr_sp_list = self.get_pwr_sp()
         _ssp = sum(self.pwr_sp_list)
         self.log(f"BAT actual setpoints        = {_ssp} W  <- {self.pwr_sp_list}")
+        # get battery power stances
+        self.stance_list = self.get_bat_strat()
+        self.log(f"BAT current stance          = {self.stance_list}")
         # get PV current and power values
         _pvc: Any = self.get_state(cs.PV_CURRENT)
         self.pv_current = float(_pvc)
