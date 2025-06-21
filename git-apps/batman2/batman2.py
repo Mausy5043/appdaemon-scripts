@@ -43,11 +43,10 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.soc_list: list[float] = [0.0, 0.0]  # %; state of charge for each battery
         self.pwr_sp_list: list[int] = [0, 0] # W; power setpoints of batteries
         self.update_states()
-
         self.set_call_backs()
 
         # start in NOM stance
-        self.start_nom()
+        self.choose_stance()
 
     def set_call_backs(self):
         # Set-up callbacks for price changes
@@ -101,7 +100,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def update_states(self):
         """Update internal states based on current conditions."""
-        self.log("--------------------------- v ------------------------")
+        self.log("---------------------------   ------------------------")
         # update the current date
         self.datum = ut.get_these_days()
         # minimum SoC required to provide power until 10:00 next morning
@@ -110,10 +109,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.log(f"BAT minimum SoC             = {self.bats_min_soc:.1f} %")
         # get current SoC
         self.soc, self.soc_list = self.get_soc()
-        self.log(f"BAT current SoC             = {self.soc:.1f} %. <- {self.soc_list}")
+        self.log(f"BAT current SoC             = {self.soc:.1f} %  <- {self.soc_list}")
         # get battery power setpoints
         self.pwr_sp_list = self.get_pwr_sp()
-        self.log(f"Current setpoints           = {self.pwr_sp_list}")
+        _ssp = sum(self.pwr_sp_list)
+        self.log(f"BAT actual setpoints        = {_ssp} W  <- {self.pwr_sp_list}")
         # get PV current and power values
         _pvc: Any = self.get_state(cs.PV_CURRENT)
         self.pv_current = float(_pvc)
@@ -136,23 +136,23 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.ev_charging = False
         if str(_evc) == "on":
             self.ev_charging = True
-        if self.ev_charging:
-            self.log(f"EV charging                 = {str(_evc).upper()}")
+        self.log(f"EV charging                 = {str(_evc).upper()}")
         # check if we are going to assist the EV
         self.ev_assist = cs.EV_ASSIST
         if self.price["now"] > self.price["stats"]["q3"]:
             self.ev_assist = True
-        if self.ev_assist:
             self.log("EV assist                   = ENABLED")
+        else:
+            self.log("EV assist                   = DISABLED")
+        # check if we are allowed to control the batteries
         _ctrl: Any = self.get_state(cs.CTRL_BY_ME)
         self.ctrl_by_me = False
         if str(_ctrl) == "on":
             self.ctrl_by_me = True
-        if self.ctrl_by_me:
             self.log("Control by app              = ENABLED")
         else:
             self.log("Control by app              = DISABLED")
-        self.log("--------------------------- ^ ------------------------")
+        # self.log("---------------------------   ------------------------")
 
     def terminate(self):
         """Clean up app."""
@@ -221,6 +221,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def choose_stance(self):
         """Choose the current stance based on the current price and battery state."""
+
+        self.log("=========================== v ========================")
         stance: str = self.stance  # Keep the current stance
         if self.ctrl_by_me is False:
             # we are switched off
@@ -275,6 +277,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         else:
             self.log("No action required. Keeping current setpoints.")
         self.stance = stance
+        self.log(f"Current stance set to: {self.stance}")
 
     def set_stance(self):
         """Set the current stance based on the current state."""
