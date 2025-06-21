@@ -46,7 +46,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.set_call_backs()
         self.get_price_states()
 
-
     def set_call_backs(self):
         # Set-up callbacks for price changes
         self.callback_handles.append(
@@ -138,7 +137,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _pvp: Any = self.get_state(cs.PV_POWER)
         self.pv_power = int(float(_pvp))
         self.log(
-            f"PV actual power             = {self.pv_power:+} W  (delta={abs(abs(self.pv_power) - (self.pv_current * self.pv_volt))})"
+            f"PV actual power             = {self.pv_power:+} W  (delta={
+                abs(abs(self.pv_power) - (self.pv_current * self.pv_volt)):.0f
+            })"
         )
         # check if we are greedy (price must have been updated already!)
         self.greedy = ut.get_greedy(self.price["now"])
