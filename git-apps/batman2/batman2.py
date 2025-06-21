@@ -249,7 +249,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """Choose the current stance based on the current price and battery state
         and determine the battery power setpoint."""
 
-        self.log("===========================   ========================")
+        self.log("=========================== ! ========================")
         stance: str = self.stance  # Keep the current stance
         if self.ctrl_by_me is False:
             # we are switched off
@@ -266,6 +266,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             if self.ev_assist and self.soc > self.bats_min_soc:     # or p1_power < -200
                 self.log(f"EV is charging but price is above {_q3:.3f}. Switching to DISCHARGE stance.")
                 stance = cs.DISCHARGE
+        else:
+            stance = cs.NOM  # default stance is NOM
 
         # if prices are extremelly high or low, we get greedy and switch to resp. DISCHARGE or CHARGE stance
         match self.greedy:
@@ -298,7 +300,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.stance = stance
         self.log(f"Current stance set to: {self.stance}")
         self.calc_pwr_sp(stance)
-        self.log("===========================   ========================")
+        self.log("======================================================")
 
     def calc_pwr_sp(self, stance):
         """Calculate the power setpoints for the current stance."""
