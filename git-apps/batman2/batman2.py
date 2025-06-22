@@ -199,7 +199,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.update_states()
         # log the current price
         if self.debug:
-            self.log(f"New current price           = {_p:+.3f}")
+            self.log(f"Current price.              = {_p:+.3f}")
         self.calc_stance()
         self.set_stance()
 
