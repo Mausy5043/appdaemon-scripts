@@ -263,7 +263,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             #   and the price is above Q3
             #   and the SoC is above bats_min_soc
             _q3 = self.price["stats"]["q3"]
-            if self.ev_assist and self.soc > self.bats_min_soc:     # or p1_power < -200
+            if self.ev_assist and self.soc > self.bats_min_soc:  # or p1_power < -200
                 self.log(f"EV is charging but price is above {_q3:.3f}. Switching to DISCHARGE stance.")
                 stance = cs.DISCHARGE
         else:
