@@ -251,11 +251,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # self.price["tomor"] = ut.total_price(new[self.datum["tomor"].strftime("%Y-%m-%d")])
         if self.debug:
             self.log(
-                f"New pricelist for today    = {self.price["today"]}\n :   cheap slots     = {
-                    self.price['cheap_slot']
-                }\n :   expensive slots = {self.price['expen_slot']}\n :   STATISTICS\n :     {
-                    self.price['stats']['text']
-                }"
+                f"New pricelist for today    = {
+                    ['%.3f' % n for n in self.price["today"]]
+                }\n :   cheap slots     = {self.price['cheap_slot']}\n :   expensive slots = {
+                    self.price['expen_slot']
+                }\n :   STATISTICS\n :     {self.price['stats']['text']}"
             )
         #     self.log(f"New pricelist for tomorrow = {self.price["tomor"]}")
 

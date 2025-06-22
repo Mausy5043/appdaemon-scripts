@@ -125,8 +125,6 @@ def total_price(pricelist: dict[str, float]) -> list[float]:
     """
     # Euro to cents conversion
     _p: list[float] = list(pricelist.values())
-    for i in range(len(_p)):
-        _p[i] = round(_p[i], 3)
     return _p
 
 
