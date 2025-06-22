@@ -12,24 +12,6 @@ requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
 
 
 
-def unpeel(
-    _data: dict[str, dict],
-    _key: str,
-) -> list:
-    """Unpeel the data from the given key."""
-    _lkey: list = []
-    try:
-        _ldata: dict = _data["data"]
-        _lviewer: dict = _ldata["viewer"]
-        _lhomes: list = _lviewer["homes"]
-        _lhome: dict = _lhomes[0]
-        _lcurSub: dict = _lhome["currentSubscription"]
-        _lpriceInfo: dict = _lcurSub["priceInfo"]
-        _lkey = _lpriceInfo[_key]
-    except KeyError:
-        pass
-
-    return _lkey
 
 class Tibber:
     """Class to interact with the Tibber API."""
@@ -46,19 +28,18 @@ class Tibber:
                                    }
 
 
-    def get_pricelist(self) -> str:     # -> dict:
+    def get_pricelist(self):     # -> dict:
         """Get the price list from the API."""
         now_data: dict = {}
         payload: dict = {"query": self.qry_now}
         now_data = post_request(self.api_url, self.headers_post, payload)
-        return json.dumps(now_data, indent=1)
+        if "error" in now_data:
+            return now_data
+        resp_data: list = unpeel(now_data, "today")
+        return resp_data
 
 
-def post_request(
-    _url: str,
-    _headers: dict[str, str],
-    _payload: dict[str, str],
-) -> dict:
+def post_request(_url: str,_headers: dict[str, str],_payload: dict[str, str]) -> dict:
     """Make a POST request to the given URL with the specified headers and payload.
 
     Args:
@@ -83,6 +64,22 @@ def post_request(
     except requests.exceptions.RequestException as her:
         return {"error": f"An error occurred: {her}"}
 
+
+def unpeel(_data: dict[str, dict],_key: str) -> list:
+    """Unpeel the data from the given key."""
+    _lkey: list = []
+    try:
+        _ldata: dict = _data["data"]
+        _lviewer: dict = _ldata["viewer"]
+        _lhomes: list = _lviewer["homes"]
+        _lhome: dict = _lhomes[0]
+        _lcurSub: dict = _lhome["currentSubscription"]
+        _lpriceInfo: dict = _lcurSub["priceInfo"]
+        _lkey = _lpriceInfo[_key]
+    except KeyError:
+        pass
+
+    return _lkey
 
 def deprecated() -> None:
 
