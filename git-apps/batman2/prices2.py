@@ -94,7 +94,7 @@ def convert(_data: list[dict]) -> dict[str, float]:
     # {'2025-06-22 00:00:00': 27.700000000000003,
     #  '2025-06-22 01:00:00': 27.0,
     #  '2025-06-22 02:00:00': 26.75,
-    #  '2025-06-22 03:00:00': 25.729999999999997, 
+    #  '2025-06-22 03:00:00': 25.729999999999997,
     # fmt: on
     return dict(sorted(_ret.items()))
 
@@ -125,6 +125,8 @@ def total_price(pricelist: dict[str, float]) -> list[float]:
     """
     # Euro to cents conversion
     _p: list[float] = list(pricelist.values())
+    for i in range(len(_p)):
+        _p[i] = round(_p[i], 3)
     return _p
 
 
