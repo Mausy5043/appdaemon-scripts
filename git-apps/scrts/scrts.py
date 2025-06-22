@@ -8,6 +8,8 @@ class Secrets(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
         self.log(f"============================== Secret dispenser v{VERSION} ====")
+        _s = self.get_tibber_token()
+        self.log(f"Retrieved secret: {_s}")
 
     def get_tibber_token(self) -> str:
         """Get the Tibber token from the secrets.yaml."""
@@ -19,5 +21,4 @@ class Secrets(hass.Hass):  # type: ignore[misc]
         if not _scrt:
             self.log("Empty 'tibber_token' found in args", level="ERROR")
             return ""
-        self.log(f"Retrieved secret: {_scrt}")
         return _scrt
