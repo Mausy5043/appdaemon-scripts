@@ -107,8 +107,8 @@ def get_price(price_dict: dict[str, float], hour: int, min: int) -> float:
     _price: float = 0.0
     # Round the quarter to the nearest 15 minutes
     _qrtr: int = int(round(min / 15) * 15)
-    for k, v in price_dict:
-        item = {"sample_time": parser.isoparse(k), "price": v}
+    for _k, _v in price_dict.items():
+        item = {"sample_time": parser.isoparse(_k), "price": _v}
         if item["sample_time"].hour == hour and item["sample_time"].minute == _qrtr:
             _price = item["price"]
             break
