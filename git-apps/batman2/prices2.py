@@ -22,14 +22,12 @@ class Tibber:
             "Authorization": f"Bearer {self.api_key}",
         }
 
-    def get_pricelist(self) -> list:
+    def get_pricedict(self) -> dict[str, float]:
         """Get the price list from the API."""
         now_data: dict = {}
-        data: list = [{"error": "no data returned"}]
+        data: dict = {"error": "no data returned"}
         payload: dict = {"query": self.qry_now}
         now_data = post_request(self.api_url, self.headers_post, payload)
-        if "error" in now_data:
-            return [now_data]
         resp_data: list[dict] = unpeel(now_data, "today")
         data = convert(resp_data)
         return data
@@ -84,38 +82,24 @@ def unpeel(_data: dict[str, dict], _key: str) -> list[dict]:
     return _lkey
 
 
-def convert(_data: list[dict]) -> list[dict]:
-    _ret = []
+def convert(_data: list[dict]) -> dict[str, float]:
+    _ret: dict[str, float] = {}
     for item in _data:
-        try:
-            sample_time = parser.isoparse(item["startsAt"])
-            price = float(item["total"]) * 100
-            _ret.append(
-                {
-                    "sample_time": sample_time,  # datetime object
-                    "price": price,  # float cEUR/kWh
-                }
-            )
-        except (KeyError, ValueError, TypeError) as her:
-            _ret.append(
-                {
-                    "error": f"Error processing item: {item}, error: {her}",
-                }
-            )
+        sample_time = parser.isoparse(item["startsAt"]).strftime("%Y-%m-%d %H:%M:%S")
+        price = float(item["total"]) * 100  # float cEUR/kWh
+        _ret[sample_time] = price
+
     # fmt: off
-    # _ret is a list of dicts with the following structure:
-    # [{'sample_time': datetime.datetime(2025, 6, 22, 0, 0, tzinfo=tzoffset(None, 7200)), 'price': 0.277},
-    #  {'sample_time': datetime.datetime(2025, 6, 22, 1, 0, tzinfo=tzoffset(None, 7200)), 'price': 0.27},
-    # {'sample_time': datetime.datetime(2025, 6, 22, 2, 0, tzinfo=tzoffset(None, 7200)), 'price': 0.2675},
-    # {'sample_time': datetime.datetime(2025, 6, 22, 3, 0, tzinfo=tzoffset(None, 7200)), 'price': 0.2573},
+    # _ret is a dict with the following structure:
+    #
     # fmt: on
-    return _ret
+    return dict(sorted(_ret.items()))
 
 
-def get_pricelist(token: str, url: str):
+def get_pricedict(token: str, url: str) -> dict[str, float]:
     """Get the price list from the API."""
     price_getter = Tibber(token, url)
-    _a = price_getter.get_pricelist()
+    _a = price_getter.get_pricedict()
     return _a
 
 

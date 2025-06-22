@@ -24,7 +24,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.greedy: int = 0  # 0 = not greedy, 1 = greedy hi price, -1 = greedy low price
         self.datum: dict = ut.get_these_days()
         self.stance: str = cs.DEFAULT_STANCE
-        self.tibber_prices: list[dict] = []
+        self.tibber_prices: dict[str, float] = {}
         self.tibber_quarters: bool = False  # whether the Tibber prices are quarterly or not
         self.price: dict = {
             "today": [],
