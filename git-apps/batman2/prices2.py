@@ -91,7 +91,10 @@ def convert(_data: list[dict]) -> dict[str, float]:
 
     # fmt: off
     # _ret is a dict with the following structure:
-    #
+    # {'2025-06-22 00:00:00': 27.700000000000003,
+    #  '2025-06-22 01:00:00': 27.0,
+    #  '2025-06-22 02:00:00': 26.75,
+    #  '2025-06-22 03:00:00': 25.729999999999997, 
     # fmt: on
     return dict(sorted(_ret.items()))
 

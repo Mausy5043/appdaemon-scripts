@@ -30,8 +30,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             "today": [],
             "tomor": [],
             "now": 0.0,
-            "cheap_hour": [],
-            "expen_hour": [],
+            "cheap_slot": [],
+            "expen_slot": [],
             "stats": {},
         }
         # initialise various monitors
@@ -233,7 +233,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # _p = ut.total_price(new[self.datum["today"].strftime("%Y-%m-%d")])  # -legacy
         _p = p2.total_price(self.tibber_prices)
         self.price["today"] = _p
-        self.price["stats"] = ut.price_statistics(_p)
+        self.price["stats"] = p2.price_statistics(_p)
 
         # make a list of cheap and expensive hours
         if self.tibber_quarters:
@@ -244,19 +244,19 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             discharge_today = ut.sort_index(_p, rev=True)[:3]
         charge_today.sort()
         discharge_today.sort()
-        self.price["cheap_hour"] = charge_today
-        self.price["expen_hour"] = discharge_today
+        self.price["cheap_slot"] = charge_today
+        self.price["expen_slot"] = discharge_today
 
         # # update tomorrow's prices
         # self.price["tomor"] = ut.total_price(new[self.datum["tomor"].strftime("%Y-%m-%d")])
-        # if self.debug:
-        #     self.log(
-        #         f"New pricelist for today    = {self.price["today"]}\n :   cheap hours     = {
-        #             self.price['cheap_hour']
-        #         }\n :   expensive hours = {self.price['expen_hour']}\n :   STATISTICS\n :     {
-        #             self.price['stats']['text']
-        #         }"
-        #     )
+        if self.debug:
+            self.log(
+                f"New pricelist for today    = {self.price["today"]}\n :   cheap slots     = {
+                    self.price['cheap_slot']
+                }\n :   expensive slots = {self.price['expen_slot']}\n :   STATISTICS\n :     {
+                    self.price['stats']['text']
+                }"
+            )
         #     self.log(f"New pricelist for tomorrow = {self.price["tomor"]}")
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
@@ -313,16 +313,16 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 pass  # not greedy, do nothing
 
         # if it is a sunny day, batteries will charge automatically
-        # we may want to discharge during the expensive hours
-        # check if now().hour is in self.price["expen_hour"]
+        # we may want to discharge during the expensive timeslots
+        # check if now().hour is in self.price["expen_slot"]
         _hr: int = dt.datetime.now().hour
         _min_soc = self.bats_min_soc + (2 * cs.DISCHARGE_PWR / 100)
-        if self.datum["sunny"] and (self.soc > _min_soc) and (_hr in self.price["expen_hour"]):
+        if self.datum["sunny"] and (self.soc > _min_soc) and (_hr in self.price["expen_slot"]):
             self.log(
                 f"Sunny day, expensive hours and enough SoC (> {_min_soc}%). Switching to DISCHARGE stance."
             )
             stance = cs.DISCHARGE
-        if not self.datum["sunny"] and (self.soc < self.bats_min_soc) and (_hr in self.price["cheap_hour"]):
+        if not self.datum["sunny"] and (self.soc < self.bats_min_soc) and (_hr in self.price["cheap_slot"]):
             self.log(
                 f"Not a sunny day, hour is cheap and SoC below {
                     self.bats_min_soc
@@ -415,13 +415,13 @@ o EV_charging (automation)
 
 API- (charge) START @:
 o|| greedy: price < nul
-o|| !sunnyday && SoC < sensor.bats_minimum_soc && cheap_hours
+o|| !sunnyday && SoC < sensor.bats_minimum_soc && cheap_slots
 STOP @ SoC = 100%
 
 API+ (discharge) START @:
 o|| greedy: price > top
 o|| EV_charging && EV_assist(= price > Q3 ) && SoC > sensor.bats_minimum_soc
-o|| sunnyday && SoC > {2*17+ minsoc} % && expen_hours
+o|| sunnyday && SoC > {2*17+ minsoc} % && expen_slot
 STOP @ SoC = sensor.bats_minimum_soc
 
  """
