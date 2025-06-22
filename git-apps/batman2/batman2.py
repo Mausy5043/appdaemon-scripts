@@ -48,7 +48,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.set_call_backs()
         # update monitors with actual data
         self.get_price_states()
-        self.log(f"{p2.get_pricelist(token=self.secrets.get_tibber_token(), url=self.secrets.get_tibber_url())}")
 
         self.log("BatMan2 is running...")
 
@@ -208,6 +207,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """Callback for price list change."""
         # update dates
         self.datum = ut.get_these_days()
+        # update tibber prices
+        ### vvv placeholder for Tibber API call
+        self.log(
+            f"{p2.get_pricelist(token=self.secrets.get_tibber_token(), url=self.secrets.get_tibber_url())}"
+        )
+        ### ^^^placeholder for Tibber API call
+
         # update prices
         _p = ut.total_price(new[self.datum["today"].strftime("%Y-%m-%d")])
         self.price["today"] = _p
