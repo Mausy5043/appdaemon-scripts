@@ -29,7 +29,7 @@ class Tibber:
         now_data = post_request(self.api_url, self.headers_post, payload)
         if "error" in now_data:
             return [now_data]
-        resp_data: list = unpeel(now_data, "today")
+        resp_data: list[dict] = unpeel(now_data, "today")
         data = convert(resp_data)
         return data
 
@@ -60,7 +60,7 @@ def post_request(_url: str, _headers: dict[str, str], _payload: dict[str, str]) 
         return {"error": f"An error occurred: {her}"}
 
 
-def unpeel(_data: dict[str, dict], _key: str) -> list:
+def unpeel(_data: dict[str, dict], _key: str) -> list[dict]:
     """Unpeel the data from the given key."""
     _lkey: list = []
     try:
@@ -73,11 +73,17 @@ def unpeel(_data: dict[str, dict], _key: str) -> list:
         _lkey = _lpriceInfo[_key]
     except KeyError:
         pass
-
+    # fmt: off
+    # _lkey is a list of dicts with the following structure:
+    # [{'total': 0.277, 'energy': 0.1069, 'tax': 0.1701, 'startsAt': '2025-06-22T00:00:00.000+02:00'},
+    #  {'total': 0.27, 'energy': 0.1011, 'tax': 0.1689, 'startsAt': '2025-06-22T01:00:00.000+02:00'},
+    #  {'total': 0.2675, 'energy': 0.099, 'tax': 0.1685, 'startsAt': '2025-06-22T02:00:00.000+02:00'},
+    #  {'total': 0.2573, 'energy': 0.0906, 'tax': 0.1667, 'startsAt': '2025-06-22T03:00:00.000+02:00'},
+    # fmt: on
     return _lkey
 
 
-def convert(_data: list[dict]) -> list:
+def convert(_data: list[dict]) -> list[dict]:
     _ret = []
     for item in _data:
         try:
@@ -95,6 +101,13 @@ def convert(_data: list[dict]) -> list:
                     "error": f"Error processing item: {item}, error: {her}",
                 }
             )
+    # fmt: off
+    # _ret is a list of dicts with the following structure:
+    # [{'sample_time': datetime.datetime(2025, 6, 22, 0, 0, tzinfo=tzoffset(None, 7200)), 'price': 0.277},
+    #  {'sample_time': datetime.datetime(2025, 6, 22, 1, 0, tzinfo=tzoffset(None, 7200)), 'price': 0.27},
+    # {'sample_time': datetime.datetime(2025, 6, 22, 2, 0, tzinfo=tzoffset(None, 7200)), 'price': 0.2675},
+    # {'sample_time': datetime.datetime(2025, 6, 22, 3, 0, tzinfo=tzoffset(None, 7200)), 'price': 0.2573},
+    # fmt: on
     return _ret
 
 
@@ -104,10 +117,11 @@ def get_pricelist(token: str, url: str):
     _a = price_getter.get_pricelist()
     return _a
 
+
 def get_price(price_list: list[dict], hour: int, min: int) -> float:
     _price: float = 0.0
     # Round the quarter to the nearest 15 minutes
-    _qrtr : int = int(round(min / 15) * 15)
+    _qrtr: int = int(round(min / 15) * 15)
     for item in price_list:
         if "error" in item:
             _price = 0.0
