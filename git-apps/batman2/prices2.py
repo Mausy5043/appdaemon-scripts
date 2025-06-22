@@ -83,11 +83,11 @@ def convert(_data: list[dict]) -> list:
     for item in _data:
         try:
             sample_time = parser.isoparse(item["startsAt"])
-            price = float(item["total"])
+            price = float(item["total"]) * 100
             _ret.append(
                 {
-                    "sample_time": sample_time,
-                    "price": price,
+                    "sample_time": sample_time,     # datetime object
+                    "price": price,                 # float cEUR/kWh
                 }
             )
         except (KeyError, ValueError, TypeError) as her:
