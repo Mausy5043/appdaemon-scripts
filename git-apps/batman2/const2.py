@@ -46,6 +46,8 @@ PRICES: dict = {
         "list": "attributes",
     },
     "adjust": {"hike": 0.021, "extra": 2.0, "taxes": 10.15, "btw": 1.21},
+    "qry_now": "{viewer {homes {currentSubscription { priceInfo {today      { total energy tax startsAt } } } } } }",
+    "qry_nxt": "{viewer {homes {currentSubscription { priceInfo {tomorrow   { total energy tax startsAt } } } } } }",
 }
 
 # Due to some hardware configuration issues the sign of various sensors
