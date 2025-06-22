@@ -19,3 +19,14 @@ class Secrets(hass.Hass):  # type: ignore[misc]
         if not _scrt:
             self.log("**** Empty 'tibber_token' found in args", level="ERROR")
         return _scrt
+
+    def get_tibber_url(self) -> str:
+        """Get the Tibber API URL from the secrets.yaml."""
+        _url: str = ""
+        if "tibber_url" not in self.args:
+            self.log("*** No 'tibber_url' found in args", level="ERROR")
+            return "NO_URL_FOUND"
+        _scrt = self.args["tibber_url"]
+        if not _scrt:
+            self.log("**** Empty 'tibber_url' found in args", level="ERROR")
+        return _scrt
