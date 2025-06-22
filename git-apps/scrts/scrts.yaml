@@ -1,4 +1,4 @@
-utils:
+scrts:
   module: sctrs
   class: Secrets
   tibber_token: !secret tibber_token
