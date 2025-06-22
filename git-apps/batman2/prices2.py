@@ -85,22 +85,7 @@ def deprecated() -> None:
 
 
 
-    # Get the tomorrow's data from the API
-    nxt_data: dict = {}
-    # qrt
-    # payload = {"query": qry_nxt}
-    # try:
-    #     nxt_data = req_post(
-    #         api_url,
-    #         headers_post,
-    #         payload,
-    #     )
-    # except KeyError as her:
-    #     print(f"Error fetching tomorrow's data: {her}")
-    #     pass
-    print(json.dumps(nxt_data, indent=1))
-    now_data={}
-    resp_data: list = unpeel(now_data, "today") + unpeel(nxt_data, "tomorrow")
+
     # Convert the data for the database
     data: list = []
     site_id: str = cs.PRICES["template"]["site_id"]
