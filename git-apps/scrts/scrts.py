@@ -26,7 +26,7 @@ class Secrets(hass.Hass):  # type: ignore[misc]
         if "tibber_url" not in self.args:
             self.log("*** No 'tibber_url' found in args", level="ERROR")
             return "NO_URL_FOUND"
-        _scrt = self.args["tibber_url"]
-        if not _scrt:
+        _url = self.args["tibber_url"]
+        if not _url:
             self.log("**** Empty 'tibber_url' found in args", level="ERROR")
-        return _scrt
+        return _url
