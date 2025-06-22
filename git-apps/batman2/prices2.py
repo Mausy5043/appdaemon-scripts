@@ -1,6 +1,5 @@
 """Fetch price info from Tibber API instead of from HA."""
 
-
 import const2 as cs
 import requests
 from dateutil import parser
@@ -86,8 +85,8 @@ def convert(_data: list[dict]) -> list:
             price = float(item["total"]) * 100
             _ret.append(
                 {
-                    "sample_time": sample_time,     # datetime object
-                    "price": price,                 # float cEUR/kWh
+                    "sample_time": sample_time,  # datetime object
+                    "price": price,  # float cEUR/kWh
                 }
             )
         except (KeyError, ValueError, TypeError) as her:
