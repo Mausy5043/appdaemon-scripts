@@ -1,4 +1,4 @@
 utils:
-  module: utils
-  class: utils
-  my_secret: !secret tibber_token
+  module: sctrs
+  class: Secrets
+  tibber_token: !secret tibber_token
