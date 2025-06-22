@@ -24,7 +24,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.greedy: int = 0  # 0 = not greedy, 1 = greedy hi price, -1 = greedy low price
         self.datum: dict = ut.get_these_days()
         self.stance: str = cs.DEFAULT_STANCE
-        self.tibber_prices: list = []
+        self.tibber_prices: list[dict] = []
         self.tibber_quarters: bool = False  # whether the Tibber prices are quarterly or not
         self.price: dict = {
             "today": [],
@@ -181,6 +181,14 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.log("Control by app              =  DISABLED")
         # self.log("---------------------------   ------------------------")
 
+    def update_tibber_prices(self):
+        self.tibber_prices = p2.get_pricelist(
+            token=self.secrets.get_tibber_token(), url=self.secrets.get_tibber_url()
+        )
+        self.tibber_quarters = False
+        if len(self.tibber_prices) == 96:
+            self.tibber_quarters = True
+
     def terminate(self):
         """Clean up app."""
         self.log("__Terminating BatMan2...")
@@ -196,17 +204,16 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def price_current_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for current price change."""
         _p = ut.total_price([float(new)])[0]
+
+        self.update_tibber_prices()
         # lookup Tibber price for the current hour and quarter
-        # self.tibber_prices = p2.get_pricelist(
-        #     token=self.secrets.get_tibber_token(), url=self.secrets.get_tibber_url()
-        # )
         _hr = dt.datetime.now().hour
         _qr = 0
         if self.tibber_quarters:
             _qr = dt.datetime.now().minute
         _pt = p2.get_price(self.tibber_prices, _hr, _qr)
-        self.price["now"] = _p
-        self.tibber_prices = _pt
+        self.price["now"] = _pt
+        # self.tibber_prices = _pt
         # every time the current price changes, we update other stuff too:
         self.update_states()
         # log the current price
@@ -221,17 +228,12 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # update dates
         self.datum = ut.get_these_days()
         # update tibber prices
-        # vvv placeholder for Tibber API call
-        self.tibber_prices = p2.get_pricelist(token=self.secrets.get_tibber_token(), url=self.secrets.get_tibber_url())
-        self.tibber_quarters = False
-        if len(self.tibber_prices) == 96:
-            self.tibber_quarters = True
-        # ^^^placeholder for Tibber API call
-
+        self.update_tibber_prices()
         # update prices
-        _p = ut.total_price(new[self.datum["today"].strftime("%Y-%m-%d")])
-        self.price["today"] = _p
+        _p = ut.total_price(new[self.datum["today"].strftime("%Y-%m-%d")])  # -legacy
+        self.price["today"] = _p  # -legacy
         self.price["stats"] = ut.price_statistics(_p)
+
         # make a list of cheap and expensive hours
         charge_today = ut.sort_index(_p, rev=True)[-3:]
         charge_today.sort()
