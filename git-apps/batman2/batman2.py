@@ -4,6 +4,7 @@ from typing import Any
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import const2 as cs
 import utils2 as ut
+import prices2 as p2
 
 """BatMan2 App
 Listen to changes in the battery state and control the charging/discharging based on energy prices and strategies.
@@ -20,8 +21,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # create internals
         self.debug: bool = cs.DEBUG
         self.secrets = self.get_app('scrts')
-        _s = self.get_token()
-        self.log(f": {_s}")
         self.greedy: int = 0  # 0 = not greedy, 1 = greedy hi price, -1 = greedy low price
         self.datum: dict = ut.get_these_days()
         self.stance: str = cs.DEFAULT_STANCE
@@ -49,6 +48,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.set_call_backs()
         # update monitors with actual data
         self.get_price_states()
+        p2.get_pricelist(self.secrets.get_tibber_token(), "url")
 
     def set_call_backs(self):
         """Set-up callbacks for price changes and watchdogs."""
@@ -229,6 +229,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 }"
             )
             self.log(f"New pricelist for tomorrow = {self.price["tomor"]}")
+
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
