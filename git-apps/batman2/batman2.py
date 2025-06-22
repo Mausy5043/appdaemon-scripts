@@ -246,17 +246,14 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.price["cheap_slot"] = charge_today
         self.price["expen_slot"] = discharge_today
 
-        # # update tomorrow's prices
-        # self.price["tomor"] = ut.total_price(new[self.datum["tomor"].strftime("%Y-%m-%d")])
         if self.debug:
             self.log(
                 f"New pricelist for today    = {
-                    ['%.3f' % n for n in self.price["today"]]
+                    [f'{n:.3f}' for n in self.price['today']]
                 }\n :   cheap slots     = {self.price['cheap_slot']}\n :   expensive slots = {
                     self.price['expen_slot']
                 }\n :   STATISTICS\n :     {self.price['stats']['text']}"
             )
-        #     self.log(f"New pricelist for tomorrow = {self.price["tomor"]}")
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
