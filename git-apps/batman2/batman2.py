@@ -45,10 +45,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.pwr_sp_list: list[int] = [0, 0]  # W; power setpoints of batteries
         self.stance_list: list[str] = ["NOM", "NOM"]  # current control stance for each battery
 
+        self.log(f"{p2.get_pricelist(token=self.secrets.get_tibber_token(), url="url")}")
         self.set_call_backs()
         # update monitors with actual data
         self.get_price_states()
-        self.log(f"{p2.get_pricelist(self.secrets.get_tibber_token(), "url")}")
+        self.log("BatMan2 is running...")
 
     def set_call_backs(self):
         """Set-up callbacks for price changes and watchdogs."""
