@@ -136,4 +136,4 @@ def main() -> None:
 
 def get_pricelist(token: str, url: str):
     """Get the price list from the API."""
-    return f"pricelist {token} {url}"
+    return "pricelist v2 not implemented yet"
