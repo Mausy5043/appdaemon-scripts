@@ -182,9 +182,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # self.log("---------------------------   ------------------------")
 
     def update_tibber_prices(self):
-        self.tibber_prices = p2.get_pricelist(
-            token=self.secrets.get_tibber_token(), url=self.secrets.get_tibber_url()
+        self.tibber_prices = p2.get_pricedict(
+            token=self.secrets.get_tibber_token(),
+            url=self.secrets.get_tibber_url()
         )
+        self.log(f"Updated Tibber prices: {len(self.tibber_prices)} prices received.")
         self.tibber_quarters = False
         if len(self.tibber_prices) == 96:
             self.tibber_quarters = True
@@ -203,8 +205,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def price_current_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for current price change."""
-        _p = ut.total_price([float(new)])[0]
-
+        # _p = ut.total_price([float(new)])[0]
         self.update_tibber_prices()
         # lookup Tibber price for the current hour and quarter
         _hr = dt.datetime.now().hour
@@ -213,12 +214,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             _qr = dt.datetime.now().minute
         _pt = p2.get_price(self.tibber_prices, _hr, _qr)
         self.price["now"] = _pt
-        # self.tibber_prices = _pt
         # every time the current price changes, we update other stuff too:
         self.update_states()
         # log the current price
         if self.debug:
-            self.log(f"Current Sessy  price        = {_p:+.3f}")
+            # self.log(f"Current Sessy  price        = {_p:+.3f}")
             self.log(f"Current Tibber price        = {_pt:+.3f}")
         self.calc_stance()
         self.set_stance()
@@ -230,29 +230,34 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # update tibber prices
         self.update_tibber_prices()
         # update prices
-        _p = ut.total_price(new[self.datum["today"].strftime("%Y-%m-%d")])  # -legacy
-        self.price["today"] = _p  # -legacy
+        # _p = ut.total_price(new[self.datum["today"].strftime("%Y-%m-%d")])  # -legacy
+        _p = p2.total_price(self.tibber_prices)
+        self.price["today"] = _p
         self.price["stats"] = ut.price_statistics(_p)
 
         # make a list of cheap and expensive hours
-        charge_today = ut.sort_index(_p, rev=True)[-3:]
+        if self.tibber_quarters:
+            charge_today = ut.sort_index(_p, rev=True)[-12:]
+            discharge_today = ut.sort_index(_p, rev=True)[:12]
+        else:
+            charge_today = ut.sort_index(_p, rev=True)[-3:]
+            discharge_today = ut.sort_index(_p, rev=True)[:3]
         charge_today.sort()
-        discharge_today = ut.sort_index(_p, rev=True)[:3]
         discharge_today.sort()
         self.price["cheap_hour"] = charge_today
         self.price["expen_hour"] = discharge_today
 
-        # update tomorrow's prices
-        self.price["tomor"] = ut.total_price(new[self.datum["tomor"].strftime("%Y-%m-%d")])
-        if self.debug:
-            self.log(
-                f"New pricelist for today    = {self.price["today"]}\n :   cheap hours     = {
-                    self.price['cheap_hour']
-                }\n :   expensive hours = {self.price['expen_hour']}\n :   STATISTICS\n :     {
-                    self.price['stats']['text']
-                }"
-            )
-            self.log(f"New pricelist for tomorrow = {self.price["tomor"]}")
+        # # update tomorrow's prices
+        # self.price["tomor"] = ut.total_price(new[self.datum["tomor"].strftime("%Y-%m-%d")])
+        # if self.debug:
+        #     self.log(
+        #         f"New pricelist for today    = {self.price["today"]}\n :   cheap hours     = {
+        #             self.price['cheap_hour']
+        #         }\n :   expensive hours = {self.price['expen_hour']}\n :   STATISTICS\n :     {
+        #             self.price['stats']['text']
+        #         }"
+        #     )
+        #     self.log(f"New pricelist for tomorrow = {self.price["tomor"]}")
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
