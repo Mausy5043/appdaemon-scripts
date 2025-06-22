@@ -1,6 +1,5 @@
 import datetime as dt
 import math
-from statistics import quantiles as stqu
 
 import const2 as cs
 import pytz
@@ -67,51 +66,32 @@ def is_sunny_day(datum: dt.date) -> bool:
 
 
 def get_these_days() -> dict:
+    """Get today's date, tomorrow's date, and whether today is a sunny day.
+
+    Returns:
+        dict: today's date, tomorrow's date, and a boolean indicating if today is sunny
+    """
     return {
         "today": dt.date.today(),
         "tomor": dt.date.today() + dt.timedelta(days=1),
         "sunny": is_sunny_day(dt.date.today()),
     }
 
-
-def total_price(pricelist: list[float]) -> list[float]:
-    """Convert a given list of raw prices."""
-    # cents to Euro
-    _p: list[float] = [i * 100 for i in pricelist]
-    # add costs and taxes
-    _p = [
-        i + (cs.PRICES["adjust"]["hike"] + cs.PRICES["adjust"]["extra"] + cs.PRICES["adjust"]["taxes"])
-        for i in _p
-    ]
-    # add BTW
-    _p = [round(i * cs.PRICES["adjust"]["btw"], 3) for i in _p]
-    return _p
-
-
-def price_statistics(prices: list) -> dict:
-    """Calculate and return price statistics."""
-    price_stats = {
-        "min": round(min(prices), 3),
-        "q1": round(stqu(prices, n=4, method="inclusive")[0], 3),
-        "med": round(stqu(prices, n=4, method="inclusive")[1], 3),
-        "avg": round(sum(prices) / len(prices), 3),
-        "q3": round(stqu(prices, n=4, method="inclusive")[2], 3),
-        "max": round(max(prices), 3),
-        "text": "",
-    }
-    price_stats["text"] = (
-        f"Min: {price_stats.get('min', 'N/A'):.3f}, "
-        f"Q1 : {price_stats.get('q1', 'N/A'):.3f}, "
-        f"Med: {price_stats.get('med', 'N/A'):.3f}, "
-        f"Avg: {price_stats.get('avg', 'N/A'):.3f}, "
-        f"Q3 : {price_stats.get('q3', 'N/A'):.3f}, "
-        f"Max: {price_stats.get('max', 'N/A'):.3f}"
-    )
-    return price_stats
-
-
 def get_greedy(price: float) -> int:
-    """Determine if the price is low, high, or neutral."""
+    """Determine if the price is low, high, or neutral.
+    Greediness is determined based on predefined price thresholds:
+    - Low price: less than the 'nul' price threshold (greedy for low).
+    - High price: greater than the 'top' price threshold (greedy for high).
+    - Neutral price: between the 'nul' and 'top' thresholds (not greedy).
+
+    Args:
+        price (float): The price to evaluate.
+
+    Returns:
+        -1 for low price (greedy for low),
+         0 for neutral price (not greedy),
+         1 for high price (greedy for high).
+    """
     _g = 0  # not greedy
     if price < cs.PRICES["nul"]:
         _g = -1  # greedy for low price

@@ -4,6 +4,7 @@ import const2 as cs
 import requests
 from dateutil import parser
 
+from statistics import quantiles as stqu
 requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
 
 
@@ -129,3 +130,35 @@ def get_price(price_list: list[dict], hour: int, min: int) -> float:
             _price = item["price"]
             break
     return _price
+
+
+def total_price(pricelist: dict[str, float]) -> list[float]:
+    """Convert a given list of raw Tibber prices.
+    Note: the output of the convert() method is expected as input
+          we expect the dict to be sorted by sample_time.
+    """
+    # Euro to cents conversion
+    _p: list[float] = list(pricelist.values())
+    return _p
+
+
+def price_statistics(prices: list) -> dict:
+    """Calculate and return price statistics."""
+    price_stats = {
+        "min": round(min(prices), 3),
+        "q1": round(stqu(prices, n=4, method="inclusive")[0], 3),
+        "med": round(stqu(prices, n=4, method="inclusive")[1], 3),
+        "avg": round(sum(prices) / len(prices), 3),
+        "q3": round(stqu(prices, n=4, method="inclusive")[2], 3),
+        "max": round(max(prices), 3),
+        "text": "",
+    }
+    price_stats["text"] = (
+        f"Min: {price_stats.get('min', 'N/A'):.3f}, "
+        f"Q1 : {price_stats.get('q1', 'N/A'):.3f}, "
+        f"Med: {price_stats.get('med', 'N/A'):.3f}, "
+        f"Avg: {price_stats.get('avg', 'N/A'):.3f}, "
+        f"Q3 : {price_stats.get('q3', 'N/A'):.3f}, "
+        f"Max: {price_stats.get('max', 'N/A'):.3f}"
+    )
+    return price_stats
