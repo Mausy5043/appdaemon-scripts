@@ -24,6 +24,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.greedy: int = 0  # 0 = not greedy, 1 = greedy hi price, -1 = greedy low price
         self.datum: dict = ut.get_these_days()
         self.stance: str = cs.DEFAULT_STANCE
+        self.tibber_prices: list = []
+        self.tibber_quarters: bool = False  # whether the Tibber prices are quarterly or not
         self.price: dict = {
             "today": [],
             "tomor": [],
@@ -194,12 +196,23 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def price_current_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for current price change."""
         _p = ut.total_price([float(new)])[0]
+        # lookup Tibber price for the current hour and quarter
+        # self.tibber_prices = p2.get_pricelist(
+        #     token=self.secrets.get_tibber_token(), url=self.secrets.get_tibber_url()
+        # )
+        _hr = dt.datetime.now().hour
+        _qr = 0
+        if self.tibber_quarters:
+            _qr = dt.datetime.now().minute
+        _pt = p2.get_price(self.tibber_prices, _hr, _qr)
         self.price["now"] = _p
+        self.tibber_prices = _pt
         # every time the current price changes, we update other stuff too:
         self.update_states()
         # log the current price
         if self.debug:
-            self.log(f"Current price.              = {_p:+.3f}")
+            self.log(f"Current Sessy  price        = {_p:+.3f}")
+            self.log(f"Current Tibber price        = {_pt:+.3f}")
         self.calc_stance()
         self.set_stance()
 
@@ -209,9 +222,10 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.datum = ut.get_these_days()
         # update tibber prices
         # vvv placeholder for Tibber API call
-        self.log(
-            f"{p2.get_pricelist(token=self.secrets.get_tibber_token(), url=self.secrets.get_tibber_url())}"
-        )
+        self.tibber_prices = p2.get_pricelist(token=self.secrets.get_tibber_token(), url=self.secrets.get_tibber_url())
+        self.tibber_quarters = False
+        if len(self.tibber_prices) == 96:
+            self.tibber_quarters = True
         # ^^^placeholder for Tibber API call
 
         # update prices
