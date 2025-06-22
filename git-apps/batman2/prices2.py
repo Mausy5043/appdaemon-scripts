@@ -12,28 +12,6 @@ requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
 
 
 
-
-def req_post(
-    _url: str,
-    _headers: dict[str, str],
-    _payload: dict[str, str],
-) -> dict:
-    """Make a POST request to the given URL with the specified headers and payload."""
-    try:
-        response = requests.post(
-            _url,
-            headers=_headers,
-            json=_payload,
-            timeout=30.0,
-            verify=False,  # nosec B501
-        )
-        response.raise_for_status()  # Raise an exception for HTTP errors
-        return dict(response.json())
-    except requests.exceptions.RequestException as her:
-        print(f"An error occurred: {her}")
-        return {}
-
-
 def unpeel(
     _data: dict[str, dict],
     _key: str,
@@ -53,62 +31,78 @@ def unpeel(
 
     return _lkey
 
+class Tibber:
+    """Class to interact with the Tibber API."""
 
-def main() -> None:
-    # Read the API key and URL from the INI file
-    config_file = cs.PRICES["config"]
-    config = configparser.ConfigParser()
+    def __init__(self, token: str, url: str) -> None:
+        """Initialize the Tibber class with the API token and URL."""
+        self.api_key = token
+        self.api_url = url
+        self.qry_now: str = cs.PRICES["qry_now"]
+        self.qry_nxt: str = cs.PRICES["qry_nxt"]
+        self.headers_post: dict = {"Content-Type": "application/json",
+                                   "Authorization":
+                                   f"Bearer {self.api_key}"
+                                   }
+
+
+    def get_pricelist(self) -> str:     # -> dict:
+        """Get the price list from the API."""
+        now_data: dict = {}
+        payload: dict = {"query": self.qry_now}
+        now_data = post_request(self.api_url, self.headers_post, payload)
+        return json.dumps(now_data, indent=1)
+
+
+def post_request(
+    _url: str,
+    _headers: dict[str, str],
+    _payload: dict[str, str],
+) -> dict:
+    """Make a POST request to the given URL with the specified headers and payload.
+
+    Args:
+        _url (str): URL to call
+        _headers (dict): headers to be used
+        _payload (dict): the query to be used
+
+    Returns:
+        dict: contains the query results
+
+    """
     try:
-        # Reading the INI config file
-        with open(config_file) as file:
-            config.read_file(file)
-        api_key: str = config.get("API", "key", fallback="")
-        api_url: str = config.get("API", "url", fallback="")
-        savefile: str = os.path.expanduser(config.get("API", "saveto"))
-        qry_now: str = config.get("API", "qry_now", fallback="")
-        qry_nxt: str = config.get("API", "qry_nxt", fallback="")
-        if not api_key or not api_url:
-            print("API key or URL missing in the configuration.")
-            sys.exit(1)
-    except FileNotFoundError:
-        print(f"Config file not found: {config_file}")
-        sys.exit(1)
-    except configparser.Error as her:
-        print(f"Error processing config file: {her}")
-        sys.exit(1)
-
-    headers_post: dict = {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}
-
-    # Get the today's data from the API
-    now_data: dict = {}
-    payload: dict = {"query": qry_now}
-    try:
-        now_data = req_post(
-            api_url,
-            headers_post,
-            payload,
+        response = requests.post(
+            _url,
+            headers=_headers,
+            json=_payload,
+            timeout=30.0,
+            verify=False,  # nosec B501
         )
-    except Exception as her:
-        print(f"Error fetching today's data: {her}")
-        pass
-    if OPTION.debug:
-        print(json.dumps(now_data, indent=1))
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        return dict(response.json())
+    except requests.exceptions.RequestException as her:
+        return {"error": f"An error occurred: {her}"}
+
+
+def deprecated() -> None:
+
+
 
     # Get the tomorrow's data from the API
     nxt_data: dict = {}
-    payload = {"query": qry_nxt}
-    try:
-        nxt_data = req_post(
-            api_url,
-            headers_post,
-            payload,
-        )
-    except KeyError as her:
-        print(f"Error fetching tomorrow's data: {her}")
-        pass
-    if OPTION.debug:
-        print(json.dumps(nxt_data, indent=1))
-
+    # qrt
+    # payload = {"query": qry_nxt}
+    # try:
+    #     nxt_data = req_post(
+    #         api_url,
+    #         headers_post,
+    #         payload,
+    #     )
+    # except KeyError as her:
+    #     print(f"Error fetching tomorrow's data: {her}")
+    #     pass
+    print(json.dumps(nxt_data, indent=1))
+    now_data={}
     resp_data: list = unpeel(now_data, "today") + unpeel(nxt_data, "tomorrow")
     # Convert the data for the database
     data: list = []
@@ -130,10 +124,14 @@ def main() -> None:
             print(f"Error processing item: {item}, error: {her}")
 
     # Save the data to a JSON file
+    savefile=""
     with open(savefile, "w", encoding="utf-8") as _f:
         json.dump(data, _f, ensure_ascii=True, indent=4)
     # print(json.dumps(data, indent=4))
 
+
 def get_pricelist(token: str, url: str):
     """Get the price list from the API."""
-    return "pricelist v2 not implemented yet"
+    price_getter = Tibber(token, url)
+    _a = price_getter.get_pricelist()
+    return _a
