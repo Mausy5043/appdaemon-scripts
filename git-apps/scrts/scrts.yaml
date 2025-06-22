@@ -1,3 +1,4 @@
+# secrets for AppDaemon apps
 scrts:
   module: scrts
   class: Secrets
