@@ -48,7 +48,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.set_call_backs()
         # update monitors with actual data
         self.get_price_states()
-        p2.get_pricelist(self.secrets.get_tibber_token(), "url")
+        self.log(f"{p2.get_pricelist(self.secrets.get_tibber_token(), "url")}")
 
     def set_call_backs(self):
         """Set-up callbacks for price changes and watchdogs."""
