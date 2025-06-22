@@ -3,3 +3,4 @@ scrts:
   module: scrts
   class: Secrets
   tibber_token: !secret tibber_token
+  tibber_url: !secret tibber_url
