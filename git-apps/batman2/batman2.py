@@ -19,6 +19,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
         # create internals
         self.debug: bool = cs.DEBUG
+        self.secrets = self.get_app('scrts')
+        _s = self.get_token()
+        self.log(f": {_s}")
         self.greedy: int = 0  # 0 = not greedy, 1 = greedy hi price, -1 = greedy low price
         self.datum: dict = ut.get_these_days()
         self.stance: str = cs.DEFAULT_STANCE
@@ -354,6 +357,10 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.stance = cs.DISCHARGE
         self.log(f"Starting BatMan2 in {self.stance} stance.")
 
+    # SECRETS
+    def get_token(self):
+        _scrt = self.secrets.get_tibber_token()
+        return _scrt
 
 """
 sunnyday = march equinox to september equinox
