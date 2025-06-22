@@ -3,8 +3,8 @@ from typing import Any
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import const2 as cs
-import utils2 as ut
 import prices2 as p2
+import utils2 as ut
 
 """BatMan2 App
 Listen to changes in the battery state and control the charging/discharging based on energy prices and strategies.
@@ -20,7 +20,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
         # create internals
         self.debug: bool = cs.DEBUG
-        self.secrets = self.get_app('scrts')
+        self.secrets = self.get_app("scrts")
         self.greedy: int = 0  # 0 = not greedy, 1 = greedy hi price, -1 = greedy low price
         self.datum: dict = ut.get_these_days()
         self.stance: str = cs.DEFAULT_STANCE
@@ -208,11 +208,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # update dates
         self.datum = ut.get_these_days()
         # update tibber prices
-        ### vvv placeholder for Tibber API call
+        # vvv placeholder for Tibber API call
         self.log(
             f"{p2.get_pricelist(token=self.secrets.get_tibber_token(), url=self.secrets.get_tibber_url())}"
         )
-        ### ^^^placeholder for Tibber API call
+        # ^^^placeholder for Tibber API call
 
         # update prices
         _p = ut.total_price(new[self.datum["today"].strftime("%Y-%m-%d")])
@@ -237,7 +237,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 }"
             )
             self.log(f"New pricelist for tomorrow = {self.price["tomor"]}")
-
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
@@ -371,6 +370,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _scrt = self.secrets.get_tibber_token()
         _url = self.secrets.get_tibber_url()
         return _scrt, _url
+
 
 """
 sunnyday = march equinox to september equinox
