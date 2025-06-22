@@ -77,6 +77,7 @@ def get_these_days() -> dict:
         "sunny": is_sunny_day(dt.date.today()),
     }
 
+
 def get_greedy(price: float) -> int:
     """Determine if the price is low, high, or neutral.
     Greediness is determined based on predefined price thresholds:

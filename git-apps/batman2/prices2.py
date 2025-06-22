@@ -1,10 +1,11 @@
 """Fetch price info from Tibber API instead of from HA."""
 
+from statistics import quantiles as stqu
+
 import const2 as cs
 import requests
 from dateutil import parser
 
-from statistics import quantiles as stqu
 requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
 
 
