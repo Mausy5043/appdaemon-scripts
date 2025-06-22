@@ -1,16 +1,11 @@
 """Fetch price info from Tibber API instead of from HA."""
 
-import configparser
-import json
-import os
-import sys
 
 import const2 as cs
 import requests
+from dateutil import parser
 
 requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
-
-
 
 
 class Tibber:
@@ -22,24 +17,25 @@ class Tibber:
         self.api_url = url
         self.qry_now: str = cs.PRICES["qry_now"]
         self.qry_nxt: str = cs.PRICES["qry_nxt"]
-        self.headers_post: dict = {"Content-Type": "application/json",
-                                   "Authorization":
-                                   f"Bearer {self.api_key}"
-                                   }
+        self.headers_post: dict = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}",
+        }
 
-
-    def get_pricelist(self):     # -> dict:
+    def get_pricelist(self) -> list:
         """Get the price list from the API."""
         now_data: dict = {}
+        data: list = [{"error": "no data returned"}]
         payload: dict = {"query": self.qry_now}
         now_data = post_request(self.api_url, self.headers_post, payload)
         if "error" in now_data:
-            return now_data
+            return [now_data]
         resp_data: list = unpeel(now_data, "today")
-        return resp_data
+        data = convert(resp_data)
+        return data
 
 
-def post_request(_url: str,_headers: dict[str, str],_payload: dict[str, str]) -> dict:
+def post_request(_url: str, _headers: dict[str, str], _payload: dict[str, str]) -> dict:
     """Make a POST request to the given URL with the specified headers and payload.
 
     Args:
@@ -65,7 +61,7 @@ def post_request(_url: str,_headers: dict[str, str],_payload: dict[str, str]) ->
         return {"error": f"An error occurred: {her}"}
 
 
-def unpeel(_data: dict[str, dict],_key: str) -> list:
+def unpeel(_data: dict[str, dict], _key: str) -> list:
     """Unpeel the data from the given key."""
     _lkey: list = []
     try:
@@ -81,35 +77,26 @@ def unpeel(_data: dict[str, dict],_key: str) -> list:
 
     return _lkey
 
-def deprecated() -> None:
 
-
-
-
-    # Convert the data for the database
-    data: list = []
-    site_id: str = cs.PRICES["template"]["site_id"]
-    for item in resp_data:
+def convert(_data: list[dict]) -> list:
+    _ret = []
+    for item in _data:
         try:
-            sample_time = item["startsAt"].split(".")[0].replace("T", " ")
+            sample_time = parser.isoparse(item["startsAt"])
             price = float(item["total"])
-            sample_epoch = int(pd.Timestamp(sample_time).timestamp())
-            data.append(
+            _ret.append(
                 {
                     "sample_time": sample_time,
-                    "sample_epoch": sample_epoch,
-                    "site_id": site_id,
                     "price": price,
                 }
             )
         except (KeyError, ValueError, TypeError) as her:
-            print(f"Error processing item: {item}, error: {her}")
-
-    # Save the data to a JSON file
-    savefile=""
-    with open(savefile, "w", encoding="utf-8") as _f:
-        json.dump(data, _f, ensure_ascii=True, indent=4)
-    # print(json.dumps(data, indent=4))
+            _ret.append(
+                {
+                    "error": f"Error processing item: {item}, error: {her}",
+                }
+            )
+    return _ret
 
 
 def get_pricelist(token: str, url: str):
