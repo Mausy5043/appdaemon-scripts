@@ -55,9 +55,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def set_call_backs(self):
         """Set-up callbacks for price changes and watchdogs."""
-        self.callback_handles.append(
-            self.listen_state(self.price_list_cb, cs.PRICES["entity"], attribute=cs.PRICES["attr"]["list"])
-        )
+        # self.callback_handles.append(
+        #     self.listen_state(self.price_list_cb, cs.PRICES["entity"], attribute=cs.PRICES["attr"]["list"])
+        # )
         self.callback_handles.append(
             self.listen_state(self.price_current_cb, cs.PRICES["entity"], attribute=cs.PRICES["attr"]["now"])
         )
@@ -204,33 +204,18 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def price_current_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for current price change."""
-        # _p = ut.total_price([float(new)])[0]
-        self.update_tibber_prices()
-        # lookup Tibber price for the current hour and quarter
-        _hr = dt.datetime.now().hour
-        _qr = 0
-        if self.tibber_quarters:
-            _qr = dt.datetime.now().minute
-        _pt = p2.get_price(self.tibber_prices, _hr, _qr)
-        self.price["now"] = _pt
-        # every time the current price changes, we update other stuff too:
-        self.update_states()
-        # log the current price
-        if self.debug:
-            # self.log(f"Current Sessy  price        = {_p:+.3f}")
-            self.log(f"Current Tibber price        = {_pt:+.3f}")
-        self.calc_stance()
-        self.set_stance()
-
-    def price_list_cb(self, entity, attribute, old, new, **kwargs):
-        """Callback for price list change."""
         # update dates
         self.datum = ut.get_these_days()
-        # update tibber prices
+        # get the prices for today
         self.update_tibber_prices()
-        # update prices
-        # _p = ut.total_price(new[self.datum["today"].strftime("%Y-%m-%d")])  # -legacy
-        _p = p2.total_price(self.tibber_prices)
+        # lookup Tibber price for the current hour and quarter
+        _hr: int = dt.datetime.now().hour
+        _qr: int = 0
+        if self.tibber_quarters:
+            # callback will be either on the hour or on the quarter
+            _qr = dt.datetime.now().minute
+
+        _p: list[float] = p2.total_price(self.tibber_prices)
         self.price["today"] = _p
         self.price["stats"] = p2.price_statistics(_p)
 
@@ -241,12 +226,21 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         else:
             charge_today = ut.sort_index(_p, rev=True)[-3:]
             discharge_today = ut.sort_index(_p, rev=True)[:3]
+
         charge_today.sort()
         discharge_today.sort()
         self.price["cheap_slot"] = charge_today
         self.price["expen_slot"] = discharge_today
 
+        _pt = p2.get_price(self.tibber_prices, _hr, _qr)
+        self.price["now"] = _pt
+        # every time the current price changes, we update other stuff too:
+        self.update_states()
+        # log the current price
         if self.debug:
+            self.log(f"Current Tibber price        = {_pt:+.3f}")
+
+        if self.debug and _qr == 0  and _hr == 0:
             self.log(
                 f"New pricelist for today    = {
                     [f'{n:.3f}' for n in self.price['today']]
@@ -254,6 +248,43 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     self.price['expen_slot']
                 }\n :   STATISTICS\n :     {self.price['stats']['text']}"
             )
+
+        self.calc_stance()
+        self.set_stance()
+
+    def price_list_cb(self, entity, attribute, old, new, **kwargs):
+        """Callback for price list change."""
+        # update dates
+        #self.datum = ut.get_these_days()
+        # update tibber prices
+        #self.update_tibber_prices()
+        # update prices
+        # _p = ut.total_price(new[self.datum["today"].strftime("%Y-%m-%d")])  # -legacy
+        #_p = p2.total_price(self.tibber_prices)
+        #self.price["today"] = _p
+        #self.price["stats"] = p2.price_statistics(_p)
+
+        # make a list of cheap and expensive hours
+        # if self.tibber_quarters:
+        #     charge_today = ut.sort_index(_p, rev=True)[-12:]
+        #     discharge_today = ut.sort_index(_p, rev=True)[:12]
+        # else:
+        #     charge_today = ut.sort_index(_p, rev=True)[-3:]
+        #     discharge_today = ut.sort_index(_p, rev=True)[:3]
+        # charge_today.sort()
+        # discharge_today.sort()
+        # self.price["cheap_slot"] = charge_today
+        # self.price["expen_slot"] = discharge_today
+
+        # if self.debug:
+        #     self.log(
+        #         f"New pricelist for today    = {
+        #             [f'{n:.3f}' for n in self.price['today']]
+        #         }\n :   cheap slots     = {self.price['cheap_slot']}\n :   expensive slots = {
+        #             self.price['expen_slot']
+        #         }\n :   STATISTICS\n :     {self.price['stats']['text']}"
+        #     )
+        pass
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
