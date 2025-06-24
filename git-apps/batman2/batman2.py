@@ -244,7 +244,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
         if self.debug and ((_qr == 0  and _hr == 0) or self.starting):
             self.log(
-                f"New pricelist for today    = {
+                f"Today's pricelist           =  {
                     [f'{n:.3f}' for n in self.price['today']]
                 }\n :   cheap slots     = {self.price['cheap_slot']}\n :   expensive slots = {
                     self.price['expen_slot']
