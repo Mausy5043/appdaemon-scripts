@@ -294,7 +294,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             if self.ev_assist and self.soc > self.bats_min_soc:  # or p1_power < -200
                 # stance = cs.DISCHARGE
                 # EV assist is essentially not available for now.
-                self.log(f"EV is charging but price is above Q3 ({_q3:.3f}). Keeping current stance ({stance}).")
+                self.log(f"EV is charging and price is above Q3 ({_q3:.3f}), but keeping current stance ({stance}).")
         else:
             stance = cs.NOM  # default stance is NOM
 
