@@ -292,8 +292,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             #   and the SoC is above bats_min_soc
             _q3 = self.price["stats"]["q3"]
             if self.ev_assist and self.soc > self.bats_min_soc:  # or p1_power < -200
-                self.log(f"EV is charging but price is above {_q3:.3f}. Switching to DISCHARGE stance.")
-                stance = cs.DISCHARGE
+                # stance = cs.DISCHARGE
+                # EV assist is essentially not available for now.
+                self.log(f"EV is charging but price is above Q3 ({_q3:.3f}). Keeping current stance ({stance}).")
         else:
             stance = cs.NOM  # default stance is NOM
 
@@ -314,15 +315,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _hr: int = dt.datetime.now().hour
         _min_soc = self.bats_min_soc + (2 * cs.DISCHARGE_PWR / 100)
         if self.datum["sunny"] and (self.soc > _min_soc) and (_hr in self.price["expen_slot"]):
-            self.log(
-                f"Sunny day, expensive hours and enough SoC (> {_min_soc}%). Switching to DISCHARGE stance."
-            )
             stance = cs.DISCHARGE
+            self.log(
+                f"Sunny day, expensive hour and  SoC > {_min_soc}%. Activating DISCHARGE stance ({stance})."
+            )
         if not self.datum["sunny"] and (self.soc < self.bats_min_soc) and (_hr in self.price["cheap_slot"]):
             self.log(
-                f"Not a sunny day, hour is cheap and SoC below {
-                    self.bats_min_soc
-                }%. Switching to CHARGE stance."
+                f"Non-sunny day, cheap hour {_hr} and SoC < {self.bats_min_soc}%. Activating CHARGE stance ({stance})."
             )
             stance = cs.CHARGE
         self.stance = stance
