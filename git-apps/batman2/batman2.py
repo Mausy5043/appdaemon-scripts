@@ -16,6 +16,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """Initialize the app."""
         self.log(f"===================================== BatMan2 v{cs.VERSION} ====")
         # Keep track of active callbacks
+        self.starting = True
         self.callback_handles: list[Any] = []
 
         # create internals
@@ -52,6 +53,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.get_price_states()
 
         self.log("BatMan2 is running...")
+        self.starting = False
 
     def set_call_backs(self):
         """Set-up callbacks for price changes and watchdogs."""
@@ -240,7 +242,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.debug:
             self.log(f"Current Tibber price        = {_pt:+.3f}")
 
-        if self.debug and _qr == 0  and _hr == 0:
+        if self.debug and ((_qr == 0  and _hr == 0) or self.starting):
             self.log(
                 f"New pricelist for today    = {
                     [f'{n:.3f}' for n in self.price['today']]
