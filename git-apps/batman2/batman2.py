@@ -387,7 +387,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.log(f"Starting {stance} stance with setpoints {self.pwr_sp_list}")
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
-                self.set_state(bat, stance.lower())
+                self.set_state(bat, "api") # stance.lower())
 
     def start_discharge(self, power: int = cs.DISCHARGE_PWR):
         """Start the API+ stance."""
@@ -395,7 +395,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.log(f"Starting {stance} stance with setpoints {self.pwr_sp_list}")
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
-                self.set_state(bat, stance.lower())
+                self.set_state(bat, "api") # stance.lower())
 
     # SECRETS
     def get_tibber(self) -> tuple[str, str]:
