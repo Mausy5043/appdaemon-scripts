@@ -12,13 +12,13 @@ MAX_DISCHARGE = 1700
 # set to True to enable more aggressive (dis)charging when prices are favourable
 TRADING = False
 # stances
-NOM = "NOM"
-DISCHARGE = "API+"  # (+)-ve power setting
-DISCHARGE_PWR = 1700  # W
-CHARGE = "API-"  # (-)-ve power setting
-CHARGE_PWR = -2200  # W
-IDLE = "IDLE"  # no power setting
-DEFAULT_STANCE = NOM
+NOM: str = "NOM"
+DISCHARGE: str = "API+"  # (+)-ve power setting
+DISCHARGE_PWR: int = 1700  # W
+CHARGE: str = "API-"  # (-)-ve power setting
+CHARGE_PWR: int = -2200  # W
+IDLE: str = "IDLE"  # no power setting
+DEFAULT_STANCE: str = NOM
 # EV assist
 # when True, the app will assist the EV charging when prices are high (>Q3)
 # when False, the app will not assist the EV charging
