@@ -242,7 +242,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.debug:
             self.log(f"Current Tibber price        = {_pt:+.3f}")
 
-        if self.debug and ((_qr == 0  and _hr == 0) or self.starting):
+        if self.debug and ((_qr == 0 and _hr == 0) or self.starting):
             self.log(
                 f"Today's pricelist           =  {
                     [f'{n:.3f}' for n in self.price['today']]
@@ -257,14 +257,14 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def price_list_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for price list change."""
         # update dates
-        #self.datum = ut.get_these_days()
+        # self.datum = ut.get_these_days()
         # update tibber prices
-        #self.update_tibber_prices()
+        # self.update_tibber_prices()
         # update prices
         # _p = ut.total_price(new[self.datum["today"].strftime("%Y-%m-%d")])  # -legacy
-        #_p = p2.total_price(self.tibber_prices)
-        #self.price["today"] = _p
-        #self.price["stats"] = p2.price_statistics(_p)
+        # _p = p2.total_price(self.tibber_prices)
+        # self.price["today"] = _p
+        # self.price["stats"] = p2.price_statistics(_p)
 
         # make a list of cheap and expensive hours
         # if self.tibber_quarters:
@@ -327,7 +327,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             if self.ev_assist and self.soc > self.bats_min_soc:  # or p1_power < -200
                 # stance = cs.DISCHARGE
                 # EV assist is essentially not available for now.
-                self.log(f"EV is charging and price is above Q3 ({_q3:.3f}), but keeping current stance ({stance}).")
+                self.log(
+                    f"EV is charging and price is above Q3 ({_q3:.3f}), but keeping current stance ({stance})."
+                )
         else:
             stance = cs.NOM  # default stance is NOM
 
