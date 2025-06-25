@@ -321,11 +321,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.datum["sunny"] and (self.soc > _min_soc) and (_hr in self.price["expen_slot"]):
             stance = cs.DISCHARGE
             self.log(
-                f"Sunny day, expensive hour and  SoC > {_min_soc}%. Activating DISCHARGE stance ({stance})."
+                f"Sunny day, expensive hour and  SoC > {_min_soc}%. Requesting DISCHARGE stance."
             )
         if not self.datum["sunny"] and (self.soc < self.bats_min_soc) and (_hr in self.price["cheap_slot"]):
             self.log(
-                f"Non-sunny day, cheap hour {_hr} and SoC < {self.bats_min_soc}%. Activating CHARGE stance ({stance})."
+                f"Non-sunny day, cheap hour {_hr} and SoC < {self.bats_min_soc}%. Requesting CHARGE stance."
             )
             stance = cs.CHARGE
         self.new_stance = stance
@@ -389,6 +389,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
                 self.set_state(bat, stance.lower())
+            self.adjust_pwr_sp(self.pwr_sp_list[0])
 
     def start_discharge(self, power: int = cs.DISCHARGE_PWR):
         """Start the API+ stance."""
@@ -397,6 +398,16 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
                 self.set_state(bat, stance.lower())
+            self.adjust_pwr_sp(self.pwr_sp_list[0])
+
+    def adjust_pwr_sp(self, setpoint: int):
+        # modify setpoint for testing
+        for bat_sp in cs.SETPOINTS:
+            if setpoint > 0:
+                setpoint = 1661
+            if setpoint < 0:
+                setpoint = 2112
+            self.set_state(bat_sp, setpoint)
 
     # SECRETS
     def get_tibber(self) -> tuple[str, str]:
