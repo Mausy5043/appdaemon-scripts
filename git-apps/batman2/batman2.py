@@ -369,21 +369,33 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """Start the NOM stance."""
         stance: str = cs.NOM
         self.log(f"Starting {stance} stance.")
+        if self.ctrl_by_me:
+            for bat in cs.BAT_STANCE:
+                self.set_state(bat, stance.lower())
 
     def start_idle(self):
         """Start the IDLE stance."""
         stance = cs.IDLE
         self.log(f"Starting {stance} stance.")
+        if self.ctrl_by_me:
+            for bat in cs.BAT_STANCE:
+                self.set_state(bat, stance.lower())
 
     def start_charge(self, power: int = cs.CHARGE_PWR):
         """Start the API- stance."""
-        stance = cs.CHARGE
+        stance = cs.CHARGE[:-1]
         self.log(f"Starting {stance} stance with setpoints {self.pwr_sp_list}")
+        if self.ctrl_by_me:
+            for bat in cs.BAT_STANCE:
+                self.set_state(bat, stance.lower())
 
     def start_discharge(self, power: int = cs.DISCHARGE_PWR):
         """Start the API+ stance."""
         stance = cs.DISCHARGE
         self.log(f"Starting {stance} stance with setpoints {self.pwr_sp_list}")
+        if self.ctrl_by_me:
+            for bat in cs.BAT_STANCE:
+                self.set_state(bat, stance.lower())
 
     # SECRETS
     def get_tibber(self) -> tuple[str, str]:
