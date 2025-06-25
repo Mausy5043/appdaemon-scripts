@@ -284,7 +284,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.ctrl_by_me is False:
             # we are switched off
             self.log("*** Control by app is disabled. No stance change! ***")
-            return
+            # return
 
         if self.ev_charging:
             # automation will have switched the batteries to IDLE.
