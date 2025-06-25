@@ -297,7 +297,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 # stance = cs.DISCHARGE
                 # EV assist is essentially not available for now.
                 self.log(
-                    f"EV is charging and price is above Q3 ({_q3:.3f}), but keeping current stance ({stance})."
+                    f"EV is charging and price is above Q3 ({_q3:.3f}), proposing to keep current stance ({stance})."
                 )
         else:
             stance = cs.NOM  # default stance is NOM
@@ -305,10 +305,10 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # if prices are extremelly high or low, we get greedy and switch to resp. DISCHARGE or CHARGE stance
         match self.greedy:
             case -1:
-                self.log("Greedy for CHARGE. Switching to CHARGE stance.")
+                self.log("Greedy for CHARGE. Requesting CHARGE stance.")
                 stance = cs.CHARGE
             case 1:
-                self.log("Greedy for DISCHARGE. Switching to CHARGE stance.")
+                self.log("Greedy for DISCHARGE. Requesting DISCHARGE stance.")
                 stance = cs.DISCHARGE
             case _:
                 pass  # not greedy, do nothing
@@ -375,7 +375,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def start_idle(self):
         """Start the IDLE stance."""
-        stance = cs.IDLE
+        stance: str = cs.IDLE
         self.log(f"Starting {stance} stance.")
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
@@ -383,7 +383,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def start_charge(self, power: int = cs.CHARGE_PWR):
         """Start the API- stance."""
-        stance = cs.CHARGE[:-1]
+        stance: str = cs.CHARGE[:-1]
         self.log(f"Starting {stance} stance with setpoints {self.pwr_sp_list}")
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
@@ -391,7 +391,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def start_discharge(self, power: int = cs.DISCHARGE_PWR):
         """Start the API+ stance."""
-        stance = cs.DISCHARGE
+        stance: str = cs.DISCHARGE
         self.log(f"Starting {stance} stance with setpoints {self.pwr_sp_list}")
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
