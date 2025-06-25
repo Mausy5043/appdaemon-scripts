@@ -24,7 +24,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.secrets = self.get_app("scrts")
         self.greedy: int = 0  # 0 = not greedy, 1 = greedy hi price, -1 = greedy low price
         self.datum: dict = ut.get_these_days()
-        self.stance: str = cs.DEFAULT_STANCE
+        self.new_stance: str = cs.DEFAULT_STANCE
+        self.prv_stance: str = cs.DEFAULT_STANCE
         self.tibber_prices: dict[str, float] = {}
         self.tibber_quarters: bool = False  # whether the Tibber prices are quarterly or not
         self.price: dict = {
@@ -74,10 +75,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.PV_CURRENT_WD))
 
     def get_price_states(self):
-        """Get current states for prices by calling the callbacks directly"""
-        self.price_list_cb(
-            "entity", "list", "none", self.get_state(cs.PRICES["entity"], attribute=cs.PRICES["attr"]["list"])
-        )
+        """Get current states for prices by calling the callback directly"""
         self.price_current_cb(
             "entity", "list", "none", self.get_state(cs.PRICES["entity"], attribute=cs.PRICES["attr"]["now"])
         )
@@ -217,31 +215,33 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             # callback will be either on the hour or on the quarter
             _qr = dt.datetime.now().minute
 
+        # get a list of hourly (or quarterly) prices and do some basic statistics
         _p: list[float] = p2.total_price(self.tibber_prices)
         self.price["today"] = _p
         self.price["stats"] = p2.price_statistics(_p)
 
-        # make a list of cheap and expensive hours
+        # make a list of the cheap and expensive hours
         if self.tibber_quarters:
             charge_today = ut.sort_index(_p, rev=True)[-12:]
             discharge_today = ut.sort_index(_p, rev=True)[:12]
         else:
             charge_today = ut.sort_index(_p, rev=True)[-3:]
             discharge_today = ut.sort_index(_p, rev=True)[:3]
-
         charge_today.sort()
         discharge_today.sort()
         self.price["cheap_slot"] = charge_today
         self.price["expen_slot"] = discharge_today
 
+        # get the price for the curren timeslot
         _pt = p2.get_price(self.tibber_prices, _hr, _qr)
         self.price["now"] = _pt
-        # every time the current price changes, we update other stuff too:
+
+        # every time the current prices are updaeted, we update other stuff too:
         self.update_states()
+
         # log the current price
         if self.debug:
             self.log(f"Current Tibber price        = {_pt:+.3f}")
-
         if self.debug and ((_qr == 0 and _hr == 0) or self.starting):
             self.log(
                 f"Today's pricelist           =  {
@@ -250,43 +250,10 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     self.price['expen_slot']
                 }\n :   STATISTICS\n :     {self.price['stats']['text']}"
             )
-
+        # determine the new stance ...
         self.calc_stance()
+        # ... and set it
         self.set_stance()
-
-    def price_list_cb(self, entity, attribute, old, new, **kwargs):
-        """Callback for price list change."""
-        # update dates
-        # self.datum = ut.get_these_days()
-        # update tibber prices
-        # self.update_tibber_prices()
-        # update prices
-        # _p = ut.total_price(new[self.datum["today"].strftime("%Y-%m-%d")])  # -legacy
-        # _p = p2.total_price(self.tibber_prices)
-        # self.price["today"] = _p
-        # self.price["stats"] = p2.price_statistics(_p)
-
-        # make a list of cheap and expensive hours
-        # if self.tibber_quarters:
-        #     charge_today = ut.sort_index(_p, rev=True)[-12:]
-        #     discharge_today = ut.sort_index(_p, rev=True)[:12]
-        # else:
-        #     charge_today = ut.sort_index(_p, rev=True)[-3:]
-        #     discharge_today = ut.sort_index(_p, rev=True)[:3]
-        # charge_today.sort()
-        # discharge_today.sort()
-        # self.price["cheap_slot"] = charge_today
-        # self.price["expen_slot"] = discharge_today
-
-        # if self.debug:
-        #     self.log(
-        #         f"New pricelist for today    = {
-        #             [f'{n:.3f}' for n in self.price['today']]
-        #         }\n :   cheap slots     = {self.price['cheap_slot']}\n :   expensive slots = {
-        #             self.price['expen_slot']
-        #         }\n :   STATISTICS\n :     {self.price['stats']['text']}"
-        #     )
-        pass
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
@@ -298,20 +265,22 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def watchdog_runin_cb(self, entity, attribute, old, new, **kwargs):
         self.update_states()
-        # Decide stance based on the current state
+        # determine the new stance ...
         self.calc_stance()
+        # ... and set it
+        self.set_stance()
         # Log the current stance
         if self.debug:
-            self.log(f"Current stance             = {self.stance}")
+            self.log(f"Current stance             = {self.new_stance}")
 
     # CONTROL LOGIC
 
     def calc_stance(self):
         """Choose the current stance based on the current price and battery state
         and determine the battery power setpoint."""
-
         self.log("=========================== ! ========================")
-        stance: str = self.stance  # Keep the current stance
+        stance: str = self.new_stance  # Keep the current stance
+        self.prv_stance = stance
         if self.ctrl_by_me is False:
             # we are switched off
             self.log("*** Control by app is disabled. No stance change! ***")
@@ -359,8 +328,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 f"Non-sunny day, cheap hour {_hr} and SoC < {self.bats_min_soc}%. Activating CHARGE stance ({stance})."
             )
             stance = cs.CHARGE
-        self.stance = stance
-        self.log(f"Current stance set to: {self.stance}")
+        self.new_stance = stance
         self.calc_pwr_sp(stance)
         self.log("======================================================")
 
@@ -384,7 +352,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def set_stance(self):
         """Set the current stance based on the current state."""
-        match self.stance:
+        self.log(f"New stance will be set to   : {self.new_stance}")
+        match self.new_stance:
             case cs.NOM:
                 self.start_nom()
             case cs.IDLE:
@@ -394,27 +363,27 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             case cs.DISCHARGE:
                 self.start_discharge()
             case _:
-                self.log(f"Unknown stance: {self.stance}. Switching to NOM.")
+                self.log(f"Unknown stance: {self.new_stance}. Switching to NOM.")
 
     def start_nom(self):
         """Start the NOM stance."""
-        self.stance = cs.NOM
-        self.log(f"Starting BatMan2 in {self.stance} stance.")
+        stance: str = cs.NOM
+        self.log(f"Starting {stance} stance.")
 
     def start_idle(self):
         """Start the IDLE stance."""
-        self.stance = cs.IDLE
-        self.log(f"Starting BatMan2 in {self.stance} stance.")
+        stance = cs.IDLE
+        self.log(f"Starting {stance} stance.")
 
     def start_charge(self, power: int = cs.CHARGE_PWR):
         """Start the API- stance."""
-        self.stance = cs.CHARGE
-        self.log(f"Starting BatMan2 in {self.stance} stance.")
+        stance = cs.CHARGE
+        self.log(f"Starting {stance} stance with setpoints {self.pwr_sp_list}")
 
     def start_discharge(self, power: int = cs.DISCHARGE_PWR):
         """Start the API+ stance."""
-        self.stance = cs.DISCHARGE
-        self.log(f"Starting BatMan2 in {self.stance} stance.")
+        stance = cs.DISCHARGE
+        self.log(f"Starting {stance} stance with setpoints {self.pwr_sp_list}")
 
     # SECRETS
     def get_tibber(self) -> tuple[str, str]:
