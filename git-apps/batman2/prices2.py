@@ -1,5 +1,6 @@
 """Fetch price info from Tibber API instead of from HA."""
 
+import datetime as dt
 from statistics import quantiles as stqu
 
 import const2 as cs
@@ -111,10 +112,9 @@ def get_price(price_dict: dict[str, float], hour: int, min: int) -> float:
     _price: float = 0.0
     # Round the quarter to the nearest 15 minutes
     _qrtr: int = int(round(min / 15) * 15)
-    for _k, _v in price_dict.items():
-        item = {"sample_time": parser.isoparse(_k), "price": _v}
-        if item["sample_time"].hour == hour and item["sample_time"].minute == _qrtr:
-            _price = item["price"]
+    for _dt, _price in price_dict.items():
+        sample_time: dt.datetime = parser.isoparse(_dt)
+        if sample_time.hour == hour and sample_time.minute == _qrtr:
             break
     return _price
 
