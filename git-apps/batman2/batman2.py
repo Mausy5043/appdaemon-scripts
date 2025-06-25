@@ -391,7 +391,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def start_discharge(self, power: int = cs.DISCHARGE_PWR):
         """Start the API+ stance."""
-        stance: str = cs.DISCHARGE
+        stance: str = cs.DISCHARGE[:-1]
         self.log(f"Starting {stance} stance with setpoints {self.pwr_sp_list}")
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
