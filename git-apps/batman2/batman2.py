@@ -364,6 +364,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.start_discharge()
             case _:
                 self.log(f"Unknown stance: {self.new_stance}. Switching to NOM.")
+                self.start_nom()
 
     def start_nom(self):
         """Start the NOM stance."""
