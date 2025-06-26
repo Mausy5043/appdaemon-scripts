@@ -236,7 +236,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _pt = p2.get_price(self.tibber_prices, _hr, _qr)
         self.price["now"] = _pt
 
-        # every time the current prices are updaeted, we update other stuff too:
+        # every time the current prices are updated, we update other stuff too:
         self.update_states()
 
         # log the current price
