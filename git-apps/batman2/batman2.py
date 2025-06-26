@@ -278,6 +278,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.debug:
             self.log(f"Current stance             = {self.new_stance}")
 
+    def ramp_sp_runin_cb(self, entity, attribute, old, new, **kwargs):
+        self.ramp_sp()
+
     # CONTROL LOGIC
 
     def calc_stance(self):
@@ -419,6 +422,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def ramp_sp(self):
         current_sp: list[int] = self.get_pwr_sp()
         calc_sp: list[int] = self.pwr_sp_list
+        _cb = False
         for idx,bat in enumerate(cs.SETPOINTS):
             epsilon = calc_sp[idx] - current_sp[idx]
             step_sp = epsilon * 0.4
@@ -426,10 +430,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 new_sp = step_sp + current_sp[idx]
                 self.log(f"ramping {bat} to {new_sp}")
                 #   self.set_state(bat, new_sp)
-                #   cb @ now + 23s
+                #   cb @ now + 2
+                _cb = True
             else:
                 self.log(f"finalising ramping {bat} to {calc_sp}")
                 #   self.set_state(bat, calc_sp[idx])
+        if _cb:
+            self.run_in(self.ramp_sp_runin_cb, 23)
     #
 
     # SECRETS
