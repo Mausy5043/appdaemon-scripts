@@ -122,29 +122,29 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # minimum SoC required to provide power until 10:00 next morning
         _bms: Any = self.get_state(cs.BAT_MIN_SOC)
         self.bats_min_soc = float(_bms)
-        self.log(f"BAT minimum SoC             =  {self.bats_min_soc:.1f} %")
+        self.log(f"BAT minimum SoC             =  {self.bats_min_soc:8.1f}  %")
         # get current SoC
         self.soc, self.soc_list = self.get_soc()
-        self.log(f"BAT current SoC             =  {self.soc:.1f} %  <- {self.soc_list}")
+        self.log(f"BAT current SoC             =  {self.soc:8.1f}  %  <- {self.soc_list}")
         # get battery power setpoints
         self.pwr_sp_list = self.get_pwr_sp()
         _ssp = sum(self.pwr_sp_list)
-        self.log(f"BAT actual setpoints        = {_ssp:+} W  <- {self.pwr_sp_list}")
+        self.log(f"BAT actual setpoints        = {_ssp:+6.0f}   W  <- {self.pwr_sp_list}")
         # get battery power stances
         self.stance_list = self.get_bat_strat()
         self.log(f"BAT current stance          =  {self.stance_list}")
         # get PV current and power values
         _pvc: Any = self.get_state(cs.PV_CURRENT)
         self.pv_current = float(_pvc)
-        self.log(f"PV actual current           =  {self.pv_current:.2f} A")
+        self.log(f"PV actual current           =  {self.pv_current:9.2f} A")
         _pvv: Any = self.get_state(cs.PV_VOLTAGE)
         self.pv_volt = int(float(_pvv))
-        self.log(f"PV actual voltage           =  {self.pv_volt:.2f} V")
-        self.log(f"PV calculated power (I x U) =  {(self.pv_current * self.pv_volt):.1f} W")
+        self.log(f"PV actual voltage           =  {self.pv_volt:9.2f} V")
+        self.log(f"PV calculated power (I x U) =  {(self.pv_current * self.pv_volt):8.1f}  W")
         _pvp: Any = self.get_state(cs.PV_POWER)
         self.pv_power = int(float(_pvp))
         self.log(
-            f"PV actual power             = {self.pv_power:+} W  (delta={
+            f"PV actual power             = {self.pv_power:+6.0f}   W  (delta={
                 abs(abs(self.pv_power) - (self.pv_current * self.pv_volt)):.0f
             })"
         )
