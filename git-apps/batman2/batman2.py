@@ -312,14 +312,16 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         else:
             stance = cs.NOM  # default stance is NOM
 
-        # if prices are extremelly high or low, we get greedy and switch to resp. DISCHARGE or CHARGE stance
+        # if prices are extremely high or low, we get greedy and switch to resp. DISCHARGE or CHARGE stance
         match self.greedy:
             case -1:
-                self.log("Greedy for CHARGE. Requesting CHARGE stance.")
-                stance = cs.CHARGE
+                if self.soc > self.bats_min_soc:
+                    self.log("Greedy for CHARGE. Requesting CHARGE stance.")
+                    stance = cs.CHARGE
             case 1:
-                self.log("Greedy for DISCHARGE. Requesting DISCHARGE stance.")
-                stance = cs.DISCHARGE
+                if self.soc < self.bats_min_soc:
+                    self.log("Greedy for DISCHARGE. Requesting DISCHARGE stance.")
+                    stance = cs.DISCHARGE
             case _:
                 pass  # not greedy, do nothing
 
@@ -433,7 +435,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 _cb = True
             else:
                 self.log(f"finalising ramping {bat} to {calc_sp}")
-                #   self.set_state(bat, calc_sp[idx])
+                #   self.set_state(bat, calc_sp)
         if _cb:
             self.run_in(self.ramp_sp_runin_cb, cs.RAMP_RATE)
 
