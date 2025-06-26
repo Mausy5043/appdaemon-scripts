@@ -430,14 +430,12 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 new_sp = step_sp + current_sp[idx]
                 self.log(f"ramping {bat} to {new_sp}")
                 #   self.set_state(bat, new_sp)
-                #   cb @ now + 2
                 _cb = True
             else:
                 self.log(f"finalising ramping {bat} to {calc_sp}")
                 #   self.set_state(bat, calc_sp[idx])
         if _cb:
-            self.run_in(self.ramp_sp_runin_cb, 23)
-    #
+            self.run_in(self.ramp_sp_runin_cb, cs.RAMP_RATE)
 
     # SECRETS
     def get_tibber(self) -> tuple[str, str]:

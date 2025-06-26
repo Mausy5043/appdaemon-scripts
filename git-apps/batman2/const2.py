@@ -35,6 +35,7 @@ PV_POWER = "sensor.pv_kwh_meter_power"
 BATTERIES = ["sensor.bat1_state_of_charge", "sensor.bat2_state_of_charge"]
 SETPOINTS = ["number.bat1_power_setpoint", "number.bat2_power_setpoint"]
 BAT_STANCE = ["select.bat1_power_strategy", "select.bat2_power_strategy"]
+RAMP_RATE = 23 # s; time between setpoint changes when ramping to a new setpoint
 
 # ### PRICES SETTINGS ### #
 PRICES: dict = {
