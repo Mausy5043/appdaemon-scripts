@@ -302,7 +302,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 # stance = cs.DISCHARGE
                 # EV assist is essentially not available for now.
                 self.log(
-                    f"EV is charging and price is above Q3 ({_q3:.3f}), proposing to keep current stance ({
+                    f"EV is charging and price is above Q3 ({_q3:.3f}), but proposing to keep current stance ({
                         stance
                     })."
                 )
@@ -353,7 +353,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.pwr_sp_list = [cs.DISCHARGE_PWR, cs.DISCHARGE_PWR]
                 self.log(f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list}")
             case _:
-                self.logf("SP: No power setpoints calculated for unknown stance {stance}. ")
+                self.logf(f"SP: No power setpoints calculated for unknown stance {stance}. ")
 
     def set_stance(self):
         """Set the current stance based on the current state."""
