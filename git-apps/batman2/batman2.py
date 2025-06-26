@@ -51,12 +51,12 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
         self.set_call_backs()
         # update monitors with actual data
-        self.get_price_states()
+        self.update_price_states()
 
         self.log("BatMan2 is running...")
         self.starting = False
 
-    def set_call_backs(self):
+    def set_call_backs(self) -> None:
         """Set-up callbacks for price changes and watchdogs."""
         # self.callback_handles.append(
         #     self.listen_state(self.price_list_cb, cs.PRICES["entity"], attribute=cs.PRICES["attr"]["list"])
@@ -74,7 +74,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # PV overcurrent detected
         self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.PV_CURRENT_WD))
 
-    def get_price_states(self):
+    def update_price_states(self) -> None:
         """Get current states for prices by calling the callback directly"""
         self.price_current_cb(
             "entity", "list", "none", self.get_state(cs.PRICES["entity"], attribute=cs.PRICES["attr"]["now"])
@@ -394,7 +394,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
                 self.set_state(bat, stance.lower())
-            self.adjust_pwr_sp(self.pwr_sp_list[0])
+            self.adjust_pwr_sp()
 
     def start_discharge(self, power: int = cs.DISCHARGE_PWR):
         """Start the API+ stance."""
@@ -403,16 +403,34 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
                 self.set_state(bat, stance.lower())
-            self.adjust_pwr_sp(self.pwr_sp_list[0])
+            self.adjust_pwr_sp()
 
-    def adjust_pwr_sp(self, setpoint: int):
+    def adjust_pwr_sp(self):
         # modify setpoint for testing
-        for bat_sp in cs.SETPOINTS:
-            if setpoint > 0:
-                setpoint = 1661
-            if setpoint < 0:
-                setpoint = 2112
-            self.set_state(bat_sp, setpoint)
+        setpoint = self.pwr_sp_list
+        for bat, bat_sp in enumerate(cs.SETPOINTS):
+            if setpoint[bat] > 0:
+                setpoint[bat] = 1661
+            if setpoint[bat] < 0:
+                setpoint[bat] = 2112
+            self.set_state(bat_sp, setpoint[bat])
+            self.ramp_sp()
+
+    def ramp_sp(self):
+        current_sp: list[int] = self.get_pwr_sp()
+        calc_sp: list[int] = self.pwr_sp_list
+        for idx,bat in enumerate(cs.SETPOINTS)
+            epsilon = calc_sp[idx] - current_sp[idx]
+            step_sp = epsilon * 0.4
+            if step_sp > 190:
+                new_sp = step_sp + current_sp[idx]
+                self.log(f"ramping {bat} to {new_sp}")
+                #   self.set_state(bat, new_sp)
+                #   cb @ now + 23s
+            else:
+                self.log(f"finalising ramping {bat} to {calc_sp}")
+                #   self.set_state(bat, calc_sp[idx])
+    #
 
     # SECRETS
     def get_tibber(self) -> tuple[str, str]:
