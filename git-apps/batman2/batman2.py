@@ -419,7 +419,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def ramp_sp(self):
         current_sp: list[int] = self.get_pwr_sp()
         calc_sp: list[int] = self.pwr_sp_list
-        for idx,bat in enumerate(cs.SETPOINTS)
+        for idx,bat in enumerate(cs.SETPOINTS):
             epsilon = calc_sp[idx] - current_sp[idx]
             step_sp = epsilon * 0.4
             if step_sp > 190:
