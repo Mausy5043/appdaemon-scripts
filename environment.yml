@@ -9,7 +9,7 @@ channels:
 - defaults
 
 dependencies:
-- python=3.12.10
+- python=3.12.11
 - pip
 - pip:
   - appdaemon
