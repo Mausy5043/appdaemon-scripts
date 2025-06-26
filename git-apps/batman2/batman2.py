@@ -129,7 +129,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # get battery power setpoints
         self.pwr_sp_list = self.get_pwr_sp()
         _ssp = sum(self.pwr_sp_list)
-        self.log(f"BAT actual setpoints        = {_ssp:+6.0f}   W  <- {self.pwr_sp_list}")
+        self.log(f"BAT actual setpoints        = {_ssp:+6.0f}    W  <- {self.pwr_sp_list}")
         # get battery power stances
         self.stance_list = self.get_bat_strat()
         self.log(f"BAT current stance          = {self.stance_list}")
@@ -144,7 +144,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _pvp: Any = self.get_state(cs.PV_POWER)
         self.pv_power = int(float(_pvp))
         self.log(
-            f"PV actual power             = {self.pv_power:+6.0f}   W  (delta={
+            f"PV actual power             = {self.pv_power:+6.0f}    W  (delta={
                 abs(abs(self.pv_power) - (self.pv_current * self.pv_volt)):.0f
             })"
         )
