@@ -246,10 +246,15 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.log(
                 f"Today's pricelist           =  {
                     [f'{n:.3f}' for n in self.price['today']]
-                }\n :   cheap slots     = {self.price['cheap_slot']}\n :   expensive slots = {
+                }\n                                       : cheap slots                 = {
+                    self.price['cheap_slot']
+                }\n                                       : expensive slots             = {
                     self.price['expen_slot']
-                }\n :   STATISTICS\n :     {self.price['stats']['text']}"
+                }\n                                       : STATISTICS\n :                {
+                    self.price['stats']['text']
+                }"
             )
+
         # determine the new stance ...
         self.calc_stance()
         # ... and set it
@@ -297,7 +302,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 # stance = cs.DISCHARGE
                 # EV assist is essentially not available for now.
                 self.log(
-                    f"EV is charging and price is above Q3 ({_q3:.3f}), proposing to keep current stance ({stance})."
+                    f"EV is charging and price is above Q3 ({_q3:.3f}), proposing to keep current stance ({
+                        stance
+                    })."
                 )
         else:
             stance = cs.NOM  # default stance is NOM
@@ -320,9 +327,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _min_soc = self.bats_min_soc + (2 * cs.DISCHARGE_PWR / 100)
         if self.datum["sunny"] and (self.soc > _min_soc) and (_hr in self.price["expen_slot"]):
             stance = cs.DISCHARGE
-            self.log(
-                f"Sunny day, expensive hour and  SoC > {_min_soc}%. Requesting DISCHARGE stance."
-            )
+            self.log(f"Sunny day, expensive hour and  SoC > {_min_soc}%. Requesting DISCHARGE stance.")
         if not self.datum["sunny"] and (self.soc < self.bats_min_soc) and (_hr in self.price["cheap_slot"]):
             self.log(
                 f"Non-sunny day, cheap hour {_hr} and SoC < {self.bats_min_soc}%. Requesting CHARGE stance."
