@@ -420,7 +420,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
                 self.log(f"Setting {bat} to {stance}")
-                self.select_option(bat, stance.lower())
+                self.set_state(bat, stance.lower())
 
     def start_idle(self):
         """Start the IDLE stance."""
@@ -428,7 +428,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
                 self.log(f"Setting {bat} to {stance}")
-                self.select_option(bat, stance.lower())
+                self.set_state(bat, stance.lower())
 
     def start_charge(self, power: int = cs.CHARGE_PWR):
         """Start the API- stance."""
@@ -436,7 +436,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
                 self.log(f"Setting {bat} to {stance}")
-                self.select_option(bat, stance.lower())
+                self.set_state(bat, stance.lower())
             self.adjust_pwr_sp()
 
     def start_discharge(self, power: int = cs.DISCHARGE_PWR):
@@ -445,7 +445,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
                 self.log(f"Setting {bat} to {stance}")
-                self.select_option(bat, stance.lower())
+                self.set_state(bat, stance.lower())
             self.adjust_pwr_sp()
 
     # SECRETS
