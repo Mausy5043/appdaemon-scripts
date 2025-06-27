@@ -363,7 +363,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def set_stance(self):
         """Set the current stance based on the current state."""
-        self.log(f"New stance will be set to   : {self.new_stance}")
         match self.new_stance:
             case cs.NOM:
                 self.start_nom()
@@ -380,34 +379,34 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def start_nom(self):
         """Start the NOM stance."""
         stance: str = cs.NOM
-        self.log(f"Starting {stance} stance.")
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
+                self.log(f"Setting {bat} to {stance}")
                 self.set_state(bat, stance.lower())
 
     def start_idle(self):
         """Start the IDLE stance."""
         stance: str = cs.IDLE
-        self.log(f"Starting {stance} stance.")
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
+                self.log(f"Setting {bat} to {stance}")
                 self.set_state(bat, stance.lower())
 
     def start_charge(self, power: int = cs.CHARGE_PWR):
         """Start the API- stance."""
         stance: str = cs.CHARGE[:-1]
-        self.log(f"Starting {stance} stance with setpoints {self.pwr_sp_list}")
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
+                self.log(f"Setting {bat} to {stance}")
                 self.set_state(bat, stance.lower())
             self.adjust_pwr_sp()
 
     def start_discharge(self, power: int = cs.DISCHARGE_PWR):
         """Start the API+ stance."""
         stance: str = cs.DISCHARGE[:-1]
-        self.log(f"Starting {stance} stance with setpoints {self.pwr_sp_list}")
         if self.ctrl_by_me:
             for bat in cs.BAT_STANCE:
+                self.log(f"Setting {bat} to {stance}")
                 self.set_state(bat, stance.lower())
             self.adjust_pwr_sp()
 
@@ -419,6 +418,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 setpoint[bat] = 1661
             if setpoint[bat] < 0:
                 setpoint[bat] = 2112
+            self.log(f"Setting {bat} to {setpoint[bat]}")
             self.set_state(bat_sp, setpoint[bat])
             self.ramp_sp()
 
