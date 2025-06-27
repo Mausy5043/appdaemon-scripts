@@ -296,12 +296,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
         if self.ev_charging:
             # automation will have switched the batteries to IDLE.
-            stance = cs.IDLE
+            # stance = cs.IDLE
             # we overrule this only if ev_assist is true
             #   and the price is above Q3
             #   and the SoC is above bats_min_soc
             _q3 = self.price["stats"]["q3"]
             if self.ev_assist and self.soc > self.bats_min_soc:  # or p1_power < -200
+
                 # stance = cs.DISCHARGE
                 # EV assist is essentially not available for now.
                 self.log(
