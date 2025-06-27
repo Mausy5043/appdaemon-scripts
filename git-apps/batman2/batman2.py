@@ -98,6 +98,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         for bat in cs.SETPOINTS:
             _sp: Any | None = self.get_state(entity_id=bat, attribute="state")
             if _sp is not None:
+                print(type(_sp), _sp)
                 pwr_list.append(int(_sp))
             else:
                 pwr_list.append(0)
