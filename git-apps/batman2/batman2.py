@@ -381,13 +381,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             epsilon = calc_sp[idx] - current_sp[idx]
             step_sp = epsilon * 0.4
             if step_sp > 190:
-                new_sp = step_sp + current_sp[idx]
+                new_sp = int(step_sp + current_sp[idx])
                 self.log(f"ramping {bat} to {new_sp}")
-                #   self.set_state(bat, new_sp)
+                self.set_state(bat, new_sp)
                 _cb = True
             else:
                 self.log(f"finalising ramping {bat} to {calc_sp}")
-                #   self.set_state(bat, calc_sp)
+                self.set_state(bat, calc_sp)
         if _cb:
             self.run_in(
                 self.ramp_sp_runin_cb,
