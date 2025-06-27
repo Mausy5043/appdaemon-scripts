@@ -98,7 +98,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         for bat in cs.SETPOINTS:
             _sp: Any | None = self.get_state(entity_id=bat, attribute="state")
             if _sp is not None:
-                print(type(_sp), _sp)
                 pwr_list.append(int(_sp))
             else:
                 pwr_list.append(0)
@@ -387,7 +386,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.set_state(bat, new_sp)
                 _cb = True
             else:
-                self.log(f"finalising ramping {bat} to {calc_sp}")
+                self.log(f"finalising ramping {bat} to {calc_sp[idx]} ({step_sp})")
                 self.set_state(bat, calc_sp)
         if _cb:
             self.run_in(
