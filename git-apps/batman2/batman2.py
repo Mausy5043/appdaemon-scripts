@@ -276,7 +276,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.set_stance()
         # Log the current stance
         if self.debug:
-            self.log(f"Current stance             = {self.new_stance}")
+            self.log(f"Current stance              =  {self.new_stance}")
 
     def ramp_sp_runin_cb(self, entity, attribute, old, new, **kwargs):
         self.ramp_sp()
@@ -373,7 +373,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             case cs.DISCHARGE:
                 self.start_discharge()
             case _:
-                self.log(f"Unknown stance: {self.new_stance}. Switching to NOM.")
+                self.log(f"*** Unknown stance: {self.new_stance}. Switching to NOM.")
                 self.start_nom()
 
     def start_nom(self):
