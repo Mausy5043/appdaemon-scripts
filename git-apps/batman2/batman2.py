@@ -371,7 +371,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             if setpoint[bat] < 0:
                 setpoint[bat] = -2112
             self.log(f"Setting {bat_sp} to {setpoint[bat]}")
-            self.set_state(bat_sp, setpoint[bat])
+            self.set_state(bat_sp, str(setpoint[bat]))
             # self.ramp_sp()
 
     def ramp_sp(self):
