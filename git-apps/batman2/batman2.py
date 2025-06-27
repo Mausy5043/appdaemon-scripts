@@ -296,7 +296,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
         if self.ev_charging:
             # automation will have switched the batteries to IDLE.
-            # stance = cs.IDLE
+            stance = cs.IDLE
             # we overrule this only if ev_assist is true
             #   and the price is above Q3
             #   and the SoC is above bats_min_soc
@@ -306,7 +306,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 # stance = cs.DISCHARGE
                 # EV assist is essentially not available for now.
                 self.log(
-                    f"EV is charging and price is above Q3 ({_q3:.3f}), but proposing to keep current stance ({
+                    f"EV is charging and price is above Q3 ({_q3:.3f}), but proposing to keep stance ({
                         stance
                     })."
                 )
