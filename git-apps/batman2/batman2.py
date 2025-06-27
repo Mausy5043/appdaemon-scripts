@@ -361,6 +361,43 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             case _:
                 self.logf(f"SP: No power setpoints calculated for unknown stance {stance}. ")
 
+    def adjust_pwr_sp(self):
+        # modify setpoint for testing
+        setpoint = self.pwr_sp_list
+        for bat, bat_sp in enumerate(cs.SETPOINTS):
+            if setpoint[bat] > 0:
+                setpoint[bat] = 1661
+            if setpoint[bat] < 0:
+                setpoint[bat] = 2112
+            self.log(f"Setting {bat} to {setpoint[bat]}")
+            self.set_state(bat_sp, setpoint[bat])
+            self.ramp_sp()
+
+    def ramp_sp(self):
+        current_sp: list[int] = self.get_pwr_sp()
+        calc_sp: list[int] = self.pwr_sp_list
+        _cb = False
+        for idx, bat in enumerate(cs.SETPOINTS):
+            epsilon = calc_sp[idx] - current_sp[idx]
+            step_sp = epsilon * 0.4
+            if step_sp > 190:
+                new_sp = step_sp + current_sp[idx]
+                self.log(f"ramping {bat} to {new_sp}")
+                #   self.set_state(bat, new_sp)
+                _cb = True
+            else:
+                self.log(f"finalising ramping {bat} to {calc_sp}")
+                #   self.set_state(bat, calc_sp)
+        if _cb:
+            self.run_in(
+                self.ramp_sp_runin_cb,
+                cs.RAMP_RATE,
+                entity="ent",
+                attribute="atrr",
+                old="",
+                new="",
+            )
+
     def set_stance(self):
         """Set the current stance based on the current state."""
         match self.new_stance:
@@ -410,37 +447,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.set_state(bat, stance.lower())
             self.adjust_pwr_sp()
 
-    def adjust_pwr_sp(self):
-        # modify setpoint for testing
-        setpoint = self.pwr_sp_list
-        for bat, bat_sp in enumerate(cs.SETPOINTS):
-            if setpoint[bat] > 0:
-                setpoint[bat] = 1661
-            if setpoint[bat] < 0:
-                setpoint[bat] = 2112
-            self.log(f"Setting {bat} to {setpoint[bat]}")
-            self.set_state(bat_sp, setpoint[bat])
-            self.ramp_sp()
-
-    def ramp_sp(self):
-        current_sp: list[int] = self.get_pwr_sp()
-        calc_sp: list[int] = self.pwr_sp_list
-        _cb = False
-        for idx,bat in enumerate(cs.SETPOINTS):
-            epsilon = calc_sp[idx] - current_sp[idx]
-            step_sp = epsilon * 0.4
-            if step_sp > 190:
-                new_sp = step_sp + current_sp[idx]
-                self.log(f"ramping {bat} to {new_sp}")
-                #   self.set_state(bat, new_sp)
-                _cb = True
-            else:
-                self.log(f"finalising ramping {bat} to {calc_sp}")
-                #   self.set_state(bat, calc_sp)
-        if _cb:
-            self.run_in(self.ramp_sp_runin_cb, cs.RAMP_RATE)
-
     # SECRETS
+
     def get_tibber(self) -> tuple[str, str]:
         _scrt = self.secrets.get_tibber_token()
         _url = self.secrets.get_tibber_url()
