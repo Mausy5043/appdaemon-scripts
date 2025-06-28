@@ -4,6 +4,7 @@ from typing import Any
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import const2 as cs
 import prices2 as p2
+import battalk as bt
 import utils2 as ut
 
 """BatMan2 App
@@ -48,6 +49,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.soc_list: list[float] = [0.0, 0.0]  # %; state of charge for each battery
         self.pwr_sp_list: list[int] = [0, 0]  # W; power setpoints of batteries
         self.stance_list: list[str] = ["NOM", "NOM"]  # current control stance for each battery
+        self.bat_ctrl = self.secrets.get_bats()
+        for _b in self.bat_ctrl:
+            self.bat_ctrl[_b]["api"] = bt.Sessy(
+                url=self.bat_ctrl[_b]["url"],
+                username=self.bat_ctrl[_b]["username"],
+                password=self.bat_ctrl[_b]["password"],
+            )
 
         self.set_call_backs()
         # update monitors with actual data
@@ -178,6 +186,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         else:
             self.log("Control by app              =  DISABLED")
         # self.log("---------------------------   ------------------------")
+        for _b in self.bat_ctrl:
+            _api = self.bat_ctrl[_b]["api"]
+            _s = _api.get_strategy()
+            _sp = _api.get_setpoint()
+            self.log(_b, _s, _sp)
 
     def update_tibber_prices(self):
         self.tibber_prices = p2.get_pricedict(
@@ -457,6 +470,12 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _scrt = self.secrets.get_tibber_token()
         _url = self.secrets.get_tibber_url()
         return _scrt, _url
+
+    def get_bats(self):
+        _auth_dict={}
+        for _b in ["bat1", "bat2"]:
+            _auth_dict[_b] = self.secrets.get_sessy_secrets(_b)
+        return _auth_dict
 
 
 """

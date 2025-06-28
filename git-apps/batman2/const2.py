@@ -23,19 +23,28 @@ DEFAULT_STANCE: str = NOM
 # when True, the app will assist the EV charging, notably when prices are high (>Q3)
 # when False, the app will not assist the EV charging
 EV_ASSIST = False
-EV_REQ_PWR = "input_boolean.evneedspwr"     # HA automation: becomes active when EV charger is using power
-CTRL_BY_ME = "input_boolean.bat_ctrl_app"   # HA automation: to manually override BatMan2 actions
-BAT_MIN_SOC = "sensor.bats_minimum_soc"     # HA automation: SoC required to reach next 10AM base on avg baseload
-BAT_MIN_SOC_WD = "input_boolean.bats_min_soc"  # HA automation: watchdog to detect if SoC is below minimum state of charge
-PV_CURRENT = "sensor.pv_kwh_meter_current"  # current reading HomeWizard meter on PV
-PV_CURRENT_WD = "input_boolean.pvovercurrent"  # PV-current watch dog > 21 A || < -21 A
+# HA automation: becomes active when EV charger is using power
+EV_REQ_PWR = "input_boolean.evneedspwr"
+# HA automation: to manually override BatMan2 actions
+CTRL_BY_ME = "input_boolean.bat_ctrl_app"
+# HA automation: SoC required to reach next 10AM base on avg baseload
+BAT_MIN_SOC = "sensor.bats_minimum_soc"
+# HA automation: watchdog to detect if SoC is below minimum state of charge
+BAT_MIN_SOC_WD = "input_boolean.bats_min_soc"
+# current reading HomeWizard meter on PV
+PV_CURRENT = "sensor.pv_kwh_meter_current"
+# PV-current watch dog > 21 A || < -21 A
+PV_CURRENT_WD = "input_boolean.pvovercurrent"
 PV_CURRENT_MAX = 21.0  # A;abs
-PV_VOLTAGE = "sensor.pv_kwh_meter_voltage"  # voltage reading HomeWizard meter on PV
-PV_POWER = "sensor.pv_kwh_meter_power"      # power reading HomeWizard meter on PV
+# voltage reading HomeWizard meter on PV
+PV_VOLTAGE = "sensor.pv_kwh_meter_voltage"
+# power reading HomeWizard meter on PV
+PV_POWER = "sensor.pv_kwh_meter_power"
 BATTERIES = ["sensor.bat1_state_of_charge", "sensor.bat2_state_of_charge"]
 SETPOINTS = ["number.bat1_power_setpoint", "number.bat2_power_setpoint"]
 BAT_STANCE = ["select.bat1_power_strategy", "select.bat2_power_strategy"]
-RAMP_RATE = 23 # s; time between setpoint changes when ramping to a new setpoint
+# time between setpoint changes when ramping to a new setpoint
+RAMP_RATE = 23  # s
 
 # ### PRICES SETTINGS ### #
 PRICES: dict = {
@@ -49,6 +58,20 @@ PRICES: dict = {
     "adjust": {"hike": 0.021, "extra": 2.0, "taxes": 10.15, "btw": 1.21},
     "qry_now": "{viewer {homes {currentSubscription { priceInfo {today      { total energy tax startsAt } } } } } }",
     "qry_nxt": "{viewer {homes {currentSubscription { priceInfo {tomorrow   { total energy tax startsAt } } } } } }",
+}
+
+# ### Talking to the batteries directly because HA/AP doesn't ###
+BATTALK = {
+    "api_calls": {
+        "strategy": "api/v1/power/active_strategy",
+        "status": "/api/v1/power/status",
+        "setpoint": "/api/v1/power/setpoint",
+    },
+    "api_strats": {
+        "idle": "POWER_STRATEGY_IDLE",
+        "api": "POWER_STRATEGY_API",
+        "nom": "POWER_STRATEGY_NOM",
+    },
 }
 
 # Due to some hardware configuration issues the sign of various sensors
