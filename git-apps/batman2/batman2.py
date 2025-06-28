@@ -2,9 +2,9 @@ import datetime as dt
 from typing import Any
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
+import battalk as bt
 import const2 as cs
 import prices2 as p2
-import battalk as bt
 import utils2 as ut
 
 """BatMan2 App
@@ -472,7 +472,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         return _scrt, _url
 
     def get_bats(self):
-        _auth_dict={}
+        _auth_dict = {}
         for _b in ["bat1", "bat2"]:
             _auth_dict[_b] = self.secrets.get_sessy_secrets(_b)
         return _auth_dict

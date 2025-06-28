@@ -37,7 +37,7 @@ class Secrets(hass.Hass):  # type: ignore[misc]
         _url_secret = f"sessy_{battery}_url"
         if _url_secret not in self.args:
             self.log(f"*** No '{_url_secret}' found in args", level="ERROR")
-            return {"error":"NO_URL_FOUND"}
+            return {"error": "NO_URL_FOUND"}
         _url = self.args[_url_secret]
         if not _url:
             self.log(f"**** Empty '{_url_secret}' found in args", level="ERROR")
@@ -51,7 +51,4 @@ class Secrets(hass.Hass):  # type: ignore[misc]
         if not _url:
             self.log(f"**** Empty '{_auth_secret}' found in args", level="ERROR")
         _auth_user, _auth_pwd = _auth.split(".")
-        return {"url": _url,
-                "username": _auth_user,
-                "password": _auth_pwd
-                }
+        return {"url": _url, "username": _auth_user, "password": _auth_pwd}

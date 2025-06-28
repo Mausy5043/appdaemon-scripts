@@ -1,7 +1,7 @@
 """Provides constants for the Batman2 app."""
 
 # ### GENERAL SETTINGS ### #
-VERSION = "0.9.1"
+VERSION = "0.9.2"
 # debugging mode
 DEBUG = True
 # timezone for the app
