@@ -62,6 +62,7 @@ PRICES: dict = {
 
 # ### Talking to the batteries directly because HA/AP doesn't ###
 BATTALK = {
+    "bats": ["bat1", "bat2"],
     "api_calls": {
         "strategy": "api/v1/power/active_strategy",
         "status": "/api/v1/power/status",
