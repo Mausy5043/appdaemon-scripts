@@ -110,7 +110,7 @@ def get_pricedict(token: str, url: str) -> dict[str, float]:
 
 def get_price(price_dict: dict[str, float], hour: int, min: int) -> float:
     _price: float = 0.0
-    # Round the quarter to the nearest 15 minutes
+    # Round the minutes to the nearest 15 minutes to get the quarter
     _qrtr: int = int(round(min / 15) * 15)
     for _dt, _price in price_dict.items():
         sample_time: dt.datetime = parser.isoparse(_dt)

@@ -58,9 +58,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def set_call_backs(self) -> None:
         """Set-up callbacks for price changes and watchdogs."""
-        # self.callback_handles.append(
-        #     self.listen_state(self.price_list_cb, cs.PRICES["entity"], attribute=cs.PRICES["attr"]["list"])
-        # )
+        # TODO: Callback at the top of the hour to catch hours that have the same price.
         self.callback_handles.append(
             self.listen_state(self.price_current_cb, cs.PRICES["entity"], attribute=cs.PRICES["attr"]["now"])
         )
@@ -193,7 +191,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def terminate(self):
         """Clean up app."""
         self.log("__Terminating BatMan2...")
-        # some cleanup code goes here
         # Cancel all registered callbacks
         for handle in self.callback_handles:
             self.cancel_listen_state(handle)
@@ -232,7 +229,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.price["cheap_slot"] = charge_today
         self.price["expen_slot"] = discharge_today
 
-        # get the price for the curren timeslot
+        # get the price for the current timeslot
         _pt = p2.get_price(self.tibber_prices, _hr, _qr)
         self.price["now"] = _pt
 
@@ -262,13 +259,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
-        # Update the current state of the system
         self.log(f"*** Watchdog triggered by {entity} ({attribute}) change: {old} -> {new}")
-        # watchdog changes are not immediate, so we run a watchdog_runin_cb after 1 second
+        # watchdog changes are not immediate, so we callback watchdog_runin_cb() after N seconds
         # to allow the system to stabilize
         self.run_in(self.watchdog_runin_cb, 2, entity=entity, attribute=attribute, old=old, new=new)
 
     def watchdog_runin_cb(self, entity, attribute, old, new, **kwargs):
+        # Update the current state of the system
         self.update_states()
         # determine the new stance ...
         self.calc_stance()
@@ -302,7 +299,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             #   and the SoC is above bats_min_soc
             _q3 = self.price["stats"]["q3"]
             if self.ev_assist and self.soc > self.bats_min_soc:  # or p1_power < -200
-
                 # stance = cs.DISCHARGE
                 # EV assist is essentially not available for now.
                 self.log(
@@ -327,25 +323,29 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 pass  # not greedy, do nothing
 
         # if it is a sunny day, batteries will charge automatically
-        # we may want to discharge during the expensive timeslots
-        # check if now().hour is in self.price["expen_slot"]
+        # we don't want to discharge during the expensive timeslots
+        # because that would drain the batteries and negatively affect solar availability for the EV charger.
         _hr: int = dt.datetime.now().hour
         _min_soc = self.bats_min_soc + (2 * cs.DISCHARGE_PWR / 100)
         if self.datum["sunny"] and (self.soc > _min_soc) and (_hr in self.price["expen_slot"]):
-            # NOM to avoid locking out the EV charger. Because then we'd need to charge again on solar.
+            # For now we use NOM to avoid locking out the EV charger.
             stance = cs.NOM
             self.log(f"Sunny day, expensive hour and  SoC > {_min_soc}%. Requesting NOM stance.")
         if not self.datum["sunny"] and (self.soc < self.bats_min_soc) and (_hr in self.price["cheap_slot"]):
+            # this is supposed to charge the battery during the cheap hours in winter mimicking the ECO-mode
             self.log(
                 f"Non-sunny day, cheap hour {_hr} and SoC < {self.bats_min_soc}%. Requesting CHARGE stance."
             )
             stance = cs.CHARGE
+
         self.new_stance = stance
         self.calc_pwr_sp(stance)
         self.log("======================================================")
 
     def calc_pwr_sp(self, stance):
         """Calculate the power setpoints for the current stance."""
+        # TODO: use different SP depending on difference in SoC between the batteries,
+        # so that at the end of the hour the SoCs are (almost) the same.
         match stance:
             case cs.NOM:
                 self.pwr_sp_list = [0, 0]
@@ -371,7 +371,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             if setpoint[bat] < 0:
                 setpoint[bat] = -2112
             self.log(f"Setting {bat_sp} to {setpoint[bat]}")
-            self.set_state(bat_sp, str(setpoint[bat]))
+            # TODO: This isn't working as expected. *******
+            # self.set_state(bat_sp, str(setpoint[bat]))
             # self.ramp_sp()
 
     def ramp_sp(self):
@@ -384,11 +385,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             if step_sp > 190:
                 new_sp = int(step_sp + current_sp[idx])
                 self.log(f"ramping {bat} to {new_sp}")
-                self.set_state(bat, str(new_sp))
-                _cb = True
+                # TODO: This isn't working as expected. *******
+                # self.set_state(bat, str(new_sp))
+                # _cb = True
             else:
                 self.log(f"finalising ramping {bat} to {calc_sp[idx]} ({step_sp})")
-                self.set_state(bat, str(calc_sp))
+                # TODO: This isn't working as expected. *******
+                # self.set_state(bat, str(calc_sp))
         if _cb:
             self.run_in(
                 self.ramp_sp_runin_cb,
@@ -459,16 +462,14 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 """
 sunnyday = march equinox to september equinox
 
-o sensor.pv_kwh_meter_current <= +/-21 A
-o sensor.pv_kwh_meter_power <= +/-5000 W
 
-EV assist when price > Q3
+x EV assist when price > Q3
 
 Default requirements:
 o default stance = NOM
 o sensor.bats_minimum_soc = SoC required to provide 200 W (input_number.home_baseload) until 10:00 next morning (sensor.hours_till_10am)
 - battery contents is available to the home
-- only when surplus is high, battery contents may be offloaded
+o keep sensor.pv_kwh_meter_current <= +/- 21 A
 
 NOM:
 default stance
