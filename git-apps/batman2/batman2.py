@@ -53,6 +53,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                          "bat2": {},
                          }
         for _b in self.bat_ctrl:
+            self.bat_ctrl[_b] = self.secrets.get_sessy_secrets(_b)
             self.bat_ctrl[_b]["api"] = bt.Sessy(
                 url=self.bat_ctrl[_b]["url"],
                 username=self.bat_ctrl[_b]["username"],
