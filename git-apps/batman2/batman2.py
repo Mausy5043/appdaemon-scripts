@@ -49,7 +49,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.soc_list: list[float] = [0.0, 0.0]  # %; state of charge for each battery
         self.pwr_sp_list: list[int] = [0, 0]  # W; power setpoints of batteries
         self.stance_list: list[str] = ["NOM", "NOM"]  # current control stance for each battery
-        self.bat_ctrl = self.secrets.get_bats()
+        self.bat_ctrl = self.secrets.get_sessy_secrets()
         for _b in self.bat_ctrl:
             self.bat_ctrl[_b]["api"] = bt.Sessy(
                 url=self.bat_ctrl[_b]["url"],
