@@ -49,14 +49,12 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.soc_list: list[float] = [0.0, 0.0]  # %; state of charge for each battery
         self.pwr_sp_list: list[int] = [0, 0]  # W; power setpoints of batteries
         self.stance_list: list[str] = ["NOM", "NOM"]  # current control stance for each battery
-        self.bat_ctrl = cs.BATTALK
-        for _b in self.bat_ctrl['bats']:
-            self.bat_ctrl[_b] = {}
-            _bs = self.secrets.get_sessy_secrets(_b)
+        self.bat_ctrl = self.get_bats()
+        for _b in self.bat_ctrl:
             self.bat_ctrl[_b]["api"] = bt.Sessy(
-                url=_bs["url"],
-                username=_bs["username"],
-                password=_bs["password"],
+                url=self.bat_ctrl[_b]["url"],
+                username=self.bat_ctrl[_b]["username"],
+                password=self.bat_ctrl[_b]["password"],
             )
 
         self.set_call_backs()
