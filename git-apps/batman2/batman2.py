@@ -101,6 +101,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def get_pwr_sp(self) -> list[int]:
         """Get current power setpoints for all batteries."""
+        # TODO: directly get the actual setpoint from the batteries (faster)
         pwr_list: list[int] = []
         for bat in cs.SETPOINTS:
             _sp: Any | None = self.get_state(entity_id=bat, attribute="state")
@@ -377,45 +378,47 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.logf(f"SP: No power setpoints calculated for unknown stance {stance}. ")
 
     def adjust_pwr_sp(self):
-        # modify setpoint for testing
-        setpoint = self.pwr_sp_list
-        # for bat, bat_sp in enumerate(cs.SETPOINTS):
-        #     if setpoint[bat] > 0:
-        #         setpoint[bat] = 1661
-        #     if setpoint[bat] < 0:
-        #         setpoint[bat] = -2112
-        #     self.log(f"Setting {bat_sp} to {setpoint[bat]}")
-        # TODO: This isn't working as expected. *******
-        # self.set_state(bat_sp, str(setpoint[bat]))
-        # self.ramp_sp()
-        for bat in self.bat_ctrl:
+        """Control each battery to the desired power setpoint."""
+        for idx, bat in self.bat_ctrl.items():
+            _sp: int = self.pwr_sp_list[idx]
             _api = self.bat_ctrl[bat]["api"]
-            self.log(f"Sent {bat} to {setpoint:>5} .......... {_s}")
-            #_sp = _api.set_setpoint(1111)
+            # TODO: ramp to setpoint
+            _s: str = _api.set_setpoint(_sp)
+            self.log(f"Sent {bat} to {_sp:>5} .......... {_s}")
 
     def ramp_sp(self):
-        current_sp: list[int] = self.get_pwr_sp()
-        calc_sp: list[int] = self.pwr_sp_list
+        """Change the battery setpoints in steps"""
+        current_sp: list[int] = self.get_pwr_sp()   # current setpoint reported by the battery
+        calc_sp: list[int] = self.pwr_sp_list  # calculated final setpoints
         _cb = False
-        for idx, bat in enumerate(cs.SETPOINTS):
+
+        for idx, bat in self.bat_ctrl.items():
+            _api = self.bat_ctrl[bat]["api"]
+            deadband = 0.1 * calc_sp[idx]
+            # determine offset to current setpoint
             epsilon = calc_sp[idx] - current_sp[idx]
-            step_sp = epsilon * 0.4
-            if step_sp > 190:
+            # calculate stepsize
+            step_sp = epsilon * cs.RAMP_RATE[0]
+            # calculate new setpoint
+            if step_sp > deadband:
                 new_sp = int(step_sp + current_sp[idx])
-                self.log(f"ramping {bat} to {new_sp}")
-                # TODO: This isn't working as expected. *******
-                # self.set_state(bat, str(new_sp))
-                # _cb = True
+                self.log(f"Ramping {bat} to {new_sp:>5} .......")
+                _s: str = _api.set_setpoint(new_sp)
+                self.log(f"           .................. {_s}")
+                # need to callback for next step
+                _cb = True
             else:
-                self.log(f"finalising ramping {bat} to {calc_sp[idx]} ({step_sp})")
-                # TODO: This isn't working as expected. *******
-                # self.set_state(bat, str(calc_sp))
+                new_sp = calc_sp[idx]
+                self.log(f"Set {bat} to {new_sp:>5} ...........")
+                _s: str = _api.set_setpoint(new_sp)
+                self.log(f"           .................. {_s}")
+        # set-up callback for next step
         if _cb:
             self.run_in(
                 self.ramp_sp_runin_cb,
-                cs.RAMP_RATE,
-                entity="ent",
-                attribute="atrr",
+                cs.RAMP_RATE[1],
+                entity="ramp",
+                attribute="callback",
                 old="",
                 new="",
             )
