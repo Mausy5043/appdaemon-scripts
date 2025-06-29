@@ -228,11 +228,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
         # make a list of the cheap and expensive hours
         if self.tibber_quarters:
-            charge_today = ut.sort_index(_p, rev=True)[-12:]
-            discharge_today = ut.sort_index(_p, rev=True)[:12]
+            charge_today = ut.sort_index(_p, rev=True)[-16:]
+            discharge_today = ut.sort_index(_p, rev=True)[:16]
         else:
-            charge_today = ut.sort_index(_p, rev=True)[-3:]
-            discharge_today = ut.sort_index(_p, rev=True)[:3]
+            charge_today = ut.sort_index(_p, rev=True)[-4:]
+            discharge_today = ut.sort_index(_p, rev=True)[:4]
         charge_today.sort()
         discharge_today.sort()
         self.price["cheap_slot"] = charge_today
