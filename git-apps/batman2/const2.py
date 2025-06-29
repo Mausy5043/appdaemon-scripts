@@ -60,6 +60,16 @@ PRICES: dict = {
     "qry_nxt": "{viewer {homes {currentSubscription { priceInfo {tomorrow   { total energy tax startsAt } } } } } }",
 }
 
+# create translation table between battery strategies and battalk stances
+__short2long_strategy = {
+    "idle": "POWER_STRATEGY_IDLE",
+    "api": "POWER_STRATEGY_API",
+    "nom": "POWER_STRATEGY_NOM",
+}
+__long2short_strategy = {  }
+for __k,__v in __short2long_strategy:
+    __long2short_strategy[__v] = __k
+
 # ### Talking to the batteries directly because HA/AP doesn't ###
 BATTALK = {
     "bats": ["bat1", "bat2"],
@@ -68,11 +78,8 @@ BATTALK = {
         "status": "/api/v1/power/status",
         "setpoint": "/api/v1/power/setpoint",
     },
-    "api_strats": {
-        "idle": "POWER_STRATEGY_IDLE",
-        "api": "POWER_STRATEGY_API",
-        "nom": "POWER_STRATEGY_NOM",
-    },
+    "api_strats": __short2long_strategy,
+    "bat_stances": __long2short_strategy,
 }
 
 # Due to some hardware configuration issues the sign of various sensors
