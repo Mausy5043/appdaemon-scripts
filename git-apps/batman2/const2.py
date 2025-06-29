@@ -1,5 +1,7 @@
 """Provides constants for the Batman2 app."""
 
+from typing import Any
+
 # ### GENERAL SETTINGS ### #
 VERSION = "0.9.2"
 # debugging mode
@@ -61,17 +63,17 @@ PRICES: dict = {
 }
 
 # create translation table between battery strategies and battalk stances
-__short2long_strategy = {
+__short2long_strategy: dict[str, str] = {
     "idle": "POWER_STRATEGY_IDLE",
     "api": "POWER_STRATEGY_API",
     "nom": "POWER_STRATEGY_NOM",
 }
-__long2short_strategy = {}
-for __k, __v in __short2long_strategy:
-    __long2short_strategy[__v] = __k
+__long2short_strategy: dict[str, str] = {}
+for _k, _v in __short2long_strategy.items():
+    __long2short_strategy[_v] = _k
 
 # ### Talking to the batteries directly because HA/AP doesn't ###
-BATTALK = {
+BATTALK: dict[str, Any] = {
     "bats": ["bat1", "bat2"],
     "api_calls": {
         "strategy": "api/v1/power/active_strategy",
