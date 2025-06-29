@@ -188,7 +188,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         else:
             self.log("Control by app              =  DISABLED")
 
-
     def update_tibber_prices(self):
         self.tibber_prices = p2.get_pricedict(
             token=self.secrets.get_tibber_token(), url=self.secrets.get_tibber_url()
