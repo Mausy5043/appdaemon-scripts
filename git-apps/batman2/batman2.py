@@ -187,12 +187,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.log("Control by app              =  ENABLED")
         else:
             self.log("Control by app              =  DISABLED")
-        # self.log("---------------------------   ------------------------")
-        for _b in self.bat_ctrl:
-            _api = self.bat_ctrl[_b]["api"]
-            _s = _api.get_strategy()
-            _sp = _api.get_setpoint()
-            self.log(f"{_b}, {_s}, {_sp}")
+
 
     def update_tibber_prices(self):
         self.tibber_prices = p2.get_pricedict(
