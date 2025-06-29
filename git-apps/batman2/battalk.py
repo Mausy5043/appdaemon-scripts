@@ -32,7 +32,8 @@ class Sessy:
         _url = f"{self.bat_ip}/{self.api_call['strategy']}"
         response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
         response.raise_for_status()
-        return response.json()
+        ret = response.json()["strategy"])
+        return ret
 
     def set_setpoint(self, setpoint: int) -> dict:
         """Set setpoint on the battery"""
@@ -47,4 +48,5 @@ class Sessy:
         _url = f"{self.bat_ip}/{self.api_call['status']}"
         response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
         response.raise_for_status()
-        return response.json()
+        ret = response.json()["sessy"]["power_setpoint"]
+        return ret
