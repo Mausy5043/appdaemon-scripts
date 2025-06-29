@@ -32,7 +32,7 @@ class Sessy:
         _url = f"{self.bat_ip}/{self.api_call['strategy']}"
         response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
         response.raise_for_status()
-        ret = response.json()["strategy"])
+        ret = response.json()["strategy"]
         return ret
 
     def set_setpoint(self, setpoint: int) -> dict:
