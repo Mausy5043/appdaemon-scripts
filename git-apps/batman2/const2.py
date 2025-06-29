@@ -66,8 +66,8 @@ __short2long_strategy = {
     "api": "POWER_STRATEGY_API",
     "nom": "POWER_STRATEGY_NOM",
 }
-__long2short_strategy = {  }
-for __k,__v in __short2long_strategy:
+__long2short_strategy = {}
+for __k, __v in __short2long_strategy:
     __long2short_strategy[__v] = __k
 
 # ### Talking to the batteries directly because HA/AP doesn't ###
