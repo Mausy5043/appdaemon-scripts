@@ -383,14 +383,15 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             _sp: int = self.pwr_sp_list[idx]
             _api = self.bat_ctrl[bat]["api"]
             # TODO: ramp to setpoint
-            _s: str = _api.set_setpoint(_sp)
+            _s: dict = _api.set_setpoint(_sp)
             self.log(f"Sent {bat} to {_sp:>5} .......... {_s}")
 
     def ramp_sp(self):
         """Change the battery setpoints in steps"""
-        current_sp: list[int] = self.get_pwr_sp()   # current setpoint reported by the battery
+        current_sp: list[int] = self.get_pwr_sp()  # current setpoint reported by the battery
         calc_sp: list[int] = self.pwr_sp_list  # calculated final setpoints
         _cb = False
+        _s: dict = {}
 
         for idx, bat in self.bat_ctrl.items():
             _api = self.bat_ctrl[bat]["api"]
@@ -403,14 +404,14 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             if step_sp > deadband:
                 new_sp = int(step_sp + current_sp[idx])
                 self.log(f"Ramping {bat} to {new_sp:>5} .......")
-                _s: str = _api.set_setpoint(new_sp)
+                _s = _api.set_setpoint(new_sp)
                 self.log(f"           .................. {_s}")
                 # need to callback for next step
                 _cb = True
             else:
                 new_sp = calc_sp[idx]
                 self.log(f"Set {bat} to {new_sp:>5} ...........")
-                _s: str = _api.set_setpoint(new_sp)
+                _s = _api.set_setpoint(new_sp)
                 self.log(f"           .................. {_s}")
         # set-up callback for next step
         if _cb:
