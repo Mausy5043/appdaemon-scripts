@@ -379,15 +379,19 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def adjust_pwr_sp(self):
         # modify setpoint for testing
         setpoint = self.pwr_sp_list
-        for bat, bat_sp in enumerate(cs.SETPOINTS):
-            if setpoint[bat] > 0:
-                setpoint[bat] = 1661
-            if setpoint[bat] < 0:
-                setpoint[bat] = -2112
-            self.log(f"Setting {bat_sp} to {setpoint[bat]}")
-            # TODO: This isn't working as expected. *******
-            # self.set_state(bat_sp, str(setpoint[bat]))
-            # self.ramp_sp()
+        # for bat, bat_sp in enumerate(cs.SETPOINTS):
+        #     if setpoint[bat] > 0:
+        #         setpoint[bat] = 1661
+        #     if setpoint[bat] < 0:
+        #         setpoint[bat] = -2112
+        #     self.log(f"Setting {bat_sp} to {setpoint[bat]}")
+        # TODO: This isn't working as expected. *******
+        # self.set_state(bat_sp, str(setpoint[bat]))
+        # self.ramp_sp()
+        for bat in self.bat_ctrl:
+            _api = self.bat_ctrl[bat]["api"]
+            self.log(f"Sent {bat} to {setpoint:>5} .......... {_s}")
+            #_sp = _api.set_setpoint(1111)
 
     def ramp_sp(self):
         current_sp: list[int] = self.get_pwr_sp()
@@ -441,7 +445,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             for bat in self.bat_ctrl:
                 _api = self.bat_ctrl[bat]["api"]
                 _s = _api.set_strategy(stance.lower())
-                self.log(f"Sent {bat} to {stance:>4} ....... {_s}")
+                self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
 
     def start_idle(self):
         """Start the IDLE stance."""
@@ -453,7 +457,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             for bat in self.bat_ctrl:
                 _api = self.bat_ctrl[bat]["api"]
                 _s = _api.set_strategy(stance.lower())
-                self.log(f"Sent {bat} to {stance:>4} ....... {_s}")
+                self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
 
     def start_charge(self, power: int = cs.CHARGE_PWR):
         """Start the API- stance."""
@@ -465,7 +469,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             for bat in self.bat_ctrl:
                 _api = self.bat_ctrl[bat]["api"]
                 _s = _api.set_strategy(stance.lower())
-                self.log(f"Sent {bat} to {stance:>4} ....... {_s}")
+                self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
             self.adjust_pwr_sp()
 
     def start_discharge(self, power: int = cs.DISCHARGE_PWR):
@@ -478,7 +482,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             for bat in self.bat_ctrl:
                 _api = self.bat_ctrl[bat]["api"]
                 _s = _api.set_strategy(stance.lower())
-                self.log(f"Sent {bat} to {stance:>4} ....... {_s}")
+                self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
             self.adjust_pwr_sp()
 
     # SECRETS
