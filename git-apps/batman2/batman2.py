@@ -49,6 +49,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.soc_list: list[float] = [0.0, 0.0]  # %; state of charge for each battery
         self.pwr_sp_list: list[int] = [0, 0]  # W; power setpoints of batteries
         self.stance_list: list[str] = ["NOM", "NOM"]  # current control stance for each battery
+        # get credentials and authenticate with the batteries
         self.bat_ctrl = self.get_bats()
         for _b in self.bat_ctrl:
             self.bat_ctrl[_b]["api"] = bt.Sessy(
@@ -434,34 +435,50 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """Start the NOM stance."""
         stance: str = cs.NOM
         if self.ctrl_by_me:
-            for bat in cs.BAT_STANCE:
-                self.log(f"Setting {bat} to {stance}")
-                self.set_state(bat, stance.lower())
+            # for bat in cs.BAT_STANCE:
+            #     self.log(f"Setting {bat} to {stance}")
+            #     self.set_state(bat, stance.lower())
+            for bat in self.bat_ctrl:
+                _api = self.bat_ctrl[bat]["api"]
+                _s = _api.set_strategy(stance.lower())
+                self.log(f"Sent {bat} to {stance:>4} ....... {_s}")
 
     def start_idle(self):
         """Start the IDLE stance."""
         stance: str = cs.IDLE
         if self.ctrl_by_me:
-            for bat in cs.BAT_STANCE:
-                self.log(f"Setting {bat} to {stance}")
-                self.set_state(bat, stance.lower())
+            # for bat in cs.BAT_STANCE:
+            #     self.log(f"Setting {bat} to {stance}")
+            #     self.set_state(bat, stance.lower())
+            for bat in self.bat_ctrl:
+                _api = self.bat_ctrl[bat]["api"]
+                _s = _api.set_strategy(stance.lower())
+                self.log(f"Sent {bat} to {stance:>4} ....... {_s}")
 
     def start_charge(self, power: int = cs.CHARGE_PWR):
         """Start the API- stance."""
         stance: str = cs.CHARGE[:-1]
         if self.ctrl_by_me:
-            for bat in cs.BAT_STANCE:
-                self.log(f"Setting {bat} to {stance}")
-                self.set_state(bat, stance.lower())
+            # for bat in cs.BAT_STANCE:
+            #     self.log(f"Setting {bat} to {stance}")
+            #     self.set_state(bat, stance.lower())
+            for bat in self.bat_ctrl:
+                _api = self.bat_ctrl[bat]["api"]
+                _s = _api.set_strategy(stance.lower())
+                self.log(f"Sent {bat} to {stance:>4} ....... {_s}")
             self.adjust_pwr_sp()
 
     def start_discharge(self, power: int = cs.DISCHARGE_PWR):
         """Start the API+ stance."""
         stance: str = cs.DISCHARGE[:-1]
         if self.ctrl_by_me:
-            for bat in cs.BAT_STANCE:
-                self.log(f"Setting {bat} to {stance}")
-                self.set_state(bat, stance.lower())
+            # for bat in cs.BAT_STANCE:
+            #     self.log(f"Setting {bat} to {stance}")
+            #     self.set_state(bat, stance.lower())
+            for bat in self.bat_ctrl:
+                _api = self.bat_ctrl[bat]["api"]
+                _s = _api.set_strategy(stance.lower())
+                self.log(f"Sent {bat} to {stance:>4} ....... {_s}")
             self.adjust_pwr_sp()
 
     # SECRETS
