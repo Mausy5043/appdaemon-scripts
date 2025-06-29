@@ -48,6 +48,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.soc: float = 0.0  # % average state of charge
         self.soc_list: list[float] = [0.0, 0.0]  # %; state of charge for each battery
         self.pwr_sp_list: list[int] = [0, 0]  # W; power setpoints of batteries
+        self.steps = ut.get_steps(cs.RAMP_RATE[0])
+        self.step_cnt = 0   # keep track of the number of steps it took to ramp
         self.stance_list: list[str] = ["NOM", "NOM"]  # current control stance for each battery
         # get credentials and authenticate with the batteries
         self.bat_ctrl = self.get_bats()
@@ -364,9 +366,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.log("SP: No power setpoints. Unit is IDLE. ")
             case cs.CHARGE:
                 self.pwr_sp_list = [cs.CHARGE_PWR, cs.CHARGE_PWR]
+                self.step_cnt = self.steps
                 self.log(f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list}")
             case cs.DISCHARGE:
                 self.pwr_sp_list = [cs.DISCHARGE_PWR, cs.DISCHARGE_PWR]
+                self.step_cnt = self.steps
                 self.log(f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list}")
             case _:
                 self.logf(f"SP: No power setpoints calculated for unknown stance {stance}. ")
@@ -386,27 +390,28 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         calc_sp: list[int] = self.pwr_sp_list  # calculated final setpoints
         _cb = False
         _s: dict = {}
-
-        for idx, bat in self.bat_ctrl.items():
-            _api = self.bat_ctrl[bat]["api"]
-            deadband = 0.1 * calc_sp[idx]
-            # determine offset to current setpoint
-            epsilon = calc_sp[idx] - current_sp[idx]
-            # calculate stepsize
-            step_sp = epsilon * cs.RAMP_RATE[0]
-            # calculate new setpoint
-            if step_sp > deadband:
-                new_sp = int(step_sp + current_sp[idx])
-                self.log(f"Ramping {bat} to {new_sp:>5} .......")
-                _s = _api.set_setpoint(new_sp)
-                self.log(f"           .................. {_s}")
-                # need to callback for next step
-                _cb = True
-            else:
-                new_sp = calc_sp[idx]
-                self.log(f"Set {bat} to {new_sp:>5} ...........")
-                _s = _api.set_setpoint(new_sp)
-                self.log(f"           .................. {_s}")
+        self.step_cnt -= 1
+        if self.step_cnt > 0:   # prevent ramping to an unattainable SP
+            for idx, bat in self.bat_ctrl.items():
+                _api = self.bat_ctrl[bat]["api"]
+                deadband = 0.1 * calc_sp[idx]
+                # determine offset to current setpoint
+                epsilon = calc_sp[idx] - current_sp[idx]
+                # calculate stepsize
+                step_sp = epsilon * cs.RAMP_RATE[0]
+                # calculate new setpoint
+                if step_sp > deadband:
+                    new_sp = int(step_sp + current_sp[idx])
+                    self.log(f"Ramping {bat} to {new_sp:>5} .......")
+                    _s = _api.set_setpoint(new_sp)
+                    self.log(f"           .................. {_s}")
+                    # need to callback for next step
+                    _cb = True
+                else:
+                    new_sp = calc_sp[idx]
+                    self.log(f"Set {bat} to {new_sp:>5} ...........")
+                    _s = _api.set_setpoint(new_sp)
+                    self.log(f"           .................. {_s}")
         # set-up callback for next step
         if _cb:
             self.run_in(
