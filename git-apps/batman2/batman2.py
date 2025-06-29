@@ -190,7 +190,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             _api = self.bat_ctrl[_b]["api"]
             _s = _api.get_strategy()
             _sp = _api.get_setpoint()
-            self.log(_b, _s, _sp)
+            self.log(f"{_b}, {_s}, {_sp}")
 
     def update_tibber_prices(self):
         self.tibber_prices = p2.get_pricedict(
