@@ -16,7 +16,7 @@ TRADING = False
 # stances  (Sessy calls this 'strategy')
 NOM: str = "NOM"
 DISCHARGE: str = "API+"  # (+)-ve power setting
-DISCHARGE_PWR: int = 1600  # W
+DISCHARGE_PWR: int = 1700  # W
 CHARGE: str = "API-"  # (-)-ve power setting
 CHARGE_PWR: int = -2200  # W
 IDLE: str = "IDLE"  # no power setting
