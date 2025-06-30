@@ -320,19 +320,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         else:
             stance = cs.NOM  # default stance is NOM
 
-        # if prices are extremely high or low, we get greedy and switch to resp. DISCHARGE or CHARGE stance
-        match self.greedy:
-            case -1:
-                if self.soc < self.bats_min_soc:
-                    self.log("Greedy for CHARGE. Requesting CHARGE stance.")
-                    stance = cs.CHARGE
-            case 1:
-                if self.soc > self.bats_min_soc:
-                    self.log("Greedy for DISCHARGE. Requesting DISCHARGE stance.")
-                    stance = cs.DISCHARGE
-            case _:
-                pass  # not greedy, do nothing
-
         # if it is a sunny day, batteries will charge automatically
         # we don't want to discharge during the expensive timeslots
         # because that would drain the batteries and negatively affect solar availability for the EV charger.
@@ -348,6 +335,19 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 f"Non-sunny day, cheap hour {_hr} and SoC < {self.bats_min_soc}%. Requesting CHARGE stance."
             )
             stance = cs.CHARGE
+
+        # if prices are extremely high or low, we get greedy and switch to resp. DISCHARGE or CHARGE stance
+        match self.greedy:
+            case -1:
+                if self.soc < self.bats_min_soc:
+                    self.log("Greedy for CHARGE. Requesting CHARGE stance.")
+                    stance = cs.CHARGE
+            case 1:
+                if self.soc > self.bats_min_soc:
+                    self.log("Greedy for DISCHARGE. Requesting DISCHARGE stance.")
+                    stance = cs.DISCHARGE
+            case _:
+                pass  # not greedy, do nothing
 
         self.new_stance = stance
         self.calc_pwr_sp(stance)
