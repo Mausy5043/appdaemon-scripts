@@ -103,6 +103,6 @@ def get_greedy(price: float) -> int:
     return _g
 
 
-def get_steps(stepsize: float, deadband: float=0.1):
+def get_steps(stepsize: float, deadband: float = 0.1):
     """Calculate the number of steps required to get from 0 to 100% given a stepsize."""
     return math.ceil(math.log(deadband) / math.log(1 - stepsize))

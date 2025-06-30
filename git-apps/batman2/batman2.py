@@ -49,7 +49,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.soc_list: list[float] = [0.0, 0.0]  # %; state of charge for each battery
         self.pwr_sp_list: list[int] = [0, 0]  # W; power setpoints of batteries
         self.steps = ut.get_steps(cs.RAMP_RATE[0])
-        self.step_cnt = 0   # keep track of the number of steps it took to ramp
+        self.step_cnt = 0  # keep track of the number of steps it took to ramp
         self.stance_list: list[str] = ["NOM", "NOM"]  # current control stance for each battery
         # get credentials and authenticate with the batteries
         self.bat_ctrl = self.get_bats()
@@ -391,7 +391,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _cb = False
         _s: dict = {}
         self.step_cnt -= 1
-        if self.step_cnt > 0:   # prevent ramping to an unattainable SP
+        if self.step_cnt > 0:  # prevent ramping to an unattainable SP
             for idx, bat in self.bat_ctrl.items():
                 _api = self.bat_ctrl[bat]["api"]
                 deadband = 0.1 * calc_sp[idx]
