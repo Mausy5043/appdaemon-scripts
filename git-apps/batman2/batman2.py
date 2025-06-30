@@ -378,13 +378,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def adjust_pwr_sp(self):
         """Control each battery to the desired power setpoint."""
         idx = 0
-        for _, bat in self.bat_ctrl.items():
+        for name, bat in self.bat_ctrl.items():
             _sp: int = int(self.pwr_sp_list[idx])
-            _api = self.bat_ctrl[bat]["api"]
+            _api = bat["api"]
             # TODO: ramp to setpoint
             # ramp_sp_runin_cb
             _s: dict = _api.set_setpoint(_sp)
-            self.log(f"Sent {bat} to {_sp:>5} .......... {_s}")
+            self.log(f"Sent {name} to {_sp:>5} .......... {_s}")
             idx += 1
 
     def ramp_sp(self):
