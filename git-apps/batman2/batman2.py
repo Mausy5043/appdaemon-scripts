@@ -6,6 +6,7 @@ import battalk as bt
 import const2 as cs
 import prices2 as p2
 import utils2 as ut
+import contextlib
 
 """BatMan2 App
 Listen to changes in the battery state and control the charging/discharging based on energy prices and strategies.
@@ -300,7 +301,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.ctrl_by_me is False:
             # we are switched off
             self.log("*** Control by app is disabled. No stance change! ***")
-            # return
+            return
 
         if self.ev_charging:
             # automation will have switched the batteries to IDLE.
@@ -317,8 +318,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                         stance
                     })."
                 )
-        else:
-            stance = cs.NOM  # default stance is NOM
+        # else:
+        #     stance = cs.NOM  # default stance is NOM
 
         # if it is a sunny day, batteries will charge automatically
         # we don't want to discharge during the expensive timeslots
@@ -339,18 +340,18 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # if prices are extremely high or low, we get greedy and switch to resp. DISCHARGE or CHARGE stance
         match self.greedy:
             case -1:
-                if self.soc < self.bats_min_soc:
+                if self.prev_stance == cs.CHARGE or (self.soc < self.bats_min_soc):
                     self.log("Greedy for CHARGE. Requesting CHARGE stance.")
                     stance = cs.CHARGE
             case 1:
-                if self.soc > _min_soc:
+                if self.prev_stance == cs.DISCHARGE or (self.soc > _min_soc):
                     self.log("Greedy for DISCHARGE. Requesting DISCHARGE stance.")
                     stance = cs.DISCHARGE
             case _:
                 pass  # not greedy, do nothing
 
         self.new_stance = stance
-        self.calc_pwr_sp(stance)
+        self.calc_pwr_sp(self.new_stance)
         self.log("======================================================")
 
     def calc_pwr_sp(self, stance):
@@ -377,15 +378,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def adjust_pwr_sp(self):
         """Control each battery to the desired power setpoint."""
-        idx = 0
-        for name, bat in self.bat_ctrl.items():
+        for idx, (name, bat) in enumerate(self.bat_ctrl.items()):
             _sp: int = int(self.pwr_sp_list[idx])
             _api = bat["api"]
             # TODO: ramp to setpoint
             # ramp_sp_runin_cb
             _s: dict = _api.set_setpoint(_sp)
             self.log(f"Sent {name} to {_sp:>5} .......... {_s}")
-            idx += 1
 
     def ramp_sp(self):
         """Change the battery setpoints in steps"""
@@ -430,8 +429,12 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """Set the current stance based on the current state."""
         match self.new_stance:
             case cs.NOM:
+                # with contextlib.suppress(Exception):
+                self.adjust_pwr_sp()
                 self.start_nom()
             case cs.IDLE:
+                # with contextlib.suppress(Exception):
+                self.adjust_pwr_sp()
                 self.start_idle()
             case cs.CHARGE:
                 self.start_charge()
