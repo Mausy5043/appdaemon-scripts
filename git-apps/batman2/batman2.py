@@ -344,7 +344,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     self.log("Greedy for CHARGE. Requesting CHARGE stance.")
                     stance = cs.CHARGE
             case 1:
-                if self.prv_stance == cs.DISCHARGE or (self.soc > _min_soc):
+                if (self.prv_stance == cs.DISCHARGE and self.soc > self.bats_min_soc) or (self.soc > _min_soc):
                     self.log("Greedy for DISCHARGE. Requesting DISCHARGE stance.")
                     stance = cs.DISCHARGE
             case _:
