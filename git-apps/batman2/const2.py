@@ -35,9 +35,9 @@ BAT_MIN_SOC = "sensor.bats_minimum_soc"
 BAT_MIN_SOC_WD = "input_boolean.bats_min_soc"
 # current reading HomeWizard meter on PV
 PV_CURRENT = "sensor.pv_kwh_meter_current"
-# PV-current watch dog > 21 A || < -21 A
+# PV-current watch dog > 23.5 A
 PV_CURRENT_WD = "input_boolean.pvovercurrent"
-PV_CURRENT_MAX = 21.0  # A;abs
+PV_CURRENT_MAX = 23.5  # A;abs
 # voltage reading HomeWizard meter on PV
 PV_VOLTAGE = "sensor.pv_kwh_meter_voltage"
 # power reading HomeWizard meter on PV
