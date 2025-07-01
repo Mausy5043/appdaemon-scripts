@@ -296,8 +296,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """Choose the current stance based on the current price and battery state
         and determine the battery power setpoint."""
         self.log("=========================== ! ========================")
-        stance: str = self.new_stance  # Keep the current stance
-        self.prv_stance = stance
+        stance: str = self.new_stance
+        self.prv_stance = self.new_stance  # Keep the current stance
         if self.ctrl_by_me is False:
             # we are switched off
             self.log("*** Control by app is disabled. No stance change! ***")
