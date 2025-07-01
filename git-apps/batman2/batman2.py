@@ -386,9 +386,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             # TODO: ramp to setpoint
             # ramp_sp_runin_cb
             try:
-                _s: dict = _api.set_setpoint(_sp)
+                _s: dict | str = _api.set_setpoint(_sp)
             except Exception as her:
-                self.log(f"UNSUCCESFULL: {her}")
+                _s = f"UNSUCCESFULL: {her}"
             self.log(f"Sent {name} to {_sp:>5} .......... {_s}")
 
     def ramp_sp(self):
