@@ -341,13 +341,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # if prices are extremely high or low, we get greedy and switch to resp. DISCHARGE or CHARGE stance
         match self.greedy:
             case -1:
-                _l = "Greedy for CHARGE. But too low SoC"
+                _l = "Greedy for CHARGE. But too high SoC."
                 if self.prv_stance == cs.CHARGE or (self.soc < self.bats_min_soc):
                     _l = ("Greedy for CHARGE. Requesting CHARGE stance.")
                     stance = cs.CHARGE
                 self.log(_l)
             case 1:
-                _l = "Greedy for DISCHARGE. But too high SoC"
+                _l = "Greedy for DISCHARGE. But too low SoC."
                 if (self.prv_stance == cs.DISCHARGE and self.soc > self.bats_min_soc) or (self.soc > _min_soc):
                     _l = ("Greedy for DISCHARGE. Requesting DISCHARGE stance.")
                     stance = cs.DISCHARGE
