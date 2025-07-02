@@ -388,6 +388,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             try:
                 if self.prv_stance in ["API+", "API-"]:
                     _s: dict | str = _api.set_setpoint(_sp)
+                else:
+                    _s = "IGNORED"
             except Exception as her:
                 _s = f"UNSUCCESFULL: {her}"
             self.log(f"Sent {name} to {_sp:>5} .......... {_s}")
