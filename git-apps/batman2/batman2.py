@@ -319,8 +319,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                         stance
                     })."
                 )
-        # else:
-        #     stance = cs.NOM  # default stance is NOM
+        else:
+            stance = cs.NOM  # default stance is NOM
 
         # if it is a sunny day, batteries will charge automatically
         # we don't want to discharge during the expensive timeslots
