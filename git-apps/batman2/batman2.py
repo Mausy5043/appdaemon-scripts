@@ -389,7 +389,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             # TODO: ramp to setpoint
             # ramp_sp_runin_cb
             try:
-                if self.prv_stance in ["API+", "API-"]:
+                if (self.prv_stance in ["API+", "API-"]) or (self.new_stance in ["API+", "API-"]):
+                    # NOM->API; IDLE->API; API->API; API->NOM; API->IDLE
                     _s: dict | str = _api.set_setpoint(_sp)
                 else:
                     _s = "IGNORED"
