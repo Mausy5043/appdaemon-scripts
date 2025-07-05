@@ -6,7 +6,6 @@ import battalk as bt
 import const2 as cs
 import prices2 as p2
 import utils2 as ut
-import contextlib
 
 """BatMan2 App
 Listen to changes in the battery state and control the charging/discharging based on energy prices and strategies.
@@ -343,13 +342,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             case -1:
                 _l = "Greedy for CHARGE. But too high SoC."
                 if self.prv_stance == cs.CHARGE or (self.soc < self.bats_min_soc):
-                    _l = ("Greedy for CHARGE. Requesting CHARGE stance.")
+                    _l = "Greedy for CHARGE. Requesting CHARGE stance."
                     stance = cs.CHARGE
                 self.log(_l)
             case 1:
                 _l = "Greedy for DISCHARGE. But too low SoC."
                 if (self.prv_stance == cs.DISCHARGE and self.soc > self.bats_min_soc) or (self.soc > _min_soc):
-                    _l = ("Greedy for DISCHARGE. Requesting DISCHARGE stance.")
+                    _l = "Greedy for DISCHARGE. Requesting DISCHARGE stance."
                     stance = cs.DISCHARGE
                 self.log(_l)
             case _:
