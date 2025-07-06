@@ -542,20 +542,25 @@ o sensor.bats_minimum_soc = SoC required to provide 200 W (input_number.home_bas
 o keep sensor.pv_kwh_meter_current <= +/- 21 A
 
 NOM:
-default stance
+o|| NOM
+o|| API- && SoC >= 100%
+o|| API+ && SoC =< sensor.bats_minimum_soc
+o|| IDLE && !EV_charging
+o|| EV_charging && EV_assist
+
 
 IDLE:
-o EV_charging (automation)
+o|| EV_charging (automation) || !EV_assist
+
 
 API- (charge) START @:
 o|| greedy: price < nul
-o|| !sunnyday && SoC < sensor.bats_minimum_soc && cheap_slots
-STOP @ SoC = 100%
+o|| (!sunnyday || winterstand) && (SoC < sensor.bats_minimum_soc) && cheap_slots
+
 
 API+ (discharge) START @:
 o|| greedy: price > top
 o|| EV_charging && EV_assist(= price > Q3 ) && SoC > sensor.bats_minimum_soc
-o|| sunnyday && SoC > {2*17+ minsoc} % && expen_slot
-STOP @ SoC = sensor.bats_minimum_soc
+o|| (sunnyday && !winterstand) && (SoC > {2*17+ minsoc}) % && expen_slot
 
  """
