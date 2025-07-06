@@ -189,6 +189,14 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.log("Control by app              =  ENABLED")
         else:
             self.log("Control by app              =  DISABLED")
+        # winterstand
+        self.winterstand = False
+        if self.get_state(cs.WINTERSTAND) == "on":
+            self.winterstand = True
+        if self.winterstand:
+            self.log("Winterstand                 =  ENABLED")
+        else:
+            self.log("Winterstand                 =  DISABLED")
 
     def update_tibber_prices(self):
         self.tibber_prices = p2.get_pricedict(
@@ -324,13 +332,14 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # if it is a sunny day, batteries will charge automatically
         # we don't want to discharge during the expensive timeslots
         # because that would drain the batteries and negatively affect solar availability for the EV charger.
+        # winterstand forces behaviour of a non-sunny day when true
         _hr: int = dt.datetime.now().hour
         _min_soc = self.bats_min_soc + (2 * cs.DISCHARGE_PWR / 100)
-        if self.datum["sunny"] and (self.soc > _min_soc) and (_hr in self.price["expen_slot"]):
+        if (self.datum["sunny"] or not self.winterstand) and (self.soc > _min_soc) and (_hr in self.price["expen_slot"]):
             # For now we use NOM to avoid locking out the EV charger.
             stance = cs.NOM
             self.log(f"Sunny day, expensive hour and  SoC > {_min_soc}%. Requesting NOM stance.")
-        if not self.datum["sunny"] and (self.soc < self.bats_min_soc) and (_hr in self.price["cheap_slot"]):
+        if (not self.datum["sunny"] or self.winterstand) and (self.soc < self.bats_min_soc) and (_hr in self.price["cheap_slot"]):
             # this is supposed to charge the battery during the cheap hours in winter mimicking the ECO-mode
             self.log(
                 f"Non-sunny day, cheap hour {_hr} and SoC < {self.bats_min_soc}%. Requesting CHARGE stance."
@@ -520,7 +529,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
 
 """
-sunnyday = march equinox to september equinox
+sunnyday = march equinox to september equinox OR not winterstand
 
 
 x EV assist when price > Q3

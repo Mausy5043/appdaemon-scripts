@@ -47,6 +47,7 @@ SETPOINTS = ["number.bat1_power_setpoint", "number.bat2_power_setpoint"]
 BAT_STANCE = ["select.bat1_power_strategy", "select.bat2_power_strategy"]
 # time between setpoint changes when ramping to a new setpoint
 RAMP_RATE = [0.4, 23]  # [growthrate, time between steps]
+WINTERSTAND = "input_boolean.bat_winterstand"
 
 # ### PRICES SETTINGS ### #
 PRICES: dict = {
