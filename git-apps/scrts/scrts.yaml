@@ -14,8 +14,8 @@ scrts:
   sessy_bat2_auth: !secret sessy_bat2_auth
   sessy_bat2_url: !secret sessy_bat2_url
   # nxt_morning
-  latitude: !secret latitude
-  longtide: !secret longitude
+  latitude: !secret str_latitude
+  longtide: !secret str_longitude
   city: !secret city
   country: !secret country
   timezone: !secret timezone
