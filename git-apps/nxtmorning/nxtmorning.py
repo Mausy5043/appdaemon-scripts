@@ -75,7 +75,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         # get_history returns a dict with entity_id as key
         # TODO: make this a callback
         history = self.get_history(entity_id="sensor.eigen_bedrijf", start_time=start_time, end_time=end_time)
-        self.log(f"6-hour history for sensor.eigen_bedrijf: {history}")
+        # self.log(f"6-hour history for sensor.eigen_bedrijf: {history}")
         # Extract the list of state changes for the sensor
         data = history.get("sensor.eigen_bedrijf", [])
         # Each item in data is a dict with 'state' and 'last_changed'
@@ -131,4 +131,24 @@ every minute:
 - predict next sun on panels
 - get baseload
 - calculate bats_minimum_soc
+"""
+
+"""
+2025-07-06 10:21:14.345721 INFO nxtmorning: 6-hour history for sensor.eigen_bedrijf:
+[
+    [
+        {
+            'entity_id': 'sensor.eigen_bedrijf',
+            'state': '228.4',
+            'attributes':  {'unit_of_measurement': 'W', 'friendly_name': 'eigen_bedrijf'},
+            'last_changed': datetime.datetime(2025, 7, 6, 4, 21, 14, 21871, tzinfo=<DstTzInfo 'Europe/Amsterdam' CEST+2:00:00 DST>),
+            'last_updated': datetime.datetime(2025, 7, 6, 4, 21, 14, 21871, tzinfo=<DstTzInfo 'Europe/Amsterdam' CEST+2:00:00 DST>)
+        },
+        {
+            'entity_id': 'sensor.eigen_bedrijf',
+            'state': '224.7',
+            'attributes': {'unit_of_measurement': 'W', 'friendly_name': 'eigen_bedrijf'},
+            'last_changed': datetime.datetime(2025, 7, 6, 4, 21, 21, 654572, tzinfo=<DstTzInfo 'Europe/Amsterdam' CEST+2:00:00 DST>),
+            'last_updated': datetime.datetime(2025, 7, 6, 4, 21, 21, 654572, tzinfo=<DstTzInfo 'Europe/Amsterdam' CEST+2:00:00 DST>)
+            }
 """
