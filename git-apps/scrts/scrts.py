@@ -55,9 +55,15 @@ class Secrets(hass.Hass):  # type: ignore[misc]
         _auth_user, _auth_pwd = _auth.split(".")
         return {"url": _url, "username": _auth_user, "password": _auth_pwd}
 
-    def get_location(self) -> dict:
+    def get_location(self) -> dict[str, str]:
         # Return location
-        loc_info = ["latitude", "longitude", "city", "country", "timezone"]
+        loc_info = [
+            "nxtmorning_latitude",
+            "nxtmorning_longitude",
+            "nxtmorning_city",
+            "nxtmorning_country",
+            "nxtmorning_timezone",
+        ]
         ret_dict = {}
         for _key in loc_info:
             ret_dict[_key] = self.args[_key]

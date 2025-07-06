@@ -21,7 +21,11 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         cfg: dict = self.secrets.get_location()
         # Define our location
         self.location = LocationInfo(
-            cfg["city"], cfg["country"], cfg["timezone"], cfg["latitude"], cfg["longitude"]
+            cfg["nxtmorning_city"],
+            cfg["nxtmorning_country"],
+            cfg["nxtmorning_timezone"],
+            float(cfg["nxtmorning_latitude"]),
+            float(cfg["nxtmorning_longitude"]),
         )
         # Date to search on
         # date = dt.datetime.now().date() + dt.timedelta(days=0)
