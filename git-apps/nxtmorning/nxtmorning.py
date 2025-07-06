@@ -14,7 +14,7 @@ ELEVATION = 11.0  # Target elevation in degrees
 TOLERANCE = 0.1  # altitude tolerance
 
 
-class NextMorning(hass.Hass):
+class NextMorning(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         self.callback_handles: list = []
         self.secrets = self.get_app("scrts")
