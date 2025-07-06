@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# sensor.hours_till_10am
+# sensor.next_sun_on_panels
 
 import contextlib
 import datetime as dt
@@ -21,6 +21,7 @@ VERSION = "1.0.0"
 class NextMorning(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         self.log(f"============================== NextMorning v{VERSION} ====")
+        self.starting = True
         self.callback_handles: list = []
         self.secrets = self.get_app("scrts")
         cfg: dict = self.secrets.get_location()
@@ -33,11 +34,13 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             float(cfg["longitude"]),
         )
 
-        # Run every minute to update the sensor
-        self.callback_handles.append(self.run_every(self.update_sunonpanels_sensor, dt.datetime.now(), 3600))
-        # Also run at startup
+        # Initial run at startup
         self.update_sunonpanels_sensor(None)
         self.log(f"Median own usage past 6 hours: {self.get_eigen_bedrijf_history()} W ")
+
+        # Run every minute to update the sensor
+        self.callback_handles.append(self.run_every(self.update_sunonpanels_sensor, dt.datetime.now(), 60))
+        self.starting = False
 
     def terminate(self):
         """Clean up app."""
@@ -54,21 +57,26 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         _datum = _now.date() + dt.timedelta(days=0)
         _target = find_time_for_elevation(self.location, _datum, ELEVATION)
         if _target < _now:
-            self.log(f"Sun has passed {ELEVATION:.2f}deg today")
+            if self.starting:
+                self.log(f"Sun has passed {ELEVATION:.2f}deg today")
             _datum = _datum + dt.timedelta(days=1)
             _target = find_time_for_elevation(self.location, _datum, ELEVATION)
-        self.log(f"Sun reaches {ELEVATION:.2f}deg at: {_target.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+        if self.starting:
+            self.log(f"Sun reaches {ELEVATION:.2f}deg at: {_target.strftime('%Y-%m-%d %H:%M:%S %Z')}")
 
-        self.hours_until_10am = round((_target - _now).total_seconds() / 3600, 2)
-        self.log(f"Time until next sun_on_panels: {self.hours_until_10am} hours")
+        self.next_sun_on_panels = round((_target - _now).total_seconds() / 3600, 2)
+        if self.starting:
+            self.log(f"Time until next sun_on_panels: {self.next_sun_on_panels} hours")
 
-        # Update a Home Assistant entity (e.g., sensor.hours_till_10am_appdaemon)
-        # You can choose a different entity_id if you prefer
-        # self.set_state(
-        #     "sensor.hours_till_10am",
-        #     state=hours_until_10am,
-        #     attributes={"unit_of_measurement": "h", "friendly_name": "Hours until next morning"},
-        # )
+        # Update the Home Assistant entity
+        self.set_state(
+            "sensor.next_sun_on_panels",
+            state=self.next_sun_on_panels,
+            attributes={
+                "unit_of_measurement": "h",
+                "friendly_name": "Hours until next time the sun hits the solar panels",
+            },
+        )
 
     def get_eigen_bedrijf_history(self):
         """Get 6 hours of historical data from 'sensor.eigen_bedrijf'."""
@@ -113,14 +121,14 @@ Calculate the amount of SoC required to reach the next morning.
 
 - Each battery has it's own SoC sensor.
 o 'sensor.bats_avg_soc' (template) calculates the average value of the batteries SoC's
-O 'sensor.hours_till_10am' is a prediction of the time until the 'binary_sensor.threshold_sun_on_panels_east' will turn on
+O 'sensor.next_sun_on_panels' is a prediction of the time until the 'binary_sensor.threshold_sun_on_panels_east' will turn on
   (this used to be a template sensor that calculated the time till 10AM).
 x 'input_number.home_baseload' is calculated by a Node-RED automation:
     (1) 'binary_sensor.threshold_sun_on_panels_east' which turns on when the sun elevation becomes > 11.5 degrees
     (2) 6 hours of historical data is gathered from 'sensor.eigen_bedrijf'
     (3) median of the data is calculated
     (4) -> input_number.home_baseload
-o 'sensor.bats_minimum_soc' is a template sensor that calculates: hours_till_10am * home_baseload
+o 'sensor.bats_minimum_soc' is a template sensor that calculates: next_sun_on_panels * home_baseload
 o 'input_boolean.bats_min_soc' toggles when 'sensor.bats_avg_soc' passes through the bats_minimum_soc threshold
   ON when average SoC is below the threshold value; OFF when it is above
 x Batman2 receives a callback everytime when bats_min_soc triggers (ON and OFF)
