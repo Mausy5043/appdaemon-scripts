@@ -3,7 +3,7 @@
 
 update_app="/${1}"
 
-branch_name="battalk"
+branch_name="master"
 
 repo_dir="/addon_configs/git/appdaemon-scripts"
 if [ ! -d "${repo_dir}" ]; then
