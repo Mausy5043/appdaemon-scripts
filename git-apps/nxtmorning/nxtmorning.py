@@ -79,7 +79,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         # Extract the list of state changes for the sensor
         data = []
         for _d in history[0]:
-            self.log(f"{_d}")
+            data.append(float(_d["state"]))
         # # Each item in data is a dict with 'state' and 'last_changed'
         # # Convert states to float if needed
         # values = [float(item["state"]) for item in data if "state" in item]
