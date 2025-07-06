@@ -37,7 +37,6 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         self.callback_handles.append(self.run_every(self.update_sunonpanels_sensor, dt.datetime.now(), 3600))
         # Also run at startup
         self.update_sunonpanels_sensor(None)
-        self.log(f"Time until next sun_on_panels: {self.hours_until_10am} hours")
         self.log(f"Median own usage past 6 hours: {self.get_eigen_bedrijf_history()} W ")
 
     def terminate(self):
@@ -61,6 +60,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         self.log(f"Sun reaches {ELEVATION:.2f}deg at: {_target.strftime('%Y-%m-%d %H:%M:%S %Z')}")
 
         self.hours_until_10am = round((_target - _now).total_seconds() / 3600, 2)
+        self.log(f"Time until next sun_on_panels: {self.hours_until_10am} hours")
 
         # Update a Home Assistant entity (e.g., sensor.hours_till_10am_appdaemon)
         # You can choose a different entity_id if you prefer
