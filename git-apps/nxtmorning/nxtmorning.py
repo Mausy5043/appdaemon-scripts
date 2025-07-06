@@ -2,7 +2,9 @@
 
 # sensor.hours_till_10am
 
+import contextlib
 import datetime as dt
+import statistics as stat
 from zoneinfo import ZoneInfo
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
@@ -35,7 +37,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         # self.callback_handles.append(self.run_every(self.update_sunonpanels_sensor, dt.datetime.now(), 60))
         # Also run at startup
         self.update_sunonpanels_sensor(None)
-        self.get_eigen_bedrijf_history()
+        self.log(f"Median own usage past 6 hours: {self.get_eigen_bedrijf_history()} W ")
 
     def terminate(self):
         """Clean up app."""
@@ -74,22 +76,17 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         start_time = end_time - dt.timedelta(hours=6)
         # get_history returns a dict with entity_id as key
         # TODO: make this a callback
-        history: list = self.get_history(entity_id="sensor.eigen_bedrijf", start_time=start_time, end_time=end_time)
+        history: list = self.get_history(
+            entity_id="sensor.eigen_bedrijf", start_time=start_time, end_time=end_time
+        )
         # self.log(f"6-hour history for sensor.eigen_bedrijf: {history}")
         # Extract the list of state changes for the sensor
         data = []
         for _d in history[0]:
-            try:
+            with contextlib.suppress(ValueError):
                 _dstate = float(_d["state"])
-            except ValueError:
-                _dstate = None
-            data.append(_dstate)
-        # # Each item in data is a dict with 'state' and 'last_changed'
-        # # Convert states to float if needed
-        # values = [float(item["state"]) for item in data if "state" in item]
-        self.log(f"6-hour history for sensor.eigen_bedrijf: {data}")
-
-        return data
+                data.append(_dstate)
+        return stat.median(data)
 
 
 # Binary search for time when sun reaches target elevation
