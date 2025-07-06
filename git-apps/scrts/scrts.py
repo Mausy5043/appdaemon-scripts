@@ -58,11 +58,11 @@ class Secrets(hass.Hass):  # type: ignore[misc]
     def get_location(self) -> dict[str, str]:
         # Return location
         loc_info = [
-            "nxtmorning_latitude",
-            "nxtmorning_longitude",
-            "nxtmorning_city",
-            "nxtmorning_country",
-            "nxtmorning_timezone",
+            "latitude",
+            "longitude",
+            "city",
+            "country",
+            "timezone",
         ]
         ret_dict = {}
         for _key in loc_info:
