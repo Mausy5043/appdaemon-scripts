@@ -18,7 +18,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         self.callback_handles: list = []
         self.secrets = self.get_app("scrts")
-        cfg: dict = self.secrets.get_location
+        cfg: dict = self.secrets.get_location()
         # Define our location
         self.location = LocationInfo(
             cfg["city"], cfg["country"], cfg["timezone"], cfg["latitude"], cfg["longitude"]
