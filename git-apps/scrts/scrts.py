@@ -1,13 +1,15 @@
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 
 """Access secrets.yaml file for other apps"""
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 
 
 class Secrets(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
         self.log(f"============================== Secret dispenser v{VERSION} ====")
+        for _key, _ in self.args.items():
+            self.log(f"{_key}")
 
     def get_tibber_token(self) -> str:
         """Get the Tibber token from the secrets.yaml."""
@@ -54,7 +56,7 @@ class Secrets(hass.Hass):  # type: ignore[misc]
         return {"url": _url, "username": _auth_user, "password": _auth_pwd}
 
     def get_location(self) -> dict:
-        # Return location information
+        # Return location
         loc_info = ["latitude", "longitude", "city", "country", "timezone"]
         ret_dict = {}
         for _key in loc_info:
