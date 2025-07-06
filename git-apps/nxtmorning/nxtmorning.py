@@ -20,7 +20,7 @@ VERSION = "1.0.0"
 
 class NextMorning(hass.Hass):  # type: ignore[misc]
     def initialize(self):
-        self.log(f"=================================NextMorning v{VERSION} ====")
+        self.log(f"============================== NextMorning v{VERSION} ====")
         self.callback_handles: list = []
         self.secrets = self.get_app("scrts")
         cfg: dict = self.secrets.get_location()
