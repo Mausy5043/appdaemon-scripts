@@ -35,6 +35,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         # self.callback_handles.append(self.run_every(self.update_sunonpanels_sensor, dt.datetime.now(), 60))
         # Also run at startup
         self.update_sunonpanels_sensor(None)
+        self.get_eigen_bedrijf_history()
 
     def terminate(self):
         """Clean up app."""
