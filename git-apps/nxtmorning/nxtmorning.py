@@ -50,10 +50,11 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         _datum = _now.date() + dt.timedelta(days=0)
         _target = find_time_for_elevation(self.location, _datum, ELEVATION)
         if _target < _now:
-            self.log(f"Sun has passed {ELEVATION}° today")
+            self.log(f"Sun has passed {ELEVATION:.2f}deg today")
             _datum = _datum + dt.timedelta(days=1)
             _target = find_time_for_elevation(self.location, _datum, ELEVATION)
 
+        self.log(f"Sun reaches {ELEVATION:.2f}deg at: {_target.strftime('%Y-%m-%d %H:%M:%S %Z')}")
         target = _now.replace(hour=_target.hour, minute=_target.minute, second=0, microsecond=0)
 
         total_seconds = (target - _now).total_seconds()
