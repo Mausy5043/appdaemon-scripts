@@ -63,8 +63,8 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             _target = find_time_for_elevation(self.location, _datum, ELEVATION)
         if self.starting:
             self.log(f"Sun reaches {ELEVATION:.2f}deg at: {_target.strftime('%Y-%m-%d %H:%M:%S %Z')}")
-
-        self.next_sun_on_panels = round((_target - _now).total_seconds() / 3600, 2)
+        _t_sec = (_target - _now).total_seconds()
+        self.next_sun_on_panels = round( _t_sec / 3600, 2)
         if self.starting:
             self.log(f"Time until next sun_on_panels: {self.next_sun_on_panels} hours")
 
@@ -78,16 +78,19 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             },
         )
 
+        # TODO: make this a callback
+        if _t_sec <= 120:
+            eb_median = self.get_eigen_bedrijf_history()
+            self.log(f"{_t_sec:.0f} secs to sun on panels; Median Eigen Bedrijf: {eb_median:.2f} W")
+
     def get_eigen_bedrijf_history(self):
         """Get 6 hours of historical data from 'sensor.eigen_bedrijf'."""
         end_time = dt.datetime.now()
         start_time = end_time - dt.timedelta(hours=6)
         # get_history returns a dict with entity_id as key
-        # TODO: make this a callback
         history: list = self.get_history(
             entity_id="sensor.eigen_bedrijf", start_time=start_time, end_time=end_time
         )
-        # self.log(f"6-hour history for sensor.eigen_bedrijf: {history}")
         # Extract the list of state changes for the sensor
         data = []
         for _d in history[0]:
