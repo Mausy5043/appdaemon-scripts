@@ -311,13 +311,16 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.log("*** Control by app is disabled. No stance change! ***")
             return
 
+        _hr: int = dt.datetime.now().hour
+        _min_soc = self.bats_min_soc + (2 * cs.DISCHARGE_PWR / 100)
+        _q3 = self.price["stats"]["q3"]
+
         if self.ev_charging:
             # automation will have switched the batteries to IDLE.
             stance = cs.IDLE
             # we overrule this only if ev_assist is true
             #   and the price is above Q3
             #   and the SoC is above bats_min_soc
-            _q3 = self.price["stats"]["q3"]
             if self.ev_assist and self.soc > self.bats_min_soc:  # or p1_power < -200
                 # stance = cs.DISCHARGE
                 # EV assist is essentially not available for now.
@@ -330,22 +333,28 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             stance = cs.NOM  # default stance is NOM
 
         # if it is a sunny day, batteries will charge automatically
-        # we don't want to discharge during the expensive timeslots
-        # because that would drain the batteries and negatively affect solar availability for the EV charger.
+        # and we don't want to discharge during the expensive timeslots
+        # because that would drain the batteries and negatively affect
+        # solar availability for the EV charger.
         # winterstand forces behaviour of a non-sunny day when true
-        _hr: int = dt.datetime.now().hour
-        _min_soc = self.bats_min_soc + (2 * cs.DISCHARGE_PWR / 100)
-        if (self.datum["sunny"] or not self.winterstand) and (self.soc > _min_soc) and (_hr in self.price["expen_slot"]):
+        if (
+            (self.datum["sunny"] or not self.winterstand)
+            and (self.soc > _min_soc)
+            and (_hr in self.price["expen_slot"])
+        ):
             # For now we use NOM to avoid locking out the EV charger.
             stance = cs.NOM
             self.log(f"Sunny day, expensive hour and  SoC > {_min_soc}%. Requesting NOM stance.")
-        if (not self.datum["sunny"] or self.winterstand) and (self.soc < self.bats_min_soc or self.prv_stance == cs.CHARGE) and (_hr in self.price["cheap_slot"]):
+        if (
+            (not self.datum["sunny"] or self.winterstand)
+            and (self.soc < self.bats_min_soc or self.prv_stance == cs.CHARGE)
+            and (_hr in self.price["cheap_slot"])
+        ):
             # this is supposed to charge the battery during the cheap hours in winter mimicking the ECO-mode
             self.log(
                 f"Non-sunny day, cheap hour {_hr} and SoC < {self.bats_min_soc}%. Requesting CHARGE stance."
             )
             stance = cs.CHARGE
-
 
         # if prices are extremely high or low, we get greedy and switch to resp. DISCHARGE or CHARGE stance
         match self.greedy:
