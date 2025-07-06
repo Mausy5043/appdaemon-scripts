@@ -74,16 +74,18 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         start_time = end_time - dt.timedelta(hours=6)
         # get_history returns a dict with entity_id as key
         # TODO: make this a callback
-        history = self.get_history(entity_id="sensor.eigen_bedrijf", start_time=start_time, end_time=end_time)
+        history: list = self.get_history(entity_id="sensor.eigen_bedrijf", start_time=start_time, end_time=end_time)[0]
         # self.log(f"6-hour history for sensor.eigen_bedrijf: {history}")
         # Extract the list of state changes for the sensor
-        data = history.get("sensor.eigen_bedrijf", [])
-        # Each item in data is a dict with 'state' and 'last_changed'
-        # Convert states to float if needed
-        values = [float(item["state"]) for item in data if "state" in item]
-        self.log(f"6-hour history for sensor.eigen_bedrijf: {values}")
+        data = []
+        for _d in history:
+            data.append(float(_d["state"]))
+        # # Each item in data is a dict with 'state' and 'last_changed'
+        # # Convert states to float if needed
+        # values = [float(item["state"]) for item in data if "state" in item]
+        self.log(f"6-hour history for sensor.eigen_bedrijf: {data}")
 
-        return values
+        return data
 
 
 # Binary search for time when sun reaches target elevation
