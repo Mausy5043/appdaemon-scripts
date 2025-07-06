@@ -339,12 +339,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             # For now we use NOM to avoid locking out the EV charger.
             stance = cs.NOM
             self.log(f"Sunny day, expensive hour and  SoC > {_min_soc}%. Requesting NOM stance.")
-        if (not self.datum["sunny"] or self.winterstand) and (self.soc < self.bats_min_soc) and (_hr in self.price["cheap_slot"]):
+        if (not self.datum["sunny"] or self.winterstand) and (self.soc < self.bats_min_soc or self.prv_stance == cs.CHARGE) and (_hr in self.price["cheap_slot"]):
             # this is supposed to charge the battery during the cheap hours in winter mimicking the ECO-mode
             self.log(
                 f"Non-sunny day, cheap hour {_hr} and SoC < {self.bats_min_soc}%. Requesting CHARGE stance."
             )
             stance = cs.CHARGE
+
 
         # if prices are extremely high or low, we get greedy and switch to resp. DISCHARGE or CHARGE stance
         match self.greedy:
