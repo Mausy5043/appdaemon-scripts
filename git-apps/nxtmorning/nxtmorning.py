@@ -13,9 +13,12 @@ from astral import LocationInfo
 ELEVATION = 11.0  # Target elevation in degrees
 TOLERANCE = 0.1  # altitude tolerance
 
+VERSION = "1.0.0"
+
 
 class NextMorning(hass.Hass):  # type: ignore[misc]
     def initialize(self):
+        self.log(f"=================================NextMorning v{VERSION} ====")
         self.callback_handles: list = []
         self.secrets = self.get_app("scrts")
         cfg: dict = self.secrets.get_location()
@@ -27,11 +30,9 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             float(cfg["latitude"]),
             float(cfg["longitude"]),
         )
-        # Date to search on
-        # date = dt.datetime.now().date() + dt.timedelta(days=0)
 
         # Run every minute to update the sensor
-        # self.callback_handles.append(self.run_every(self.update_sunonpanels_sensor, dt.datetime.datetime.now(), 60))
+        # self.callback_handles.append(self.run_every(self.update_sunonpanels_sensor, dt.datetime.now(), 60))
         # Also run at startup
         self.update_sunonpanels_sensor(None)
 
@@ -53,12 +54,10 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             self.log(f"Sun has passed {ELEVATION:.2f}deg today")
             _datum = _datum + dt.timedelta(days=1)
             _target = find_time_for_elevation(self.location, _datum, ELEVATION)
-
         self.log(f"Sun reaches {ELEVATION:.2f}deg at: {_target.strftime('%Y-%m-%d %H:%M:%S %Z')}")
-        #target = _now.replace(hour=_target.hour, minute=_target.minute, second=0, microsecond=0)
 
-        total_seconds = (_target - _now).total_seconds()
-        hours_until_10am = round(total_seconds / 3600, 2)
+        hours_until_10am = round((_target - _now).total_seconds() / 3600, 2)
+        self.log(f"Time until next sun_on_panels: {hours_until_10am}")
 
         # Update a Home Assistant entity (e.g., sensor.hours_till_10am_appdaemon)
         # You can choose a different entity_id if you prefer
@@ -67,7 +66,6 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         #     state=hours_until_10am,
         #     attributes={"unit_of_measurement": "h", "friendly_name": "Hours until next morning"},
         # )
-        self.log(f"Time until next sun_on_panels: {hours_until_10am}")
 
     def get_eigen_bedrijf_history(self):
         """Get 6 hours of historical data from 'sensor.eigen_bedrijf'."""
