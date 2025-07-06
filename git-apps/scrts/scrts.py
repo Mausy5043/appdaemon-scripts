@@ -52,3 +52,11 @@ class Secrets(hass.Hass):  # type: ignore[misc]
             self.log(f"**** Empty '{_auth_secret}' found in args", level="ERROR")
         _auth_user, _auth_pwd = _auth.split(".")
         return {"url": _url, "username": _auth_user, "password": _auth_pwd}
+
+    def get_location(self) -> dict:
+        # Return location information
+        loc_info =["latitude", "longitude", "city", "country", "timezone"]
+        ret_dict = {}
+        for _key in loc_info:
+            ret_dict[_key] = self.args[_key]
+        return ret_dict
