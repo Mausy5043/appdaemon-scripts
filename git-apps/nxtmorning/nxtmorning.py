@@ -74,12 +74,12 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         start_time = end_time - dt.timedelta(hours=6)
         # get_history returns a dict with entity_id as key
         # TODO: make this a callback
-        history: list = self.get_history(entity_id="sensor.eigen_bedrijf", start_time=start_time, end_time=end_time)[0]
+        history: list = self.get_history(entity_id="sensor.eigen_bedrijf", start_time=start_time, end_time=end_time)
         # self.log(f"6-hour history for sensor.eigen_bedrijf: {history}")
         # Extract the list of state changes for the sensor
         data = []
-        for _d in history:
-            data.append(float(_d["state"]))
+        for _d in history[0]:
+            self.log(f"{_d}")
         # # Each item in data is a dict with 'state' and 'last_changed'
         # # Convert states to float if needed
         # values = [float(item["state"]) for item in data if "state" in item]
