@@ -1,3 +1,4 @@
 nxtmorning:
   module: nxtmorning
   class: NextMorning
+  priority: 85

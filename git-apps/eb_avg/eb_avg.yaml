@@ -1,3 +1,4 @@
 eb_avg:
   module: eb_avg
   class: EigenBedrijf_Avg
+  priority: 80
