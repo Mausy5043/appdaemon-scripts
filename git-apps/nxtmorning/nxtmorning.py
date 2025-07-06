@@ -74,7 +74,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             state=self.next_sun_on_panels,
             attributes={
                 "unit_of_measurement": "h",
-                "friendly_name": "Hours until next time the sun hits the solar panels",
+                "friendly_name": "next_sun_on_panels",
             },
         )
 
