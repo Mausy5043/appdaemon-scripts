@@ -5,7 +5,7 @@
 import datetime as dt
 from zoneinfo import ZoneInfo
 
-import appdaemon.plugins.hass.hassapi as hass
+import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import astral.sun as astsun
 from astral import LocationInfo
 
