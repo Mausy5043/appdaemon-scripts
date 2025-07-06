@@ -55,7 +55,7 @@ class Secrets(hass.Hass):  # type: ignore[misc]
 
     def get_location(self) -> dict:
         # Return location information
-        loc_info =["latitude", "longitude", "city", "country", "timezone"]
+        loc_info = ["latitude", "longitude", "city", "country", "timezone"]
         ret_dict = {}
         for _key in loc_info:
             ret_dict[_key] = self.args[_key]

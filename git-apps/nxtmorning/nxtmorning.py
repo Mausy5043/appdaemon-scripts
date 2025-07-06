@@ -6,8 +6,8 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import appdaemon.plugins.hass.hassapi as hass
-from astral import LocationInfo
 import astral.sun as astsun
+from astral import LocationInfo
 
 # --- Configuration ---
 ELEVATION = 11.0  # Target elevation in degrees
@@ -20,9 +20,11 @@ class NextMorning(hass.Hass):
         self.secrets = self.get_app("scrts")
         cfg: dict = self.secrets.get_location
         # Define our location
-        self.location = LocationInfo(cfg["city"], cfg["country"], cfg["timezone"], cfg["latitude"], cfg["longitude"])
+        self.location = LocationInfo(
+            cfg["city"], cfg["country"], cfg["timezone"], cfg["latitude"], cfg["longitude"]
+        )
         # Date to search on
-        #date = dt.datetime.now().date() + dt.timedelta(days=0)
+        # date = dt.datetime.now().date() + dt.timedelta(days=0)
 
         # Run every minute to update the sensor
         # self.callback_handles.append(self.run_every(self.update_sunonpanels_sensor, dt.datetime.datetime.now(), 60))
