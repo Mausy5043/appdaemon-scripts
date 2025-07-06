@@ -2,6 +2,7 @@ import datetime as dt
 from typing import Any
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
+import battalk as bt
 import const2 as cs
 import prices2 as p2
 import utils2 as ut
@@ -47,7 +48,17 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.soc: float = 0.0  # % average state of charge
         self.soc_list: list[float] = [0.0, 0.0]  # %; state of charge for each battery
         self.pwr_sp_list: list[int] = [0, 0]  # W; power setpoints of batteries
+        self.steps = ut.get_steps(cs.RAMP_RATE[0])
+        self.step_cnt = 0  # keep track of the number of steps it took to ramp
         self.stance_list: list[str] = ["NOM", "NOM"]  # current control stance for each battery
+        # get credentials and authenticate with the batteries
+        self.bat_ctrl = self.get_bats()
+        for _b in self.bat_ctrl:
+            self.bat_ctrl[_b]["api"] = bt.Sessy(
+                url=self.bat_ctrl[_b]["url"],
+                username=self.bat_ctrl[_b]["username"],
+                password=self.bat_ctrl[_b]["password"],
+            )
 
         self.set_call_backs()
         # update monitors with actual data
@@ -92,6 +103,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def get_pwr_sp(self) -> list[int]:
         """Get current power setpoints for all batteries."""
+        # TODO: directly get the actual setpoint from the batteries (faster)
         pwr_list: list[int] = []
         for bat in cs.SETPOINTS:
             _sp: Any | None = self.get_state(entity_id=bat, attribute="state")
@@ -177,7 +189,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.log("Control by app              =  ENABLED")
         else:
             self.log("Control by app              =  DISABLED")
-        # self.log("---------------------------   ------------------------")
 
     def update_tibber_prices(self):
         self.tibber_prices = p2.get_pricedict(
@@ -219,11 +230,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
         # make a list of the cheap and expensive hours
         if self.tibber_quarters:
-            charge_today = ut.sort_index(_p, rev=True)[-12:]
-            discharge_today = ut.sort_index(_p, rev=True)[:12]
+            charge_today = ut.sort_index(_p, rev=True)[-16:]
+            discharge_today = ut.sort_index(_p, rev=True)[:16]
         else:
-            charge_today = ut.sort_index(_p, rev=True)[-3:]
-            discharge_today = ut.sort_index(_p, rev=True)[:3]
+            charge_today = ut.sort_index(_p, rev=True)[-4:]
+            discharge_today = ut.sort_index(_p, rev=True)[:4]
         charge_today.sort()
         discharge_today.sort()
         self.price["cheap_slot"] = charge_today
@@ -284,12 +295,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """Choose the current stance based on the current price and battery state
         and determine the battery power setpoint."""
         self.log("=========================== ! ========================")
-        stance: str = self.new_stance  # Keep the current stance
-        self.prv_stance = stance
+        stance: str = self.new_stance
+        self.prv_stance = self.new_stance  # Keep the current stance
+        self.log(f"Previous stance was: {self.prv_stance}")
         if self.ctrl_by_me is False:
             # we are switched off
             self.log("*** Control by app is disabled. No stance change! ***")
-            # return
+            return
 
         if self.ev_charging:
             # automation will have switched the batteries to IDLE.
@@ -309,19 +321,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         else:
             stance = cs.NOM  # default stance is NOM
 
-        # if prices are extremely high or low, we get greedy and switch to resp. DISCHARGE or CHARGE stance
-        match self.greedy:
-            case -1:
-                if self.soc > self.bats_min_soc:
-                    self.log("Greedy for CHARGE. Requesting CHARGE stance.")
-                    stance = cs.CHARGE
-            case 1:
-                if self.soc < self.bats_min_soc:
-                    self.log("Greedy for DISCHARGE. Requesting DISCHARGE stance.")
-                    stance = cs.DISCHARGE
-            case _:
-                pass  # not greedy, do nothing
-
         # if it is a sunny day, batteries will charge automatically
         # we don't want to discharge during the expensive timeslots
         # because that would drain the batteries and negatively affect solar availability for the EV charger.
@@ -338,8 +337,25 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             )
             stance = cs.CHARGE
 
+        # if prices are extremely high or low, we get greedy and switch to resp. DISCHARGE or CHARGE stance
+        match self.greedy:
+            case -1:
+                _l = "Greedy for CHARGE. But too high SoC."
+                if self.prv_stance == cs.CHARGE or (self.soc < self.bats_min_soc):
+                    _l = "Greedy for CHARGE. Requesting CHARGE stance."
+                    stance = cs.CHARGE
+                self.log(_l)
+            case 1:
+                _l = "Greedy for DISCHARGE. But too low SoC."
+                if (self.prv_stance == cs.DISCHARGE and self.soc > self.bats_min_soc) or (self.soc > _min_soc):
+                    _l = "Greedy for DISCHARGE. Requesting DISCHARGE stance."
+                    stance = cs.DISCHARGE
+                self.log(_l)
+            case _:
+                pass  # not greedy, do nothing
+
         self.new_stance = stance
-        self.calc_pwr_sp(stance)
+        self.calc_pwr_sp(self.new_stance)
         self.log("======================================================")
 
     def calc_pwr_sp(self, stance):
@@ -355,49 +371,67 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.log("SP: No power setpoints. Unit is IDLE. ")
             case cs.CHARGE:
                 self.pwr_sp_list = [cs.CHARGE_PWR, cs.CHARGE_PWR]
+                self.step_cnt = self.steps
                 self.log(f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list}")
             case cs.DISCHARGE:
                 self.pwr_sp_list = [cs.DISCHARGE_PWR, cs.DISCHARGE_PWR]
+                self.step_cnt = self.steps
                 self.log(f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list}")
             case _:
                 self.logf(f"SP: No power setpoints calculated for unknown stance {stance}. ")
 
     def adjust_pwr_sp(self):
-        # modify setpoint for testing
-        setpoint = self.pwr_sp_list
-        for bat, bat_sp in enumerate(cs.SETPOINTS):
-            if setpoint[bat] > 0:
-                setpoint[bat] = 1661
-            if setpoint[bat] < 0:
-                setpoint[bat] = -2112
-            self.log(f"Setting {bat_sp} to {setpoint[bat]}")
-            # TODO: This isn't working as expected. *******
-            # self.set_state(bat_sp, str(setpoint[bat]))
-            # self.ramp_sp()
+        """Control each battery to the desired power setpoint."""
+        for idx, (name, bat) in enumerate(self.bat_ctrl.items()):
+            _sp: int = int(self.pwr_sp_list[idx])
+            _api = bat["api"]
+            # TODO: ramp to setpoint
+            # ramp_sp_runin_cb
+            try:
+                if (self.prv_stance in ["API+", "API-"]) or (self.new_stance in ["API+", "API-"]):
+                    # NOM->API; IDLE->API; API->API; API->NOM; API->IDLE
+                    _s: dict | str = _api.set_setpoint(_sp)
+                else:
+                    _s = "IGNORED"
+            except Exception as her:
+                _s = f"UNSUCCESFULL: {her}"
+            self.log(f"Sent {name} to {_sp:>5} .......... {_s}")
 
     def ramp_sp(self):
-        current_sp: list[int] = self.get_pwr_sp()
-        calc_sp: list[int] = self.pwr_sp_list
+        """Change the battery setpoints in steps"""
+        current_sp: list[int] = self.get_pwr_sp()  # current setpoint reported by the battery
+        calc_sp: list[int] = self.pwr_sp_list  # calculated final setpoints
         _cb = False
-        for idx, bat in enumerate(cs.SETPOINTS):
-            epsilon = calc_sp[idx] - current_sp[idx]
-            step_sp = epsilon * 0.4
-            if step_sp > 190:
-                new_sp = int(step_sp + current_sp[idx])
-                self.log(f"ramping {bat} to {new_sp}")
-                # TODO: This isn't working as expected. *******
-                # self.set_state(bat, str(new_sp))
-                # _cb = True
-            else:
-                self.log(f"finalising ramping {bat} to {calc_sp[idx]} ({step_sp})")
-                # TODO: This isn't working as expected. *******
-                # self.set_state(bat, str(calc_sp))
+        _s: dict = {}
+        self.step_cnt -= 1
+        if self.step_cnt > 0:  # prevent ramping to an unattainable SP
+            for idx, bat in self.bat_ctrl.items():
+                _api = self.bat_ctrl[bat]["api"]
+                deadband = 0.1 * calc_sp[idx]
+                # determine offset to current setpoint
+                epsilon = calc_sp[idx] - current_sp[idx]
+                # calculate stepsize
+                step_sp = epsilon * cs.RAMP_RATE[0]
+                # calculate new setpoint
+                if step_sp > deadband:
+                    new_sp = int(step_sp + current_sp[idx])
+                    self.log(f"Ramping {bat} to {new_sp:>5} .......")
+                    _s = _api.set_setpoint(new_sp)
+                    self.log(f"           .................. {_s}")
+                    # need to callback for next step
+                    _cb = True
+                else:
+                    new_sp = calc_sp[idx]
+                    self.log(f"Set {bat} to {new_sp:>5} ...........")
+                    _s = _api.set_setpoint(new_sp)
+                    self.log(f"           .................. {_s}")
+        # set-up callback for next step
         if _cb:
             self.run_in(
                 self.ramp_sp_runin_cb,
-                cs.RAMP_RATE,
-                entity="ent",
-                attribute="atrr",
+                cs.RAMP_RATE[1],
+                entity="ramp",
+                attribute="callback",
                 old="",
                 new="",
             )
@@ -406,8 +440,12 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """Set the current stance based on the current state."""
         match self.new_stance:
             case cs.NOM:
+                # with contextlib.suppress(Exception):
+                self.adjust_pwr_sp()
                 self.start_nom()
             case cs.IDLE:
+                # with contextlib.suppress(Exception):
+                self.adjust_pwr_sp()
                 self.start_idle()
             case cs.CHARGE:
                 self.start_charge()
@@ -421,34 +459,50 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """Start the NOM stance."""
         stance: str = cs.NOM
         if self.ctrl_by_me:
-            for bat in cs.BAT_STANCE:
-                self.log(f"Setting {bat} to {stance}")
-                self.set_state(bat, stance.lower())
+            # for bat in cs.BAT_STANCE:
+            #     self.log(f"Setting {bat} to {stance}")
+            #     self.set_state(bat, stance.lower())
+            for bat in self.bat_ctrl:
+                _api = self.bat_ctrl[bat]["api"]
+                _s = _api.set_strategy(stance.lower())
+                self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
 
     def start_idle(self):
         """Start the IDLE stance."""
         stance: str = cs.IDLE
         if self.ctrl_by_me:
-            for bat in cs.BAT_STANCE:
-                self.log(f"Setting {bat} to {stance}")
-                self.set_state(bat, stance.lower())
+            # for bat in cs.BAT_STANCE:
+            #     self.log(f"Setting {bat} to {stance}")
+            #     self.set_state(bat, stance.lower())
+            for bat in self.bat_ctrl:
+                _api = self.bat_ctrl[bat]["api"]
+                _s = _api.set_strategy(stance.lower())
+                self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
 
     def start_charge(self, power: int = cs.CHARGE_PWR):
         """Start the API- stance."""
         stance: str = cs.CHARGE[:-1]
         if self.ctrl_by_me:
-            for bat in cs.BAT_STANCE:
-                self.log(f"Setting {bat} to {stance}")
-                self.set_state(bat, stance.lower())
+            # for bat in cs.BAT_STANCE:
+            #     self.log(f"Setting {bat} to {stance}")
+            #     self.set_state(bat, stance.lower())
+            for bat in self.bat_ctrl:
+                _api = self.bat_ctrl[bat]["api"]
+                _s = _api.set_strategy(stance.lower())
+                self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
             self.adjust_pwr_sp()
 
     def start_discharge(self, power: int = cs.DISCHARGE_PWR):
         """Start the API+ stance."""
         stance: str = cs.DISCHARGE[:-1]
         if self.ctrl_by_me:
-            for bat in cs.BAT_STANCE:
-                self.log(f"Setting {bat} to {stance}")
-                self.set_state(bat, stance.lower())
+            # for bat in cs.BAT_STANCE:
+            #     self.log(f"Setting {bat} to {stance}")
+            #     self.set_state(bat, stance.lower())
+            for bat in self.bat_ctrl:
+                _api = self.bat_ctrl[bat]["api"]
+                _s = _api.set_strategy(stance.lower())
+                self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
             self.adjust_pwr_sp()
 
     # SECRETS
@@ -457,6 +511,12 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _scrt = self.secrets.get_tibber_token()
         _url = self.secrets.get_tibber_url()
         return _scrt, _url
+
+    def get_bats(self):
+        _auth_dict = {}
+        for _b in ["bat1", "bat2"]:
+            _auth_dict[_b] = self.secrets.get_sessy_secrets(_b)
+        return _auth_dict
 
 
 """

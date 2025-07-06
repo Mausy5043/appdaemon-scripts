@@ -7,6 +7,8 @@ name = "appdaemon-apps"
 version = "0.0.0"   # rolling release has no version
 description = "AppDaemon apps for Home Assistant"
 dependencies = [
+    "astral",
+    "appdaemon",
     "pip",
     ]
 license = {file = "LICENSE"}

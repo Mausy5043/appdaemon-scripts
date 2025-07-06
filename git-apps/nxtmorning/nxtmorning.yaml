@@ -1,0 +1,3 @@
+nxtmorning:
+  module: nxtmorning
+  class: NextMorning
