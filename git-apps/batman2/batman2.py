@@ -127,9 +127,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def update_states(self):
         """Update internal states based on current conditions."""
         self.log("---------------------------   ------------------------")
-        # update the current date
+        # update the calendar/season info
         self.datum = ut.get_these_days()
-        # minimum SoC required to provide power until 10:00 next morning
+        # minimum SoC required to provide power until next morning
         _bms: Any = self.get_state(cs.BAT_MIN_SOC)
         self.bats_min_soc = float(_bms)
         self.log(f"BAT minimum SoC             = {self.bats_min_soc:8.1f}  %")
@@ -158,6 +158,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 abs(abs(self.pv_power) - (self.pv_current * self.pv_volt)):.0f
             })"
         )
+
         # check if we are greedy (price must have been updated already!)
         self.greedy = ut.get_greedy(self.price["now"])
         match self.greedy:
@@ -291,8 +292,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # ... and set it
         self.set_stance()
         # Log the current stance
-        if self.debug:
-            self.log(f"Current stance              =  {self.new_stance}")
+        self.log(f"Current stance              =  {self.new_stance}")
 
     def ramp_sp_runin_cb(self, entity, attribute, old, new, **kwargs):
         self.ramp_sp()
