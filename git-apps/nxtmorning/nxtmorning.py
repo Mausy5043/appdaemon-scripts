@@ -55,9 +55,9 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             _target = find_time_for_elevation(self.location, _datum, ELEVATION)
 
         self.log(f"Sun reaches {ELEVATION:.2f}deg at: {_target.strftime('%Y-%m-%d %H:%M:%S %Z')}")
-        target = _now.replace(hour=_target.hour, minute=_target.minute, second=0, microsecond=0)
+        #target = _now.replace(hour=_target.hour, minute=_target.minute, second=0, microsecond=0)
 
-        total_seconds = (target - _now).total_seconds()
+        total_seconds = (_target - _now).total_seconds()
         hours_until_10am = round(total_seconds / 3600, 2)
 
         # Update a Home Assistant entity (e.g., sensor.hours_till_10am_appdaemon)
