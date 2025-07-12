@@ -80,9 +80,10 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         )
 
         # TODO: make this a callback
-        if _t_sec <= 120:
-            eb_median = self.get_eigen_bedrijf_history()
-            self.log(f"{_t_sec:.0f} secs to sun on panels; Median Eigen Bedrijf: {eb_median:.2f} W")
+        # if _t_sec <= 120:
+        eb_median = self.get_eigen_bedrijf_history()
+        self.log(f"{_t_sec:.0f} secs to sun on panels; Median Eigen Bedrijf: {eb_median:.2f} W")
+        self.set_eigen_bedrijf_median(eb_median)
 
     def get_eigen_bedrijf_history(self):
         """Get 6 hours of historical data from 'sensor.eigen_bedrijf'."""
