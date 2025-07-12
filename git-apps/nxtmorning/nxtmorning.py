@@ -36,6 +36,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         )
 
         # Initial run at startup
+        self.eb_median: float = self.get_state(entity_id="sensor.eigen_bedrijf_avg", attribute="state", default=234.5)
         self.update_sunonpanels_sensor(None)
         self.log(f"Median own usage past 6 hours: {self.get_eigen_bedrijf_history()} W ")
 
@@ -84,6 +85,10 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             self.log(f"{_t_sec:.0f} secs to sun on panels, updating home baseload")
             eb_median = self.get_eigen_bedrijf_history()
             self.set_eigen_bedrijf_median(eb_median)
+
+        # minimum SoC
+        minimum_soc = self.next_sun_on_panels * self.eb_median
+        self.log(f"Calculated minimum SoC :{minimum_soc}")
 
     def get_eigen_bedrijf_history(self):
         """Get 6 hours of historical data from 'sensor.eigen_bedrijf'."""
@@ -140,8 +145,8 @@ Calculate the amount of SoC required to reach the next morning.
 o 'sensor.bats_avg_soc' (template) calculates the average value of the batteries SoC's
 O 'sensor.next_sun_on_panels' is a prediction of the time until the 'binary_sensor.threshold_sun_on_panels_east' will turn on
   (this used to be a template sensor that calculated the time till 10AM).
-x 'input_number.home_baseload' is calculated by a Node-RED automation:
-    (1) 'binary_sensor.threshold_sun_on_panels_east' which turns on when the sun elevation becomes > 11.5 degrees
+x 'input_number.home_baseload' is calculated by update_sunonpanels_sensor() function:
+    (1) predicted time until sun on panels becomes less than 60s
     (2) 6 hours of historical data is gathered from 'sensor.eigen_bedrijf'
     (3) median of the data is calculated
     (4) -> input_number.home_baseload
