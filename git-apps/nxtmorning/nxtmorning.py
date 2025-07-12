@@ -65,7 +65,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         if self.starting:
             self.log(f"Sun reaches {ELEVATION:.2f}deg at: {_target.strftime('%Y-%m-%d %H:%M:%S %Z')}")
         _t_sec = (_target - _now).total_seconds()
-        self.next_sun_on_panels = round( _t_sec / 3600, 2)
+        self.next_sun_on_panels = round(_t_sec / 3600, 2)
         if self.starting:
             self.log(f"Time until next sun_on_panels: {self.next_sun_on_panels} hours")
 
@@ -81,8 +81,8 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
 
         # TODO: make this a callback
         if _t_sec <= CB_TIME:
+            self.log(f"{_t_sec:.0f} secs to sun on panels, updating home baseload")
             eb_median = self.get_eigen_bedrijf_history()
-            self.log(f"{_t_sec:.0f} secs to sun on panels; Median Eigen Bedrijf: {eb_median:.2f} W")
             self.set_eigen_bedrijf_median(eb_median)
 
     def get_eigen_bedrijf_history(self):
@@ -103,6 +103,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
 
     def set_eigen_bedrijf_median(self, value):
         # Update the Home Assistant entity
+        self.log(f"Setting home baseload: {value:.2f} W")
         self.set_state(
             "input_number.home_baseload",
             state=value,
