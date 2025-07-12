@@ -36,10 +36,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         )
 
         # Initial run at startup
-        _eb_median: str = self.get_state(
-            entity_id="input_number.home_baseload", attribute="state", default='234.5'
-        )
-        self.log(f"{_eb_median} {type(_eb_median)}")
+        _eb_median: str = self.get_state(entity_id="input_number.home_baseload", attribute="state", default='234.5')
         self.eb_median: float = float(_eb_median)
         self.update_sunonpanels_sensor(None)
         self.log(f"Median own usage past 6 hours: {self.get_eigen_bedrijf_history()} W ")
@@ -62,19 +59,21 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         _now = dt.datetime.now(_tz)
         _datum = _now.date() + dt.timedelta(days=0)
         _target = find_time_for_elevation(self.location, _datum, ELEVATION)
+
+        # determine solar elevation and time when reaching ELEVATION +/- TOLERANCE
         if _target < _now:
             if self.starting:
-                self.log(f"Sun has passed {ELEVATION:.2f}deg today")
+                self.log(f"Sun has passed {ELEVATION:.2f} deg today")
             _datum = _datum + dt.timedelta(days=1)
             _target = find_time_for_elevation(self.location, _datum, ELEVATION)
         if self.starting:
-            self.log(f"Sun reaches {ELEVATION:.2f}deg at: {_target.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+            self.log(f"Sun reaches {ELEVATION:.2f} deg at: {_target.strftime('%Y-%m-%d %H:%M:%S %Z')}")
         _t_sec = (_target - _now).total_seconds()
         self.next_sun_on_panels = round(_t_sec / 3600, 2)
         if self.starting:
             self.log(f"Time until next sun_on_panels: {self.next_sun_on_panels} hours")
 
-        # Update the Home Assistant entity
+        # Update the prediction in HA
         self.set_state(
             "sensor.next_sun_on_panels",
             state=self.next_sun_on_panels,
@@ -84,17 +83,17 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             },
         )
 
-        # TODO: make this a callback
+        # When we're close to the predicted time we calculate the new home baseload
         if _t_sec <= CB_TIME:
             self.log(f"{_t_sec:.0f} secs to sun on panels, updating home baseload")
             eb_median = self.get_eigen_bedrijf_history()
             self.set_eigen_bedrijf_median(eb_median)
 
-        # minimum SoC
-        # minimum_soc = self.next_sun_on_panels * self.eb_median
-        # self.log(f"Calculated minimum SoC :{minimum_soc}")
+        # calculate the minimum SoC required to reach the predicted time
+        minimum_soc = self.next_sun_on_panels * self.eb_median
+        self.log(f"Calculated minimum SoC :{minimum_soc}")
 
-    def get_eigen_bedrijf_history(self):
+    def get_eigen_bedrijf_history(self) -> float:
         """Get 6 hours of historical data from 'sensor.eigen_bedrijf'."""
         end_time = dt.datetime.now()
         start_time = end_time - dt.timedelta(hours=6)
@@ -110,7 +109,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
                 data.append(_dstate)
         return stat.median(data)
 
-    def set_eigen_bedrijf_median(self, value):
+    def set_eigen_bedrijf_median(self, value: float):
         # Update the Home Assistant entity
         self.log(f"Setting home baseload: {value:.2f} W")
         self.set_state(
