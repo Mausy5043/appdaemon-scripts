@@ -14,6 +14,7 @@ from astral import LocationInfo
 # --- Configuration ---
 ELEVATION = 11.0  # Target elevation in degrees
 TOLERANCE = 0.1  # altitude tolerance
+CB_TIME = 60  # callback interval in seconds
 
 VERSION = "1.0.0"
 
@@ -39,7 +40,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         self.log(f"Median own usage past 6 hours: {self.get_eigen_bedrijf_history()} W ")
 
         # Run every minute to update the sensor
-        self.callback_handles.append(self.run_every(self.update_sunonpanels_sensor, dt.datetime.now(), 60))
+        self.callback_handles.append(self.run_every(self.update_sunonpanels_sensor, dt.datetime.now(), CB_TIME))
         self.starting = False
 
     def terminate(self):
