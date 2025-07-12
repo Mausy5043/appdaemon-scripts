@@ -100,6 +100,17 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
                 data.append(_dstate)
         return stat.median(data)
 
+    def set_eigen_bedrijf_median(self, value):
+        # Update the Home Assistant entity
+        self.set_state(
+            "input_number.home_baseload",
+            state=value,
+            attributes={
+                "unit_of_measurement": "h",
+                "friendly_name": "home_baseload",
+            },
+        )
+
 
 # Binary search for time when sun reaches target elevation
 def find_time_for_elevation(locatie, datum, elevatie, tolerance=TOLERANCE):
