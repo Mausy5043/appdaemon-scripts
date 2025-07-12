@@ -95,7 +95,8 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
 
         # calculate the minimum SoC required to reach the predicted time
         minimum_soc = self.next_sun_on_panels * self.eb_median / CONVERSION
-        self.log(f"Calculated minimum SoC :{minimum_soc:.2f} %")
+        if self.starting:
+            self.log(f"Calculated minimum SoC :{minimum_soc:.2f} %")
 
     def get_eigen_bedrijf_history(self) -> float:
         """Get 6 hours of historical data from 'sensor.eigen_bedrijf'."""
