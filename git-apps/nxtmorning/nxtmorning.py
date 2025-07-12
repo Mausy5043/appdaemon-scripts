@@ -15,6 +15,10 @@ from astral import LocationInfo
 ELEVATION = 11.0  # Target elevation in degrees
 TOLERANCE = 0.1  # altitude tolerance
 CB_TIME = 60  # callback interval in seconds
+# CONVERSION is based on
+# 2 batteries
+# each 5200 kWh when @ 100%
+CONVERSION = 2 * 5200 / 100
 
 VERSION = "1.0.0"
 
@@ -90,7 +94,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             self.set_eigen_bedrijf_median(eb_median)
 
         # calculate the minimum SoC required to reach the predicted time
-        minimum_soc = self.next_sun_on_panels * self.eb_median
+        minimum_soc = self.next_sun_on_panels * self.eb_median / CONVERSION
         self.log(f"Calculated minimum SoC :{minimum_soc}")
 
     def get_eigen_bedrijf_history(self) -> float:
