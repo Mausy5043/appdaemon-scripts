@@ -37,9 +37,9 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
 
         # Initial run at startup
         self.eb_median: float = self.get_state(
-            entity_id="input_number.home_baseload", attribute="all", default=234.5
+            entity_id="input_number.home_baseload", attribute="state", default=234.5
         )
-        self.log(f"{self.eb_median}")
+        self.log(f"{self.eb_median} {type(self.eb_median)}")
         self.update_sunonpanels_sensor(None)
         self.log(f"Median own usage past 6 hours: {self.get_eigen_bedrijf_history()} W ")
 
