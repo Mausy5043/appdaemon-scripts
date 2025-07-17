@@ -24,6 +24,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.debug: bool = cs.DEBUG
         self.secrets = self.get_app("scrts")
         self.greedy: int = 0  # 0 = not greedy, 1 = greedy hi price, -1 = greedy low price
+        self.greedy_ll = cs.PRICES["nul"]
+        self.greedy_hh = cs.PRICES["top"]
         self.datum: dict = ut.get_these_days()
         self.new_stance: str = cs.DEFAULT_STANCE
         self.prv_stance: str = cs.DEFAULT_STANCE
@@ -82,6 +84,10 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.BAT_MIN_SOC_WD))
         # PV overcurrent detected
         self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.PV_CURRENT_WD))
+        # minimum greed
+        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.GREED_LL))
+        # maximum greed
+        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.GREED_HH))
 
     def update_price_states(self) -> None:
         """Get current states for prices by calling the callback directly"""
@@ -160,7 +166,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         )
 
         # check if we are greedy (price must have been updated already!)
-        self.greedy = ut.get_greedy(self.price["now"])
+        self.greed_ll = self.get_state(cs.GREED_LL)
+        self.greed_ll = self.get_state(cs.GREED_HH)
+        self.greedy = ut.get_greedy(self.price["now"], self.greed_ll, self.greed_hh)
         match self.greedy:
             case -1:
                 _s = "greedy to CHARGE"
