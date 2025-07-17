@@ -176,7 +176,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 _s = "greedy for DISCHARGE"
             case _:
                 _s = "NOT greedy"
-        self.log(f"Greed                       =  {_s}")
+        self.log(f"Greed                       =  {_s}  ({self.greed_ll} / {self.greed_hh})")
         # check whether the EV is currently charging
         _evc: Any = self.get_state(cs.EV_REQ_PWR)
         self.ev_charging = False
