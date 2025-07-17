@@ -49,6 +49,9 @@ BAT_STANCE = ["select.bat1_power_strategy", "select.bat2_power_strategy"]
 RAMP_RATE = [0.4, 23]  # [growthrate, time between steps]
 WINTERSTAND = "input_boolean.bat_winterstand"
 
+# make greediness configurable in HA
+GREED_LL = "input_number.greed_ll"
+GREED_HH = "input_number.greed_hh"
 # ### PRICES SETTINGS ### #
 PRICES: dict = {
     "nul": 0.0,  # below this, electricity is considered for free
