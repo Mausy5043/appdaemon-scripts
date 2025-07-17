@@ -95,9 +95,9 @@ def get_greedy(price: float, lo_price: float, hi_price: float) -> int:
          1 for high price (greedy for high).
     """
     _g = 0  # not greedy
-    if price < lo_price:
+    if price <= lo_price:
         _g = -1  # greedy for low price
-    if price > hi_price:
+    if price >= hi_price:
         _g = 1  # greedy for high price
 
     return _g

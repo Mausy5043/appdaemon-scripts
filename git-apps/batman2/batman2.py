@@ -166,8 +166,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         )
 
         # check if we are greedy (price must have been updated already!)
-        self.greedy_ll = self.get_state(cs.GREED_LL)
-        self.greedy_hh = self.get_state(cs.GREED_HH)
+        self.greedy_ll = float(self.get_state(cs.GREED_LL))
+        self.greedy_hh = float(self.get_state(cs.GREED_HH))
         self.greedy = ut.get_greedy(self.price["now"], self.greedy_ll, self.greedy_hh)
         match self.greedy:
             case -1:
