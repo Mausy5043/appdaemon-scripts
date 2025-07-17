@@ -166,9 +166,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         )
 
         # check if we are greedy (price must have been updated already!)
-        self.greed_ll = self.get_state(cs.GREED_LL)
-        self.greed_ll = self.get_state(cs.GREED_HH)
-        self.greedy = ut.get_greedy(self.price["now"], self.greed_ll, self.greed_hh)
+        self.greedy_ll = self.get_state(cs.GREED_LL)
+        self.greedy_hh = self.get_state(cs.GREED_HH)
+        self.greedy = ut.get_greedy(self.price["now"], self.greedy_ll, self.greedy_hh)
         match self.greedy:
             case -1:
                 _s = "greedy to CHARGE"
@@ -176,7 +176,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 _s = "greedy for DISCHARGE"
             case _:
                 _s = "NOT greedy"
-        self.log(f"Greed                       =  {_s}  ({self.greed_ll} / {self.greed_hh})")
+        self.log(f"Greed                       =  {_s}  ({self.greedy_ll} / {self.greedy_hh})")
         # check whether the EV is currently charging
         _evc: Any = self.get_state(cs.EV_REQ_PWR)
         self.ev_charging = False
