@@ -320,6 +320,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             return
 
         _hr: int = dt.datetime.now().hour
+        # calculate the SoC needed to be able to discharge for at least a whole hour.
         _min_soc = self.bats_min_soc + (2 * cs.DISCHARGE_PWR / 100)
         _q3 = self.price["stats"]["q3"]
 
@@ -352,7 +353,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         ):
             # For now we use NOM to avoid locking out the EV charger.
             stance = cs.NOM
-            self.log(f"Sunny day, expensive hour and  SoC > {_min_soc}%. Requesting NOM stance.")
+            self.log(f"Sunny day, expensive hour and  SoC > {_min_soc}%, but requesting NOM stance.")
         if (
             (not self.datum["sunny"] or self.winterstand)
             and (self.soc < self.bats_min_soc or self.prv_stance == cs.CHARGE)
@@ -360,7 +361,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         ):
             # this is supposed to charge the battery during the cheap hours in winter mimicking the ECO-mode
             self.log(
-                f"Non-sunny day, cheap hour {_hr} and SoC < {self.bats_min_soc}%. Requesting CHARGE stance."
+                f"Non-sunny day, cheap hour {_hr} and SoC < {self.bats_min_soc}%, so requesting CHARGE stance."
             )
             stance = cs.CHARGE
 
@@ -368,7 +369,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         match self.greedy:
             case -1:
                 _l = "Greedy for CHARGE. But too high SoC."
-                if self.prv_stance == cs.CHARGE or (self.soc < self.bats_min_soc):
+                if (self.prv_stance == cs.CHARGE and self.soc < 99.9) or (self.soc < self.bats_min_soc):
                     _l = "Greedy for CHARGE. Requesting CHARGE stance."
                     stance = cs.CHARGE
                 self.log(_l)
