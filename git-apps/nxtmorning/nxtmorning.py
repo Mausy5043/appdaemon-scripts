@@ -94,7 +94,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             self.set_eigen_bedrijf_median(eb_median)
 
         # calculate the minimum SoC required to reach the predicted time
-        minimum_soc = self.next_sun_on_panels * self.eb_median / CONVERSION
+        minimum_soc: float = round(self.next_sun_on_panels * self.eb_median / CONVERSION, 2)
         if self.starting:
             self.log(f"Calculated minimum SoC :{minimum_soc:.2f} %")
         self.set_state(
