@@ -97,6 +97,14 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         minimum_soc = self.next_sun_on_panels * self.eb_median / CONVERSION
         if self.starting:
             self.log(f"Calculated minimum SoC :{minimum_soc:.2f} %")
+        self.set_state(
+            "sensor.bats_minimum_soc",
+            state=minimum_soc,
+            attributes={
+                "unit_of_measurement": "%",
+                "friendly_name": "bats_minimum_soc",
+            },
+        )
 
     def get_eigen_bedrijf_history(self) -> float:
         """Get 6 hours of historical data from 'sensor.eigen_bedrijf'."""
