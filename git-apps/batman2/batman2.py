@@ -264,9 +264,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # every time the current prices are updated, we update other stuff too:
         self.update_states()
 
+        # calculate the distance to the minimum price
+        self.price_range = _pt - self.price["stats"]["min"]
         # log the current price
         if self.debug:
-            self.log(f"Current Tibber price        = {_pt:+.3f}")
+            self.log(f"Current Tibber price        = {_pt:+.3f} ({self.price_range:+.3f})")
         if self.debug and ((_qr == 0 and _hr == 0) or self.starting):
             self.log(
                 f"Today's pricelist           =  {
