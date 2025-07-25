@@ -159,12 +159,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.log(f"PV calculated power (I x U) = {(self.pv_current * self.pv_volt):8.1f}  W")
         _pvp: Any = self.get_state(cs.PV_POWER)
         self.pv_power = int(float(_pvp))
+        # fmt: off
         self.log(
-            f"PV actual power             = {self.pv_power:+6.0f}    W  (delta={
-                abs(abs(self.pv_power) - (self.pv_current * self.pv_volt)):.0f
-            })"
+            f"PV actual power             = {self.pv_power:+6.0f}    W  (delta={abs(abs(self.pv_power) - (self.pv_current * self.pv_volt)):.0f})"
         )
-
+        # fmt: on
         # check if we are greedy (price must have been updated already!)
         self.greedy_ll = float(self.get_state(cs.GREED_LL))
         self.greedy_hh = float(self.get_state(cs.GREED_HH))
