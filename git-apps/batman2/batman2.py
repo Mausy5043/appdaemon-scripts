@@ -74,7 +74,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # TODO: Callback at the top of the hour to catch hours that have the same price.
         self.callback_handles.append(
             self.listen_state(
-                self.price_current_cb, cs.PRICES["entity"],
+                self.price_current_cb,
+                cs.PRICES["entity"],
                 attribute=cs.PRICES["attr"]["now"],
                 duration=10,
             )
