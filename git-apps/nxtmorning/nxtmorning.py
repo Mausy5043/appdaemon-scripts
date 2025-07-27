@@ -20,7 +20,7 @@ CB_TIME = 60  # callback interval in seconds
 # each 5200 kWh when @ 100%
 CONVERSION = 2 * 5200 / 100
 
-VERSION = "1.1.1"
+VERSION = "1.1.2"
 
 
 class NextMorning(hass.Hass):  # type: ignore[misc]
@@ -101,7 +101,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         # calculate the minimum SoC required to reach the predicted time
         minimum_soc: float = round(self.next_sun_on_panels * self.eb_median / CONVERSION, 2)
         if self.starting:
-            self.log(f"Calculated minimum SoC :{minimum_soc:.2f} %")
+            self.log(f"Calculated minimum SoC: {minimum_soc:.2f} %")
         self.set_state(
             "sensor.bats_minimum_soc",
             state=minimum_soc,
