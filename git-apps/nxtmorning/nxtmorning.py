@@ -50,7 +50,8 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         self.log(f"Median own usage past 6 hours: {self.get_eigen_bedrijf_history()} W ")
 
         # Run every minute to update the sensor
-        self.callback_handles.append(self.run_every(self.update_sunonpanels_sensor, dt.datetime.now(), CB_TIME))
+        # self.callback_handles.append(self.run_every(self.update_sunonpanels_sensor, dt.datetime.now(), CB_TIME))
+        self.run_every(self.update_sunonpanels_sensor, dt.datetime.now(), CB_TIME)
         self.starting = False
 
     def terminate(self):
