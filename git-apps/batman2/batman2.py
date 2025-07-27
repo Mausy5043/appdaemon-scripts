@@ -396,7 +396,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def calc_pwr_sp(self, stance):
         """Calculate the power setpoints for the current stance."""
         # TODO: use different SP depending on difference in SoC between the batteries,
-        # so that at the end of the hour the SoCs are (almost) the same.
+        #       so that at the end of the hour the SoCs are (almost) the same.
+        # TODO: use "number.sessy_p1_grid_target" to control the (dis)charge power
         match stance:
             case cs.NOM:
                 self.pwr_sp_list = [0, 0]
