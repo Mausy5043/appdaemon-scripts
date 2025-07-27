@@ -12,7 +12,7 @@ import astral.sun as astsun
 from astral import LocationInfo
 
 # --- Configuration ---
-ELEVATION = 11.0  # Target elevation in degrees
+ELEVATION = 11.11  # Target elevation of the sun in degrees
 TOLERANCE = 0.1  # altitude tolerance
 CB_TIME = 60  # callback interval in seconds
 # CONVERSION is based on
@@ -20,7 +20,7 @@ CB_TIME = 60  # callback interval in seconds
 # each 5200 kWh when @ 100%
 CONVERSION = 2 * 5200 / 100
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 
 class NextMorning(hass.Hass):  # type: ignore[misc]
