@@ -123,3 +123,5 @@ unfixable = []
 [tool.pyright]
 reportAttributeAccessIssue="none"
 reportAssignmentType = "none"
+python.analysis.typeCheckingMode = "basic"
+# python.analysis.selfType = "true"
