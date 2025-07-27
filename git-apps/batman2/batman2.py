@@ -206,7 +206,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         else:
             self.log("Winterstand                 =  DISABLED")
 
-    def update_tibber_prices(self):
+    def update_tibber_prices(self) -> None:
         self.tibber_prices = p2.get_pricedict(
             token=self.secrets.get_tibber_token(), url=self.secrets.get_tibber_url()
         )
@@ -215,7 +215,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if len(self.tibber_prices) == 96:
             self.tibber_quarters = True
 
-    def terminate(self):
+    def terminate(self) -> None:
         """Clean up app."""
         self.log("__Terminating BatMan2...")
         # Cancel all registered callbacks
@@ -226,7 +226,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     # CALLBACKS
 
-    def price_current_cb(self, entity, attribute, old, new, **kwargs):
+    def price_current_cb(self, entity, attribute, old, new, **kwargs) -> None:
         """Callback for current price change."""
         # update dates
         self.datum = ut.get_these_days()
