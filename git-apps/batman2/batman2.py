@@ -182,7 +182,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 _s = "greedy for DISCHARGE"
             case _:
                 _s = "NOT greedy"
-        self.log(f"Greed                       =  {_s}  ({self.greedy_ll} / {self.greedy_hh})")
+        self.log(f"Greed                       =  {_s}  ({self.greedy_ll:.1f} / {self.greedy_hh:.1f})")
         # check whether the EV is currently charging
         _evc: Any = self.get_state(cs.EV_REQ_PWR)
         self.ev_charging = False
@@ -361,7 +361,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         ):
             # For now we use NOM to avoid locking out the EV charger.
             stance = cs.NOM
-            self.log(f"Sunny day, expensive hour and  SoC > {_min_soc}%, but requesting NOM stance.")
+            self.log(f"Sunny day, expensive hour and  SoC > {_min_soc:.2f}%, but requesting NOM stance.")
         if (
             (not self.datum["sunny"] or self.winterstand)
             and (self.soc < self.bats_min_soc or self.prv_stance == cs.CHARGE)
@@ -369,7 +369,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         ):
             # this is supposed to charge the battery during the cheap hours in winter mimicking the ECO-mode
             self.log(
-                f"Non-sunny day, cheap hour {_hr} and SoC < {self.bats_min_soc}%, so requesting CHARGE stance."
+                f"Non-sunny day, cheap hour {_hr} and SoC < {self.bats_min_soc:.2f}%, so requesting CHARGE stance."
             )
             stance = cs.CHARGE
 

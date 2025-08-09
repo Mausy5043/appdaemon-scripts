@@ -47,7 +47,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         )
         self.eb_median: float = float(_eb_median)
         self.update_sunonpanels_sensor(None)
-        self.log(f"Median own usage past 6 hours: {self.get_eigen_bedrijf_history()} W ")
+        self.log(f"Median own usage past 6 hours: {self.get_eigen_bedrijf_history():.2f} W ")
 
         # Run every minute to update the sensor
         # self.callback_handles.append(self.run_every(self.update_sunonpanels_sensor, dt.datetime.now(), CB_TIME))
@@ -80,7 +80,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         _t_sec = (_target - _now).total_seconds()
         self.next_sun_on_panels = round(_t_sec / 3600, 2)
         if self.starting:
-            self.log(f"Time until next sun_on_panels: {self.next_sun_on_panels} hours")
+            self.log(f"Time until next sun_on_panels: {self.next_sun_on_panels:.2f} hours")
 
         # Update the prediction in HA
         self.set_state(
