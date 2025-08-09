@@ -134,7 +134,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             "input_number.home_baseload",
             state=value,
             attributes={
-                "unit_of_measurement": "h",
+                "unit_of_measurement": "W",
                 "friendly_name": "home_baseload",
             },
         )
