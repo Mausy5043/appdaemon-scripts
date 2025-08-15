@@ -1,7 +1,7 @@
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 
 """Access secrets.yaml file for other apps"""
-VERSION = "0.2.0"
+VERSION = "1.1.1"
 
 
 class Secrets(hass.Hass):  # type: ignore[misc]

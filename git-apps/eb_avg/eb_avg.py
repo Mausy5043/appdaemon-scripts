@@ -6,7 +6,7 @@ import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 
 """Calculate moving average of Eigen Bedrijf to dampen peaks."""
 
-VERSION = "1.0.0"
+VERSION = "1.1.1"
 
 
 class EigenBedrijf_Avg(hass.Hass):  # type: ignore[misc]
