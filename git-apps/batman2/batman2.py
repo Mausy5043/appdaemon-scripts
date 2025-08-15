@@ -422,8 +422,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         for idx, (name, bat) in enumerate(self.bat_ctrl.items()):
             _sp: int = int(self.pwr_sp_list[idx])
             _api = bat["api"]
-            # TODO: ramp to setpoint
-            # ramp_sp_runin_cb
+            xom_sp += _sp
             try:
                 if (self.prv_stance in ["API+", "API-"]) or (self.new_stance in ["API+", "API-"]):
                     # NOM->API; IDLE->API; API->API; API->NOM; API->IDLE
@@ -434,44 +433,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 _s = f"UNSUCCESFULL: {her}"
             self.log(f"Sent {name} to {_sp:>5} .......... {_s}")
 
-    def ramp_sp(self):
-        """Change the battery setpoints in steps"""
-        current_sp: list[int] = self.get_pwr_sp()  # current setpoint reported by the battery
-        calc_sp: list[int] = self.pwr_sp_list  # calculated final setpoints
-        _cb = False
-        _s: dict = {}
-        self.step_cnt -= 1
-        if self.step_cnt > 0:  # prevent ramping to an unattainable SP
-            for idx, bat in self.bat_ctrl.items():
-                _api = self.bat_ctrl[bat]["api"]
-                deadband = 0.1 * calc_sp[idx]
-                # determine offset to current setpoint
-                epsilon = calc_sp[idx] - current_sp[idx]
-                # calculate stepsize
-                step_sp = epsilon * cs.RAMP_RATE[0]
-                # calculate new setpoint
-                if step_sp > deadband:
-                    new_sp = int(step_sp + current_sp[idx])
-                    self.log(f"Ramping {bat} to {new_sp:>5} .......")
-                    _s = _api.set_setpoint(new_sp)
-                    self.log(f"           .................. {_s}")
-                    # need to callback for next step
-                    _cb = True
-                else:
-                    new_sp = calc_sp[idx]
-                    self.log(f"Set {bat} to {new_sp:>5} ...........")
-                    _s = _api.set_setpoint(new_sp)
-                    self.log(f"           .................. {_s}")
-        # set-up callback for next step
-        if _cb:
-            self.run_in(
-                self.ramp_sp_runin_cb,
-                cs.RAMP_RATE[1],
-                entity="ramp",
-                attribute="callback",
-                old="",
-                new="",
-            )
 
     def set_stance(self):
         """Set the current stance based on the current state."""
