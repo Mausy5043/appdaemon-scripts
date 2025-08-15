@@ -422,7 +422,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         xom_sp: int = 0
         for idx, (_n, _b) in enumerate(self.bat_ctrl.items()):
             _sp: int = int(self.pwr_sp_list[idx])
-            xom_sp += _sp
+            xom_sp += _sp + 50
             # # not used when using XOM SP
             # _api = _b["api"]
             # try:
