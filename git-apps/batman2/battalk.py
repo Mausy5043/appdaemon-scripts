@@ -52,3 +52,12 @@ class Sessy:
         response.raise_for_status()
         ret: str = response.json()["sessy"]["power_setpoint"]
         return ret
+
+    def set_xom_setpoint(self, setpoint: int) -> dict:
+        """Set XOM setpoint on the P1 meter"""
+        _url = f"{self.bat_ip}/{self.api_call['grid_target']}"
+        _cmd = {"grid_target": setpoint}
+        response = self.session.post(_url, headers=self.headers, json=_cmd, auth=self.session.auth)
+        response.raise_for_status()
+        ret: dict = response.json()
+        return ret
