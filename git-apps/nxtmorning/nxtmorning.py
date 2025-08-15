@@ -17,7 +17,7 @@ TOLERANCE = 0.005  # elevation tolerance
 CB_TIME = 60  # callback interval in seconds
 # CONVERSION is based on
 # 2 batteries
-# each 5200 kWh when @ 100%
+# each 5200 Wh when @ 100%
 CONVERSION = 2 * 5200 / 100
 
 VERSION = "1.1.2"
