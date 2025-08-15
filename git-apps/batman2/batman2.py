@@ -440,7 +440,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         )
         self.log(f"Set XOM SP to ................ {xom_sp:.0f} W")
 
-
     def set_stance(self):
         """Set the current stance based on the current state."""
         match self.new_stance:
