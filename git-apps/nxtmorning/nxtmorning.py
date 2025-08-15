@@ -95,7 +95,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         # When we're close to the predicted time we calculate the new home baseload
         if _t_sec <= CB_TIME:
             self.log(f"{_t_sec:.0f} secs to sun on panels, updating home baseload")
-            eb_median = int(round(self.get_eigen_bedrijf_history(),0))
+            eb_median = int(round(self.get_eigen_bedrijf_history(), 0))
             self.set_eigen_bedrijf_median(eb_median)
 
         # calculate the minimum SoC required to reach the predicted time and 5% margin
