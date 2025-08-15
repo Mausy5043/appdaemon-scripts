@@ -506,11 +506,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     # SECRETS
 
     def get_tibber(self) -> tuple[str, str]:
+        """Get the Tibber token and URL from the secrets."""
         _scrt = self.secrets.get_tibber_token()
         _url = self.secrets.get_tibber_url()
         return _scrt, _url
 
     def get_bats(self):
+        """Get the battery credentials from the secrets."""
         _auth_dict = {}
         for _b in ["bat1", "bat2"]:
             _auth_dict[_b] = self.secrets.get_sessy_secrets(_b)
