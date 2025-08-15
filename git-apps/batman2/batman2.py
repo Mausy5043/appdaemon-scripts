@@ -440,7 +440,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     _s: dict | str = _api.set_xom_setpoint(xom_sp)
                 except Exception as her:
                     _s = f"UNSUCCESFULL: {her}"
-                self.log(f"Set XOM SP to ................ {xom_sp:.0f} W  {_s}")
+                self.log(f"Set XOM SP to ............... {xom_sp:+.0f} W  {_s}")
 
     def set_stance(self):
         """Set the current stance based on the current state."""
