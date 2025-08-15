@@ -13,6 +13,8 @@ scrts:
   sessy_bat1_url: !secret sessy_bat1_url
   sessy_bat2_auth: !secret sessy_bat2_auth
   sessy_bat2_url: !secret sessy_bat2_url
+  sessy_p1_auth: !secret sessy_p1_auth
+  sessy_p1_url: !secret sessy_p1_url
   # nxt_morning
   latitude: !secret str_latitude
   longitude: !secret str_longitude
