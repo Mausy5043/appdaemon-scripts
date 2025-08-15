@@ -355,7 +355,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # solar availability for the EV charger.
         # winterstand forces behaviour of a non-sunny day when true
         if (
-            (self.datum["sunny"] or not self.winterstand)
+            (self.datum["sunny"] and not self.winterstand)
             and (self.soc > _min_soc)
             and (_hr in self.price["expen_slot"])
         ):
