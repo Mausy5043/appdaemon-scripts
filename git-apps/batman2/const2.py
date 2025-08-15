@@ -44,6 +44,7 @@ PV_VOLTAGE = "sensor.pv_kwh_meter_voltage"
 PV_POWER = "sensor.pv_kwh_meter_power"
 BATTERIES = ["sensor.bat1_state_of_charge", "sensor.bat2_state_of_charge"]
 SETPOINTS = ["number.bat1_power_setpoint", "number.bat2_power_setpoint"]
+BAT_XOM_SP = "number.sessy_p1_grid_target"
 BAT_STANCE = ["select.bat1_power_strategy", "select.bat2_power_strategy"]
 # time between setpoint changes when ramping to a new setpoint
 RAMP_RATE = [0.4, 23]  # [growthrate, time between steps]
