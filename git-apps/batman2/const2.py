@@ -84,6 +84,7 @@ BATTALK: dict[str, Any] = {
         "strategy": "api/v1/power/active_strategy",
         "status": "api/v1/power/status",
         "setpoint": "api/v1/power/setpoint",
+        "grid_target": "api/v1/meter/grid_target",
     },
     "api_strats": __short2long_strategy,
     "bat_stances": __long2short_strategy,
