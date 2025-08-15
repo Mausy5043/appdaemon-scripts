@@ -423,7 +423,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         for idx, (_n, _b) in enumerate(self.bat_ctrl.items()):
             if _n != "p1":
                 _sp: int = int(self.pwr_sp_list[idx])
-                xom_sp += _sp + 50 # for testing
+                xom_sp += _sp * -1  # invert the setpoint for the P1 meter
             # # not used when using XOM SP
             # _api = _b["api"]
             # try:
