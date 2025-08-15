@@ -421,8 +421,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """Control each battery to the desired power setpoint."""
         xom_sp: int = 0
         for idx, (_n, _b) in enumerate(self.bat_ctrl.items()):
-            _sp: int = int(self.pwr_sp_list[idx])
-            xom_sp += _sp + 50
+            if _n != "p1":
+                _sp: int = int(self.pwr_sp_list[idx])
+                xom_sp += _sp + 50 # for testing
             # # not used when using XOM SP
             # _api = _b["api"]
             # try:
@@ -433,12 +434,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             #         _s = "IGNORED"
             # except Exception as her:
             #     _s = f"UNSUCCESFULL: {her}"
-            # self.log(f"Sent {_n} to {_sp:>5} .......... {_s}")
-        self.set_state(
-            cs.BAT_XOM_SP,
-            state=xom_sp,
-        )
-        self.log(f"Set XOM SP to ................ {xom_sp:.0f} W")
+            if _n == "p1":
+                _api = _b["api"]
+                try:
+                    _s: dict | str = _api.set_xom_setpoint(xom_sp)
+                    self.log(f"Set XOM SP to ................ {xom_sp:.0f} W")
+                except Exception as her:
+                    _s = f"UNSUCCESFULL: {her}"
 
     def set_stance(self):
         """Set the current stance based on the current state."""
@@ -467,9 +469,10 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             #     self.log(f"Setting {bat} to {stance}")
             #     self.set_state(bat, stance.lower())
             for bat in self.bat_ctrl:
-                _api = self.bat_ctrl[bat]["api"]
-                _s = _api.set_strategy(stance.lower())
-                self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
+                if bat != "p1":
+                    _api = self.bat_ctrl[bat]["api"]
+                    _s = _api.set_strategy(stance.lower())
+                    self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
 
     def start_idle(self):
         """Start the IDLE stance."""
@@ -479,9 +482,10 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             #     self.log(f"Setting {bat} to {stance}")
             #     self.set_state(bat, stance.lower())
             for bat in self.bat_ctrl:
-                _api = self.bat_ctrl[bat]["api"]
-                _s = _api.set_strategy(stance.lower())
-                self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
+                if bat != "p1":
+                    _api = self.bat_ctrl[bat]["api"]
+                    _s = _api.set_strategy(stance.lower())
+                    self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
 
     def start_charge(self, power: int = cs.CHARGE_PWR):
         """Start the API- stance."""
@@ -518,7 +522,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def get_bats(self):
         """Get the battery credentials from the secrets."""
         _auth_dict = {}
-        for _b in ["bat1", "bat2"]:
+        for _b in ["bat1", "bat2", "p1"]:
             _auth_dict[_b] = self.secrets.get_sessy_secrets(_b)
         return _auth_dict
 
