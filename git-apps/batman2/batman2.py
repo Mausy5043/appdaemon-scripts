@@ -424,7 +424,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             _sp: int = int(self.pwr_sp_list[idx])
             _api = bat["api"]
             xom_sp += _sp
-            ## not used when using XOM SP
+            # # not used when using XOM SP
             # try:
             #     if (self.prv_stance in ["API+", "API-"]) or (self.new_stance in ["API+", "API-"]):
             #         # NOM->API; IDLE->API; API->API; API->NOM; API->IDLE
@@ -489,7 +489,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         stance: str = cs.CHARGE[:-1]
         _s: dict = {"status": "skipped"}
         if self.ctrl_by_me:
-            ## not used when using XOM SP
+            # # not used when using XOM SP
             # for bat in self.bat_ctrl:
             #     _api = self.bat_ctrl[bat]["api"]
             #     _s = _api.set_strategy(stance.lower())
@@ -501,7 +501,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         stance: str = cs.DISCHARGE[:-1]
         _s: dict = {"status": "skipped"}
         if self.ctrl_by_me:
-            ## not used when using XOM SP
+            # # not used when using XOM SP
             # for bat in self.bat_ctrl:
             #     _api = self.bat_ctrl[bat]["api"]
             #     _s = _api.set_strategy(stance.lower())
