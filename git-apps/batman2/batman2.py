@@ -419,19 +419,26 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def adjust_pwr_sp(self):
         """Control each battery to the desired power setpoint."""
+        xom_sp: int = 0
         for idx, (name, bat) in enumerate(self.bat_ctrl.items()):
             _sp: int = int(self.pwr_sp_list[idx])
             _api = bat["api"]
             xom_sp += _sp
-            try:
-                if (self.prv_stance in ["API+", "API-"]) or (self.new_stance in ["API+", "API-"]):
-                    # NOM->API; IDLE->API; API->API; API->NOM; API->IDLE
-                    _s: dict | str = _api.set_setpoint(_sp)
-                else:
-                    _s = "IGNORED"
-            except Exception as her:
-                _s = f"UNSUCCESFULL: {her}"
-            self.log(f"Sent {name} to {_sp:>5} .......... {_s}")
+            ## not used when using XOM SP
+            # try:
+            #     if (self.prv_stance in ["API+", "API-"]) or (self.new_stance in ["API+", "API-"]):
+            #         # NOM->API; IDLE->API; API->API; API->NOM; API->IDLE
+            #         # _s: dict | str = _api.set_setpoint(_sp)
+            #     else:
+            #         _s = "IGNORED"
+            # except Exception as her:
+            #     _s = f"UNSUCCESFULL: {her}"
+            # self.log(f"Sent {name} to {_sp:>5} .......... {_s}")
+        self.set_state(
+            cs.BAT_XOM_SP,
+            state=xom_sp,
+        )
+        self.log(f"Set XOM SP to ................ {xom_sp:.0f} W")
 
 
     def set_stance(self):
@@ -480,27 +487,25 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def start_charge(self, power: int = cs.CHARGE_PWR):
         """Start the API- stance."""
         stance: str = cs.CHARGE[:-1]
+        _s: dict = {"status": "skipped"}
         if self.ctrl_by_me:
-            # for bat in cs.BAT_STANCE:
-            #     self.log(f"Setting {bat} to {stance}")
-            #     self.set_state(bat, stance.lower())
-            for bat in self.bat_ctrl:
-                _api = self.bat_ctrl[bat]["api"]
-                _s = _api.set_strategy(stance.lower())
-                self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
+            ## not used when using XOM SP
+            # for bat in self.bat_ctrl:
+            #     _api = self.bat_ctrl[bat]["api"]
+            #     _s = _api.set_strategy(stance.lower())
+            #     self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
             self.adjust_pwr_sp()
 
     def start_discharge(self, power: int = cs.DISCHARGE_PWR):
         """Start the API+ stance."""
         stance: str = cs.DISCHARGE[:-1]
+        _s: dict = {"status": "skipped"}
         if self.ctrl_by_me:
-            # for bat in cs.BAT_STANCE:
-            #     self.log(f"Setting {bat} to {stance}")
-            #     self.set_state(bat, stance.lower())
-            for bat in self.bat_ctrl:
-                _api = self.bat_ctrl[bat]["api"]
-                _s = _api.set_strategy(stance.lower())
-                self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
+            ## not used when using XOM SP
+            # for bat in self.bat_ctrl:
+            #     _api = self.bat_ctrl[bat]["api"]
+            #     _s = _api.set_strategy(stance.lower())
+            #     self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
             self.adjust_pwr_sp()
 
     # SECRETS
