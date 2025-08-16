@@ -104,13 +104,10 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """Get current state of charge (SoC) for all batteries."""
         soc_list: list[float] = []
         for bat in cs.BATTERIES:
-            _s: Any | None = self.get_state(entity_id=bat, attribute="state")
+            _s: Any = self.get_state(entity_id=bat, attribute="state")
             try:
                 _soc = float(_s)
             except ValueError:
-                self.log(f"*** Invalid SoC value for {bat}: {_s}. Setting to 0.0")
-                _soc = 0.0
-            if _soc < 0.0 or _soc > 100.0:
                 self.log(f"*** Invalid SoC value for {bat}: {_s}. Setting to 0.0")
                 _soc = 0.0
             soc_list.append(_soc)
@@ -122,11 +119,14 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # TODO: directly get the actual setpoint from the batteries (faster)
         pwr_list: list[int] = []
         for bat in cs.SETPOINTS:
-            _sp: Any | None = self.get_state(entity_id=bat, attribute="state")
-            if _sp is not None:
-                pwr_list.append(int(_sp))
-            else:
-                pwr_list.append(0)
+            _sp: Any = self.get_state(entity_id=bat, attribute="state")
+            try:
+                _setpoint = int(_sp)
+            except ValueError:
+                self.log(f"*** Invalid setpoint value for {bat}: {_sp}. Setting to 0")
+                _setpoint = 0
+            pwr_list.append(_setpoint)
+
         return pwr_list
 
     def get_bat_strat(self) -> list[str]:
