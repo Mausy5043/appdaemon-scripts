@@ -104,11 +104,16 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """Get current state of charge (SoC) for all batteries."""
         soc_list: list[float] = []
         for bat in cs.BATTERIES:
-            _soc: Any | None = self.get_state(entity_id=bat, attribute="state")
-            if _soc is not None:
-                soc_list.append(float(_soc))
-            else:
-                soc_list.append(0.0)
+            _s: Any | None = self.get_state(entity_id=bat, attribute="state")
+            try:
+                _soc = float(_s)
+            except ValueError:
+                self.log(f"*** Invalid SoC value for {bat}: {_s}. Setting to 0.0")
+                _soc = 0.0
+            if _soc < 0.0 or _soc > 100.0:
+                self.log(f"*** Invalid SoC value for {bat}: {_s}. Setting to 0.0")
+                _soc = 0.0
+            soc_list.append(_soc)
         soc_now: float = sum(soc_list) / len(soc_list)
         return soc_now, soc_list
 
