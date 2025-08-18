@@ -334,7 +334,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
         _hr: int = dt.datetime.now().hour
         # calculate the SoC needed to be able to discharge for at least a whole hour.
-        _min_soc = self.bats_min_soc + (2 * cs.DISCHARGE_PWR / 100)
+        _min_soc = self.bats_min_soc + (1 * cs.DISCHARGE_PWR / 100)
         _q3 = self.price["stats"]["q3"]
 
         if self.ev_charging:
