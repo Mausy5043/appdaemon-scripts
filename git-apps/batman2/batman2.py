@@ -499,6 +499,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             #     _api = self.bat_ctrl[bat]["api"]
             #     _s = _api.set_strategy(stance.lower())
             #     self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
+            if self.greedy != 0:
+                self.start_nom()
             self.adjust_pwr_sp()
 
     def start_discharge(self, power: int = cs.DISCHARGE_PWR):
@@ -511,6 +513,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             #     _api = self.bat_ctrl[bat]["api"]
             #     _s = _api.set_strategy(stance.lower())
             #     self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
+            if self.greedy != 0:
+                self.start_nom()
             self.adjust_pwr_sp()
 
     # SECRETS
