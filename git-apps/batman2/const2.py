@@ -56,7 +56,7 @@ GREED_HH = "input_number.greed_hh"
 # ### PRICES SETTINGS ### #
 PRICES: dict = {
     "nul": 0.0,  # below this, electricity is considered for free
-    "top": 35.0,  # above this, electricity is considered very expensive
+    "top": 12.5, # greater difference between lowest and current price than this number is considered very expensive
     "entity": "sensor.bat1_energy_price",
     "attr": {
         "now": "state",
