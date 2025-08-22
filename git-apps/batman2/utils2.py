@@ -88,6 +88,8 @@ def get_greedy(price: float, lo_price: float, hi_price: float) -> int:
 
     Args:
         price (float): The price to evaluate.
+        lo_price (float): The low price threshold.
+        hi_price (float): The high price threshold.
 
     Returns:
         -1 for low price (greedy for low),
