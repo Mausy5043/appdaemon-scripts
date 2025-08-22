@@ -179,7 +179,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.greedy_ll = float(_any)
         _any = self.get_state(cs.GREED_HH)
         self.greedy_hh = float(_any)
-        self.greedy = ut.get_greedy(self.price["now"], self.greedy_ll, self.greedy_hh)
+        price_diff: float = self.price["now"] - self.price["stats"]["min"]
+        self.greedy = ut.get_greedy(self.price["now"], price_diff, self.greedy_ll, self.greedy_hh)
         match self.greedy:
             case -1:
                 _s = "greedy to CHARGE"
