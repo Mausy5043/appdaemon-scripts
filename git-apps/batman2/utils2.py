@@ -79,7 +79,7 @@ def get_these_days() -> dict:
     }
 
 
-def get_greedy(price: float, lo_price: float, hi_price: float) -> int:
+def get_greedy(price: float, diff:float, lo_price: float, hi_diff: float) -> int:
     """Determine if the price is low, high, or neutral.
     Greediness is determined based on predefined price thresholds:
     - Low price: less than the 'nul' price threshold (greedy for low).
@@ -88,8 +88,9 @@ def get_greedy(price: float, lo_price: float, hi_price: float) -> int:
 
     Args:
         price (float): The price to evaluate.
+        diff (float): The price difference from the minimum price.
         lo_price (float): The low price threshold.
-        hi_price (float): The high price threshold.
+        hi_diff (float): The high price threshold.
 
     Returns:
         -1 for low price (greedy for low),
@@ -99,7 +100,7 @@ def get_greedy(price: float, lo_price: float, hi_price: float) -> int:
     _g = 0  # not greedy
     if price <= lo_price:
         _g = -1  # greedy for low price
-    if price >= hi_price:
+    if diff >= hi_diff:
         _g = 1  # greedy for high price
 
     return _g
