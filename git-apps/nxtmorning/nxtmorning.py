@@ -12,15 +12,15 @@ import astral.sun as astsun
 from astral import LocationInfo
 
 # --- Configuration ---
-ELEVATION = 11.11  # target elevation of the sun in degrees
-TOLERANCE = 0.005  # elevation tolerance
-CB_TIME = 60  # callback interval in seconds
+ELEVATION: float = 11.11  # target elevation of the sun in degrees
+TOLERANCE: float = 0.005  # elevation tolerance
+CB_TIME: int = 60  # callback interval in seconds
 # CONVERSION is based on
 # 2 batteries
 # each 5200 Wh when @ 100%
-CONVERSION = 2 * 5200 / 100
+CONVERSION: float = 2 * 5200 / 100
 
-VERSION = "1.2.1"
+VERSION: str = "1.2.1"
 
 
 class NextMorning(hass.Hass):  # type: ignore[misc]
@@ -128,7 +128,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         return stat.median(data)
 
     def set_eigen_bedrijf_median(self, value: float):
-        # Update the Home Assistant entity
+        """Update the Home Assistant entity"""
         self.log(f"Setting home baseload: {value:.2f} W")
         self.set_state(
             "input_number.home_baseload",
@@ -140,8 +140,17 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         )
 
 
-# Binary search for time when sun reaches target elevation
-def find_time_for_elevation(locatie, datum, elevatie, tolerance=TOLERANCE):
+def find_time_for_elevation(
+    locatie: LocationInfo, datum: dt.date, elevatie: float, tolerance: float = TOLERANCE
+) -> dt.datetime:
+    """Search for the time when the sun reaches the given target elevation.
+
+    Args:
+        locatie     location of the Earth for which to do the calculation
+        datum       starting date
+        elevatie    desired elevation of the sun (degrees)
+        tolerance   tolerance in the elevation (degrees)
+    """
     start = dt.datetime.combine(datum, dt.datetime.min.time(), tzinfo=ZoneInfo(locatie.timezone))
     end = start + dt.timedelta(days=1)
 
