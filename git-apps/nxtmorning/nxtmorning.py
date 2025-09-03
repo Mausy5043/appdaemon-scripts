@@ -48,7 +48,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         self.eb_median: float = float(_eb_median)
         self.update_sunonpanels_sensor(None)
         self.log(f"Median own usage past 6 hours: {self.get_eigen_bedrijf_history_6h():.2f} W ")
-        self.log(f"Mean  own usage past 24 hours: {self.get_eigen_bedrijf_history_24h():.2f} W ")
+        self.get_eigen_bedrijf_history_24h()
 
         # Run every minute to update the sensor
         # self.callback_handles.append(self.run_every(self.update_sunonpanels_sensor, dt.datetime.now(), CB_TIME))
@@ -98,7 +98,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             self.log(f"{_t_sec:.0f} secs to sun on panels, updating home baseload")
             eb_median = int(round(self.get_eigen_bedrijf_history_6h(), 0))
             self.set_eigen_bedrijf_median(eb_median)
-            self.log(f"Mean  own usage past 24 hours: {self.get_eigen_bedrijf_history_24h():.2f} W ")
+            self.get_eigen_bedrijf_history_24h()
 
         # calculate the minimum SoC required to reach the predicted time and 5% margin
         minimum_soc: float = round((self.next_sun_on_panels * self.eb_median / CONVERSION) + 5.0, 2)
@@ -129,21 +129,29 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
                 data.append(_dstate)
         return stat.median(data)
 
-    def get_eigen_bedrijf_history_24h(self) -> float:
-        """Get 6 hours of historical data from 'sensor.eigen_bedrijf'."""
+    def get_eigen_bedrijf_history_24h(self):
+        """Request 24 hours of historical data from 'sensor.eigen_bedrijf'."""
         end_time = dt.datetime.now()
         start_time = end_time - dt.timedelta(hours=24)
         # get_history returns a dict with entity_id as key
-        history: list = self.get_history(
-            entity_id="sensor.eigen_bedrijf", start_time=start_time, end_time=end_time
-        )
+        # we use a callback to process the data when it arrives
+        self.get_history(
+            entity_id="sensor.eigen_bedrijf",
+            start_time=start_time,
+            end_time=end_time,
+            callback=self.get_eigen_bedrijf_history_24h_cb,
+            )
+
+    def get_eigen_bedrijf_history_24h_cb(self, entity, attribute, old, new, **kwargs):
+        """Callback to process the 24-hour history data from 'sensor.eigen_bedrijf'."""
         # Extract the list of state changes for the sensor
+        history: list = new
         data = []
         for _d in history[0]:
             with contextlib.suppress(ValueError):
                 _dstate = float(_d["state"])
                 data.append(_dstate)
-        return stat.mean(data)
+        self.log(f"Mean  own usage past 24 hours: {stat.mean(data):.2f} W ")
 
     def set_eigen_bedrijf_median(self, value: float):
         """Update the Home Assistant entity"""
