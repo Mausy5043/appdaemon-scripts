@@ -98,6 +98,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             self.log(f"{_t_sec:.0f} secs to sun on panels, updating home baseload")
             eb_median = int(round(self.get_eigen_bedrijf_history_6h(), 0))
             self.set_eigen_bedrijf_median(eb_median)
+            self.log(f"Mean  own usage past 24 hours: {self.get_eigen_bedrijf_history_24h():.2f} W ")
 
         # calculate the minimum SoC required to reach the predicted time and 5% margin
         minimum_soc: float = round((self.next_sun_on_panels * self.eb_median / CONVERSION) + 5.0, 2)
