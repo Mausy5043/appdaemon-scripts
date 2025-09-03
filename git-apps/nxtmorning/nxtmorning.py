@@ -142,7 +142,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             callback=self.get_eigen_bedrijf_history_24h_cb,
             )
 
-    def get_eigen_bedrijf_history_24h_cb(self, entity, attribute, old, new, **kwargs):
+    def get_eigen_bedrijf_history_24h_cb(self, **kwargs):
         """Callback to process the 24-hour history data from 'sensor.eigen_bedrijf'."""
         # Extract the list of state changes for the sensor
         history: list = kwargs["result"]
