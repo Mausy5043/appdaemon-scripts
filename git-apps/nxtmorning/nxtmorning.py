@@ -145,13 +145,14 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
     def get_eigen_bedrijf_history_24h_cb(self, entity, attribute, old, new, **kwargs):
         """Callback to process the 24-hour history data from 'sensor.eigen_bedrijf'."""
         # Extract the list of state changes for the sensor
-        history: list = new
+        history: list = kwargs["result"]
         data = []
         for _d in history[0]:
             with contextlib.suppress(ValueError):
                 _dstate = float(_d["state"])
                 data.append(_dstate)
-        self.log(f"Mean  own usage past 24 hours: {stat.mean(data):.2f} W ")
+        _mean_data: float = stat.mean(data)
+        self.log(f"Mean  own usage past 24 hours: {_mean_data:.2f} W ")
 
     def set_eigen_bedrijf_median(self, value: float):
         """Update the Home Assistant entity"""
