@@ -20,7 +20,7 @@ CB_TIME: int = 60  # callback interval in seconds
 # each 5200 Wh when @ 100%
 CONVERSION: float = 2 * 5200 / 100
 
-VERSION: str = "1.2.1"
+VERSION: str = "1.2.2"
 
 
 class NextMorning(hass.Hass):  # type: ignore[misc]
