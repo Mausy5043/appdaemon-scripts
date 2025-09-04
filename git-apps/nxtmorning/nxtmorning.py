@@ -81,7 +81,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         _t_sec = (_target - _now).total_seconds()
         self.next_sun_on_panels = round(_t_sec / 3600, 2)
         if self.starting:
-            self.log(f"Time until next sun_on_panels: {self.next_sun_on_panels:.2f} hours")
+            self.log(f"Time until next sun_on_panels : {self.next_sun_on_panels:.2f} hours")
 
         # Update the prediction in HA
         self.set_state(
@@ -104,7 +104,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         # calculate the minimum SoC required to reach the predicted time and 5% margin
         minimum_soc: float = round((self.next_sun_on_panels * self.eb_median / CONVERSION) + 5.0, 2)
         if self.starting:
-            self.log(f"Calculated minimum SoC: {minimum_soc:.2f} %")
+            self.log(f"Calculated minimum SoC        : {minimum_soc:.2f} %")
         self.set_state(
             "sensor.bats_minimum_soc",
             state=minimum_soc,
