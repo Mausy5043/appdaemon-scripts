@@ -47,7 +47,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         )
         self.eb_median: float = float(_eb_median)
         self.update_sunonpanels_sensor(None)
-        self.log(f"Median own usage past 6 hours: {self.get_eigen_bedrijf_history_6h():.2f} W ")
+        self.log(f"Median own usage past  6 hours: {self.get_eigen_bedrijf_history_6h():.2f} W ")
         self.get_eigen_bedrijf_history_24h()
 
         # Run every minute to update the sensor
@@ -97,6 +97,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         if _t_sec <= CB_TIME:
             self.log(f"{_t_sec:.0f} secs to sun on panels, updating home baseload")
             eb_median = int(round(self.get_eigen_bedrijf_history_6h(), 0))
+            self.log(f"Median own usage past  6 hours: {eb_median:.2f} W ")
             self.set_eigen_bedrijf_median(eb_median)
             self.get_eigen_bedrijf_history_24h()
 
@@ -152,7 +153,9 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
                 _dstate = float(_d["state"])
                 data.append(_dstate)
         _mean_data: float = stat.mean(data)
-        self.log(f"Mean  own usage past 24 hours: {_mean_data:.2f} W ")
+        _median_data: float = stat.median(data)
+        self.log(f"Mean   own usage past 24 hours: {_mean_data:.2f} W ")
+        self.log(f"Median own usage past 24 hours: {_median_data:.2f} W ")
 
     def set_eigen_bedrijf_median(self, value: float):
         """Update the Home Assistant entity"""
