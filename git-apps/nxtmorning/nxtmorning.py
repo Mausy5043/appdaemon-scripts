@@ -141,7 +141,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             start_time=start_time,
             end_time=end_time,
             callback=self.get_eigen_bedrijf_history_24h_cb,
-            )
+        )
 
     def get_eigen_bedrijf_history_24h_cb(self, **kwargs):
         """Callback to process the 24-hour history data from 'sensor.eigen_bedrijf'."""
