@@ -18,7 +18,8 @@ class EigenBedrijf_Avg(hass.Hass):  # type: ignore[misc]
         self.values: deque[float] = deque(maxlen=QLEN)
 
         # intialise callbacks
-        self.listen_state(self.collect_value, self.sensor)
+        self.callback_handles: list = []
+        self.callback_handles.append(self.listen_state(self.collect_value, self.sensor))
         self.run_every(self.calculate_average, "now", 60)
 
     def terminate(self):
