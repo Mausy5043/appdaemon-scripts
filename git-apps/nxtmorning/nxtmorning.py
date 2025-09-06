@@ -5,6 +5,7 @@
 import contextlib
 import datetime as dt
 import statistics as stat
+from functools import partial
 from zoneinfo import ZoneInfo
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
@@ -123,18 +124,19 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         start_time = end_time - dt.timedelta(hours=24)
         # get_history returns a dict with entity_id as key
         # we use a callback to process the data when it arrives
-        _t = self.get_history(
+        _cb = partial(self.get_eigen_bedrijf_history_cb, hours=hours)
+        self.get_history(
             entity_id="sensor.eigen_bedrijf",
             start_time=start_time,
             end_time=end_time,
-            callback=self.get_eigen_bedrijf_history_cb,
+            callback=_cb,
         )
-        self.log(f"Requested {hours:.1f} hours of history for sensor.eigen_bedrijf, thread {_t}")
+        self.log(f"Requested {hours:.1f} hours of history for sensor.eigen_bedrijf")
 
     def get_eigen_bedrijf_history_cb(self, **kwargs):
         """Callback to process the X-hour history data from 'sensor.eigen_bedrijf'."""
         # Extract the list of state changes for the sensor
-        thread = kwargs["__thread_id"]
+        hours = kwargs["hours"]
         history: list = kwargs["result"]
         data = []
         for _d in history[0]:
@@ -143,11 +145,10 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
                 data.append(_dstate)
         _mean_data: float = int(round(stat.mean(data), 0))
         _median_data: float = int(round(stat.median(data), 0))
-        self.log(f"Processing history callback in thread {thread}")
+        self.log(f"Processing history callback for {hours} hours")
         self.log(f"Mean   own usage past hours   : {_mean_data:.2f} W ")
         self.log(f"Median own usage past hours   : {_median_data:.2f} W ")
-        # if kwargs["hours"] == HISTORY_HOURS:
-        #     self.set_eigen_bedrijf_median(_median_data)
+        self.set_eigen_bedrijf_median(_median_data)
 
     def set_eigen_bedrijf_median(self, value: float):
         """Update the Home Assistant entity"""
