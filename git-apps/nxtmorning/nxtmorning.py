@@ -19,6 +19,7 @@ CB_TIME: int = 60  # callback interval in seconds
 # 2 batteries
 # each 5200 Wh when @ 100%
 CONVERSION: float = 2 * 5200 / 100
+HISTORY_HOURS: float = 6.0  # hours of historical data to fetch from 'sensor.eigen_bedrijf'
 
 VERSION: str = "1.2.2"
 
@@ -47,8 +48,10 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         )
         self.eb_median: float = float(_eb_median)
         self.update_sunonpanels_sensor(None)
-        self.log(f"Median own usage past  6 hours: {self.get_eigen_bedrijf_history_6h():.2f} W ")
-        self.get_eigen_bedrijf_history_24h()
+        # to prevent updating the value we ask for a bit more data
+        self.get_eigen_bedrijf_history(hours=HISTORY_HOURS + 0.1)
+        # for testing:
+        self.get_eigen_bedrijf_history(hours=24.1)
 
         # Run every minute to update the sensor
         # self.callback_handles.append(
@@ -97,10 +100,9 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         # When we're close to the predicted time we calculate the new home baseload
         if _t_sec <= CB_TIME:
             self.log(f"{_t_sec:.0f} secs to sun on panels, updating home baseload")
-            eb_median = int(round(self.get_eigen_bedrijf_history_6h(), 0))
-            self.log(f"Median own usage past  6 hours: {eb_median:.2f} W ")
-            self.set_eigen_bedrijf_median(eb_median)
-            self.get_eigen_bedrijf_history_24h()
+            self.get_eigen_bedrijf_history(hours=HISTORY_HOURS)
+            # for testing:
+            self.get_eigen_bedrijf_history(hours=24.0)
 
         # calculate the minimum SoC required to reach the predicted time
         minimum_soc: float = round((self.next_sun_on_panels * self.eb_median / CONVERSION), 2)
@@ -115,7 +117,38 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             },
         )
 
+    def get_eigen_bedrijf_history(self, hours: float):
+        """Request X hours of historical data from 'sensor.eigen_bedrijf'."""
+        end_time = dt.datetime.now()
+        start_time = end_time - dt.timedelta(hours=24)
+        # get_history returns a dict with entity_id as key
+        # we use a callback to process the data when it arrives
+        self.get_history(
+            entity_id="sensor.eigen_bedrijf",
+            start_time=start_time,
+            end_time=end_time,
+            callback=self.get_eigen_bedrijf_history_cb,
+            hours=hours,
+        )
 
+    def get_eigen_bedrijf_history_cb(self, **kwargs):
+        """Callback to process the X-hour history data from 'sensor.eigen_bedrijf'."""
+        # Extract the list of state changes for the sensor
+        if self.starting:
+            for _k, _v in kwargs.items():
+                self.log(f"{_k}")
+        history: list = kwargs["result"]
+        data = []
+        for _d in history[0]:
+            with contextlib.suppress(ValueError):
+                _dstate = float(_d["state"])
+                data.append(_dstate)
+        _mean_data: float = int(round(stat.mean(data), 0))
+        _median_data: float = int(round(stat.median(data), 0))
+        self.log(f"Mean   own usage past hours   : {_mean_data:.2f} W ")
+        self.log(f"Median own usage past hours   : {_median_data:.2f} W ")
+        if kwargs["hours"] == HISTORY_HOURS:
+            self.set_eigen_bedrijf_median(_median_data)
 
     def set_eigen_bedrijf_median(self, value: float):
         """Update the Home Assistant entity"""
@@ -171,6 +204,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         _median_data: float = stat.median(data)
         self.log(f"Mean   own usage past 24 hours: {_mean_data:.2f} W ")
         self.log(f"Median own usage past 24 hours: {_median_data:.2f} W ")
+
 
 def find_time_for_elevation(
     locatie: LocationInfo, datum: dt.date, elevatie: float, tolerance: float = TOLERANCE
