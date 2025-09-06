@@ -258,8 +258,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.price["stats"] = p2.price_statistics(_p)
 
         # make a list of the cheap and expensive hours
-        _cslot=cs.SLOTS[0] * -1
-        _dslot=cs.SLOTS[1]
+        _cslot = cs.SLOTS[0] * -1
+        _dslot = cs.SLOTS[1]
         if self.tibber_quarters:
             _cslot *= 4
             _dslot *= 4
