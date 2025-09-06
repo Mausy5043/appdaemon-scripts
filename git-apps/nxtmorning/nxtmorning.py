@@ -128,7 +128,6 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             start_time=start_time,
             end_time=end_time,
             callback=self.get_eigen_bedrijf_history_cb,
-            hours=hours,
         )
 
     def get_eigen_bedrijf_history_cb(self, **kwargs):
@@ -147,8 +146,8 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         _median_data: float = int(round(stat.median(data), 0))
         self.log(f"Mean   own usage past hours   : {_mean_data:.2f} W ")
         self.log(f"Median own usage past hours   : {_median_data:.2f} W ")
-        if kwargs["hours"] == HISTORY_HOURS:
-            self.set_eigen_bedrijf_median(_median_data)
+        # if kwargs["hours"] == HISTORY_HOURS:
+        #     self.set_eigen_bedrijf_median(_median_data)
 
     def set_eigen_bedrijf_median(self, value: float):
         """Update the Home Assistant entity"""
