@@ -133,9 +133,8 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
     def get_eigen_bedrijf_history_cb(self, **kwargs):
         """Callback to process the X-hour history data from 'sensor.eigen_bedrijf'."""
         # Extract the list of state changes for the sensor
-        if self.starting:
-            for _k, _v in kwargs.items():
-                self.log(f"{_k}")
+        for _k, _v in kwargs.items():
+            self.log(f"{_k}")
         history: list = kwargs["result"]
         data = []
         for _d in history[0]:
