@@ -50,7 +50,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         self.eb_median: float = float(_eb_median)
         self.update_sunonpanels_sensor(None)
         # to prevent updating the value we ask for a bit more data
-        # self.get_eigen_bedrijf_history(hours=HISTORY_HOURS + 0.1)
+        self.get_eigen_bedrijf_history(hours=HISTORY_HOURS + 0.1)
         # for testing:
         self.get_eigen_bedrijf_history(hours=24.1)
 
@@ -121,7 +121,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
     def get_eigen_bedrijf_history(self, hours: float):
         """Request X hours of historical data from 'sensor.eigen_bedrijf'."""
         end_time = dt.datetime.now()
-        start_time = end_time - dt.timedelta(hours=24)
+        start_time = end_time - dt.timedelta(hours=hours)
         # get_history returns a dict with entity_id as key
         # we use a callback to process the data when it arrives
         _cb = partial(self.get_eigen_bedrijf_history_cb, hours=hours)
