@@ -115,6 +115,20 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             },
         )
 
+
+
+    def set_eigen_bedrijf_median(self, value: float):
+        """Update the Home Assistant entity"""
+        self.log(f"Setting home baseload: {value:.2f} W")
+        self.set_state(
+            "input_number.home_baseload",
+            state=value,
+            attributes={
+                "unit_of_measurement": "W",
+                "friendly_name": "home_baseload",
+            },
+        )
+
     def get_eigen_bedrijf_history_6h(self) -> float:
         """Get 6 hours of historical data from 'sensor.eigen_bedrijf'."""
         end_time = dt.datetime.now()
@@ -157,19 +171,6 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         _median_data: float = stat.median(data)
         self.log(f"Mean   own usage past 24 hours: {_mean_data:.2f} W ")
         self.log(f"Median own usage past 24 hours: {_median_data:.2f} W ")
-
-    def set_eigen_bedrijf_median(self, value: float):
-        """Update the Home Assistant entity"""
-        self.log(f"Setting home baseload: {value:.2f} W")
-        self.set_state(
-            "input_number.home_baseload",
-            state=value,
-            attributes={
-                "unit_of_measurement": "W",
-                "friendly_name": "home_baseload",
-            },
-        )
-
 
 def find_time_for_elevation(
     locatie: LocationInfo, datum: dt.date, elevatie: float, tolerance: float = TOLERANCE
