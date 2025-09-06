@@ -52,7 +52,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         # to prevent updating the value we ask for a bit more data
         self.get_eigen_bedrijf_history(hours=HISTORY_HOURS + 0.1)
         # for testing:
-        self.get_eigen_bedrijf_history(hours=24.1)
+        self.get_eigen_bedrijf_history(hours=24.0)
 
         # Run every minute to update the sensor
         # self.callback_handles.append(
