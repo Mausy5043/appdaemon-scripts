@@ -123,18 +123,18 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         start_time = end_time - dt.timedelta(hours=24)
         # get_history returns a dict with entity_id as key
         # we use a callback to process the data when it arrives
-        self.get_history(
+        _t = self.get_history(
             entity_id="sensor.eigen_bedrijf",
             start_time=start_time,
             end_time=end_time,
             callback=self.get_eigen_bedrijf_history_cb,
         )
+        self.log(f"Requested {hours:.1f} hours of history for sensor.eigen_bedrijf, thread {_t}")
 
     def get_eigen_bedrijf_history_cb(self, **kwargs):
         """Callback to process the X-hour history data from 'sensor.eigen_bedrijf'."""
         # Extract the list of state changes for the sensor
-        for _k, _v in kwargs.items():
-            self.log(f"{_k} - {len(_v)}")
+        thread = kwargs["__thread_id"]
         history: list = kwargs["result"]
         data = []
         for _d in history[0]:
@@ -143,6 +143,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
                 data.append(_dstate)
         _mean_data: float = int(round(stat.mean(data), 0))
         _median_data: float = int(round(stat.median(data), 0))
+        self.log(f"Processing history callback in thread {thread}")
         self.log(f"Mean   own usage past hours   : {_mean_data:.2f} W ")
         self.log(f"Median own usage past hours   : {_median_data:.2f} W ")
         # if kwargs["hours"] == HISTORY_HOURS:
