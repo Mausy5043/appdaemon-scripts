@@ -50,9 +50,9 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         self.eb_median: float = float(_eb_median)
         self.update_sunonpanels_sensor(None)
         # to prevent updating the value we ask for a bit more data
-        self.get_eigen_bedrijf_history(hours=HISTORY_HOURS + 0.1)
+        # self.get_eigen_bedrijf_history(hours=HISTORY_HOURS + 0.1)
         # for testing:
-        # self.get_eigen_bedrijf_history(hours=24.1)
+        self.get_eigen_bedrijf_history(hours=24.1)
 
         # Run every minute to update the sensor
         # self.callback_handles.append(
