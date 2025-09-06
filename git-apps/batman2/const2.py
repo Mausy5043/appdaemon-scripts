@@ -13,6 +13,9 @@ MAX_CHARGE = -2200
 MAX_DISCHARGE = 1700
 # set to True to enable more aggressive (dis)charging when prices are favourable
 TRADING = False
+# number of hours that we want to (dis)charge the batteries when prices are favourable
+# index 0 is for charging, index 1 is for discharging
+SLOTS = [3, 3]
 # stances  (Sessy calls this 'strategy')
 NOM: str = "NOM"
 DISCHARGE: str = "API+"  # (+)-ve power setting
