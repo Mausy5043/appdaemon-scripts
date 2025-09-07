@@ -51,8 +51,6 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         self.update_sunonpanels_sensor(None)
         # to prevent updating the value we ask for a bit more data
         self.get_eigen_bedrijf_history(hours=HISTORY_HOURS + 0.1)
-        # for testing:
-        self.get_eigen_bedrijf_history(hours=24.0)
 
         # Run every minute to update the sensor
         # self.callback_handles.append(
@@ -102,8 +100,6 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         if _t_sec <= CB_TIME:
             self.log(f"{_t_sec:.0f} secs to sun on panels, updating home baseload")
             self.get_eigen_bedrijf_history(hours=HISTORY_HOURS)
-            # for testing:
-            self.get_eigen_bedrijf_history(hours=24.0)
 
         # calculate the minimum SoC required to reach the predicted time
         minimum_soc: float = round((self.next_sun_on_panels * self.eb_median / CONVERSION), 2)
@@ -162,49 +158,6 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
                 "friendly_name": "home_baseload",
             },
         )
-
-    def get_eigen_bedrijf_history_6h(self) -> float:
-        """Get 6 hours of historical data from 'sensor.eigen_bedrijf'."""
-        end_time = dt.datetime.now()
-        start_time = end_time - dt.timedelta(hours=6)
-        # get_history returns a dict with entity_id as key
-        history: list = self.get_history(
-            entity_id="sensor.eigen_bedrijf", start_time=start_time, end_time=end_time
-        )
-        # Extract the list of state changes for the sensor
-        data = []
-        for _d in history[0]:
-            with contextlib.suppress(ValueError):
-                _dstate = float(_d["state"])
-                data.append(_dstate)
-        return stat.median(data)
-
-    def get_eigen_bedrijf_history_24h(self):
-        """Request 24 hours of historical data from 'sensor.eigen_bedrijf'."""
-        end_time = dt.datetime.now()
-        start_time = end_time - dt.timedelta(hours=24)
-        # get_history returns a dict with entity_id as key
-        # we use a callback to process the data when it arrives
-        self.get_history(
-            entity_id="sensor.eigen_bedrijf",
-            start_time=start_time,
-            end_time=end_time,
-            callback=self.get_eigen_bedrijf_history_24h_cb,
-        )
-
-    def get_eigen_bedrijf_history_24h_cb(self, **kwargs):
-        """Callback to process the 24-hour history data from 'sensor.eigen_bedrijf'."""
-        # Extract the list of state changes for the sensor
-        history: list = kwargs["result"]
-        data = []
-        for _d in history[0]:
-            with contextlib.suppress(ValueError):
-                _dstate = float(_d["state"])
-                data.append(_dstate)
-        _mean_data: float = stat.mean(data)
-        _median_data: float = stat.median(data)
-        self.log(f"Mean   own usage past 24 hours: {_mean_data:.2f} W ")
-        self.log(f"Median own usage past 24 hours: {_median_data:.2f} W ")
 
 
 def find_time_for_elevation(
