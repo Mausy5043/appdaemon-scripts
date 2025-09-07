@@ -23,8 +23,11 @@ CONVERSION: float = 2 * 5200 / 100
 HISTORY_HOURS: float = 24.0  # hours of historical data to fetch from 'sensor.eigen_bedrijf'
 ENTITY_BASELOAD: str = "input_number.home_baseload"  # entity to update with the calculated baseload
 ENTITY_EB: str = "sensor.eigen_bedrijf"  # entity from which to fetch historical data
+ATTR_NSOP: dict = {"unit_of_measurement": "h", "friendly_name": "next_sun_on_panels"}
+ATTR_BMS: dict = {"unit_of_measurement": "%", "friendly_name": "bats_minimum_soc"}
+ATTR_BL: dict = {"unit_of_measurement": "W", "friendly_name": "home_baseload"}
 
-VERSION: str = "1.2.2"
+VERSION: str = "1.3.1"
 
 
 class NextMorning(hass.Hass):  # type: ignore[misc]
@@ -32,6 +35,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         self.log(f"============================== NextMorning v{VERSION} ====")
         self.starting = True
         self.callback_handles: list = []
+        self.callback_active: bool = False
         self.secrets = self.get_app("scrts")
         cfg: dict = self.secrets.get_location()
         # Define our location
@@ -70,7 +74,6 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         _now = dt.datetime.now(_tz)
         _datum = _now.date() + dt.timedelta(days=0)
         _target = find_time_for_elevation(self.location, _datum, ELEVATION)
-
         # determine solar elevation and time when reaching ELEVATION +/- TOLERANCE
         if _target < _now:
             if self.starting:
@@ -83,34 +86,19 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         self.next_sun_on_panels = round(_t_sec / 3600, 2)
         if self.starting:
             self.log(f"Time until next sun_on_panels : {self.next_sun_on_panels:.2f} hours")
-
         # Update the prediction in HA
-        self.set_state(
-            "sensor.next_sun_on_panels",
-            state=self.next_sun_on_panels,
-            attributes={
-                "unit_of_measurement": "h",
-                "friendly_name": "next_sun_on_panels",
-            },
-        )
-
+        self.set_state("sensor.next_sun_on_panels", state=self.next_sun_on_panels, attributes=ATTR_NSOP)
         # When we're close to the predicted time we calculate the new home baseload
         if _t_sec <= CB_TIME:
             self.log(f"{_t_sec:.0f} secs to sun on panels, updating home baseload")
             self.get_eigen_bedrijf_history(hours=HISTORY_HOURS)
-
+            self.callback_active = True
         # calculate the minimum SoC required to reach the predicted time
+        # FIXME: when the callback is active this calculation still uses the old value!
         minimum_soc: float = round((self.next_sun_on_panels * self.eb_median / CONVERSION), 2)
         if self.starting:
             self.log(f"Calculated minimum SoC        : {minimum_soc:.2f} %")
-        self.set_state(
-            "sensor.bats_minimum_soc",
-            state=minimum_soc,
-            attributes={
-                "unit_of_measurement": "%",
-                "friendly_name": "bats_minimum_soc",
-            },
-        )
+        self.set_state("sensor.bats_minimum_soc", state=minimum_soc, attributes=ATTR_BMS)
 
     def get_eigen_bedrijf_history(self, hours: float):
         """Request X hours of historical data from 'sensor.eigen_bedrijf'."""
@@ -140,18 +128,12 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         if hours == HISTORY_HOURS:
             self.set_eigen_bedrijf_median(_median_data)
         self.eb_median = _median_data
+        self.callback_active = False
 
     def set_eigen_bedrijf_median(self, value: float):
         """Update the Home Baseload with the median own usage (eigen bedrijf)."""
         self.log(f"Setting home baseload: {value:.2f} W")
-        self.set_state(
-            ENTITY_BASELOAD,
-            state=value,
-            attributes={
-                "unit_of_measurement": "W",
-                "friendly_name": "home_baseload",
-            },
-        )
+        self.set_state(ENTITY_BASELOAD, state=value, attributes=ATTR_BL)
 
 
 def find_time_for_elevation(
