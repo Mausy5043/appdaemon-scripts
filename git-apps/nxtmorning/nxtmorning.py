@@ -78,7 +78,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         if _target < _now:
             if self.starting:
                 self.log(f"Sun has passed {ELEVATION:.2f} deg today")
-            _datum = _datum + dt.timedelta(days=1)
+            _datum += dt.timedelta(days=1)
             _target = find_time_for_elevation(self.location, _datum, ELEVATION)
         if self.starting:
             self.log(f"Sun reaches {ELEVATION:.2f} deg at: {_target.strftime('%Y-%m-%d %H:%M:%S %Z')}")
