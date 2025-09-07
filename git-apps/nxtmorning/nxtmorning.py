@@ -72,7 +72,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
     def update_sunonpanels_sensor(self, kwargs):
         _tz = ZoneInfo(self.location.timezone)
         _now = dt.datetime.now(_tz)
-        _datum = _now.date() + dt.timedelta(days=0)
+        _datum = _now.date()
         _target = find_time_for_elevation(self.location, _datum, ELEVATION)
         # determine solar elevation and time when reaching ELEVATION +/- TOLERANCE
         if _target < _now:
