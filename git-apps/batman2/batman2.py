@@ -457,12 +457,14 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         match self.new_stance:
             case cs.NOM:
                 # with contextlib.suppress(Exception):
-                self.adjust_pwr_sp()
-                self.start_nom()
+                if self.ctrl_by_me:
+                    self.adjust_pwr_sp()
+                    self.start_nom()
             case cs.IDLE:
                 # with contextlib.suppress(Exception):
-                self.adjust_pwr_sp()
-                self.start_idle()
+                if self.ctrl_by_me:
+                    self.adjust_pwr_sp()
+                    self.start_idle()
             case cs.CHARGE:
                 self.start_charge()
             case cs.DISCHARGE:
