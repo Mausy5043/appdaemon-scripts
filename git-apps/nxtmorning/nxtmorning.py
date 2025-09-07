@@ -20,8 +20,7 @@ CB_TIME: int = 60  # callback interval in seconds
 # 2 batteries
 # each 5200 Wh when @ 100%
 CONVERSION: float = 2 * 5200 / 100
-HISTORY_HOURS: float = 6.0  # hours of historical data to fetch from 'sensor.eigen_bedrijf'
-
+HISTORY_HOURS: float = 24.0  # hours of historical data to fetch from 'sensor.eigen_bedrijf'
 VERSION: str = "1.2.2"
 
 
