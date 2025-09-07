@@ -146,6 +146,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         self.log(f"Median own usage past hours   : {_median_data:.2f} W ")
         if hours == HISTORY_HOURS:
             self.set_eigen_bedrijf_median(_median_data)
+        self.eb_median = _median_data
 
     def set_eigen_bedrijf_median(self, value: float):
         """Update the Home Assistant entity"""
