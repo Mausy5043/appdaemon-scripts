@@ -86,15 +86,21 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         self.next_sun_on_panels = round(_t_sec / 3600, 2)
         if self.starting:
             self.log(f"Time until next sun_on_panels : {self.next_sun_on_panels:.2f} hours")
+
         # Update the prediction in HA
         self.set_state("sensor.next_sun_on_panels", state=self.next_sun_on_panels, attributes=ATTR_NSOP)
-        # When we're close to the predicted time we calculate the new home baseload
+        # and update the minimum SoC required to reach the next morning
+        self.set_bats_minimum_soc()
+
+        # When we're close to the predicted time we also calculate the new home baseload
         if _t_sec <= CB_TIME:
             self.log(f"{_t_sec:.0f} secs to sun on panels, updating home baseload")
             self.get_eigen_bedrijf_history(hours=HISTORY_HOURS)
             self.callback_active = True
+
+    def set_bats_minimum_soc(self):
+        """Calculate and update the minimum SoC required to reach the next morning."""
         # calculate the minimum SoC required to reach the predicted time
-        # FIXME: when the callback is active this calculation still uses the old value!
         minimum_soc: float = round((self.next_sun_on_panels * self.eb_median / CONVERSION), 2)
         if self.starting:
             self.log(f"Calculated minimum SoC        : {minimum_soc:.2f} %")
@@ -128,6 +134,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         if hours == HISTORY_HOURS:
             self.set_eigen_bedrijf_median(_median_data)
             self.eb_median = _median_data
+            self.set_bats_minimum_soc()
         self.callback_active = False
 
     def set_eigen_bedrijf_median(self, value: float):
