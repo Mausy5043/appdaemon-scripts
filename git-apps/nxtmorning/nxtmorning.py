@@ -21,6 +21,9 @@ CB_TIME: int = 60  # callback interval in seconds
 # each 5200 Wh when @ 100%
 CONVERSION: float = 2 * 5200 / 100
 HISTORY_HOURS: float = 24.0  # hours of historical data to fetch from 'sensor.eigen_bedrijf'
+ENTITY_BASELOAD: str = "input_number.home_baseload"  # entity to update with the calculated baseload
+ENTITY_EB: str = "sensor.eigen_bedrijf"  # entity from which to fetch historical data
+
 VERSION: str = "1.2.2"
 
 
@@ -41,11 +44,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         )
 
         # Initial run at startup
-        _eb_median: str = self.get_state(
-            entity_id="input_number.home_baseload",
-            attribute="state",
-            default="234.5",
-        )
+        _eb_median: str = self.get_state(entity_id=ENTITY_BASELOAD, attribute="state", default="234.5")
         self.eb_median: float = float(_eb_median)
         self.update_sunonpanels_sensor(None)
         # to prevent updating the value we ask for a bit more data
@@ -120,12 +119,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         # get_history returns a dict with entity_id as key
         # we use a callback to process the data when it arrives
         _cb = partial(self.get_eigen_bedrijf_history_cb, hours=hours)
-        self.get_history(
-            entity_id="sensor.eigen_bedrijf",
-            start_time=start_time,
-            end_time=end_time,
-            callback=_cb,
-        )
+        self.get_history(entity_id=ENTITY_EB, start_time=start_time, end_time=end_time, callback=_cb)
         self.log(f"Requested {hours:.1f} hours of history for sensor.eigen_bedrijf")
 
     def get_eigen_bedrijf_history_cb(self, **kwargs):
@@ -148,10 +142,10 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         self.eb_median = _median_data
 
     def set_eigen_bedrijf_median(self, value: float):
-        """Update the Home Assistant entity"""
+        """Update the Home Baseload with the median own usage (eigen bedrijf)."""
         self.log(f"Setting home baseload: {value:.2f} W")
         self.set_state(
-            "input_number.home_baseload",
+            ENTITY_BASELOAD,
             state=value,
             attributes={
                 "unit_of_measurement": "W",
