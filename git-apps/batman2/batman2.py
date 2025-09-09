@@ -459,12 +459,12 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 # with contextlib.suppress(Exception):
                 if self.ctrl_by_me:
                     self.adjust_pwr_sp()
-                    self.start_nom()
+                self.start_nom()
             case cs.IDLE:
                 # with contextlib.suppress(Exception):
                 if self.ctrl_by_me:
                     self.adjust_pwr_sp()
-                    self.start_idle()
+                self.start_idle()
             case cs.CHARGE:
                 self.start_charge()
             case cs.DISCHARGE:
