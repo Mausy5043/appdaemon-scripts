@@ -82,7 +82,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             _target = find_time_for_elevation(self.location, _datum, ELEVATION)
         if self.starting:
             self.log(f"Sun reaches {ELEVATION:.2f} deg at: {_target.strftime('%Y-%m-%d %H:%M:%S %Z')}")
-        _t_sec = max(0,(_target - _now).total_seconds())  # avoid negative _t_sec in edge-cases
+        _t_sec = max(0, (_target - _now).total_seconds())  # avoid negative _t_sec in edge-cases
         self.next_sun_on_panels = round(_t_sec / 3600, 2)
         if self.starting:
             self.log(f"Time until next sun_on_panels : {self.next_sun_on_panels:.2f} hours")
