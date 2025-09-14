@@ -336,7 +336,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
         _hr: int = dt.datetime.now().hour
         # calculate the SoC needed to be able to discharge for at least a whole hour.
-        _min_soc = self.bats_min_soc + (1 * cs.DISCHARGE_PWR / 100)
+        _min_soc: float = self.bats_min_soc + (1 * cs.MIN_DISCHARGE / 100)
+        # calculate the power needed to discharge to the minimum SoC in an hour
+        _min_pwr: float = (self.soc - self.bats_min_soc) * 100
+        if _min_pwr < cs.MIN_DISCHARGE:
+            _min_pwr = 0
         _q3 = self.price["stats"]["q3"]
 
         if self.ev_charging:
@@ -360,7 +364,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # and we don't want to discharge during the expensive timeslots
         # because that would drain the batteries and negatively affect
         # solar availability for the EV charger.
-        # winterstand forces behaviour of a non-sunny day when true
+        # winterstand forces behaviour to a non-sunny day when true
         if (
             (self.datum["sunny"] and not self.winterstand)
             and (self.soc > _min_soc)
@@ -390,8 +394,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.log(_l)
             case 1:
                 _l = "Greedy for DISCHARGE. But too low SoC."
-                if (self.prv_stance == cs.DISCHARGE and self.soc > self.bats_min_soc) or (self.soc > _min_soc):
-                    _l = "Greedy for DISCHARGE. Requesting DISCHARGE stance."
+                if (
+                    self.prv_stance == cs.DISCHARGE
+                    and self.soc > self.bats_min_soc
+                    and _min_pwr > cs.MIN_DISCHARGE
+                ):
+                    # or (self.soc > _min_soc):
+                    _l = f"Greedy for DISCHARGE. Requesting DISCHARGE stance. {_min_pwr:.0f} W available."
                     stance = cs.DISCHARGE
                 self.log(_l)
             case _:
