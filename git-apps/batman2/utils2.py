@@ -61,8 +61,8 @@ def is_sunny_day(datum: dt.date) -> bool:
     """
     year = datum.year
     # Approximate equinox dates (can be adjusted for precision)
-    spring_equinox = dt.date(year, 3, 21)
-    autumn_equinox = dt.date(year, 9, 21)
+    spring_equinox = dt.date(year, 3, 21) + dt.timedelta(days=cs.SPRING_EQUINOX_OFFSET)
+    autumn_equinox = dt.date(year, 9, 21) + dt.timedelta(days=cs.AUTUMN_EQUINOX_OFFSET)
     return spring_equinox <= datum <= autumn_equinox
 
 

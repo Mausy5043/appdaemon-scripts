@@ -52,6 +52,8 @@ BAT_STANCE = ["select.bat1_power_strategy", "select.bat2_power_strategy"]
 # time between setpoint changes when ramping to a new setpoint
 RAMP_RATE = [0.4, 23]  # [growthrate, time between steps]
 WINTERSTAND = "input_boolean.bat_winterstand"
+AUTUMN_EQUINOX_OFFSET = -7  # days to start 'winterstand'
+SPRING_EQUINOX_OFFSET = 0   # days to end 'winterstand'
 
 # make greediness configurable in HA
 GREED_LL = "input_number.greed_ll"
