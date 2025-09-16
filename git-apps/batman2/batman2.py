@@ -420,14 +420,14 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 _cp = (100 - self.soc) * 100 / 2
                 self.step_cnt = self.steps
                 self.log(
-                    f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} (alt. {_cp:.0f} W)"
+                    f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} (alt. {_cp:.0f} Wh)"
                 )
             case cs.DISCHARGE:
                 self.pwr_sp_list = [cs.DISCHARGE_PWR, cs.DISCHARGE_PWR]
                 _cp = (self.bats_min_soc - self.soc) * 100 / 2
                 self.step_cnt = self.steps
                 self.log(
-                    f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} (alt. {_cp:.0f} W)"
+                    f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} (alt. {_cp:.0f} Wh)"
                 )
             case _:
                 self.logf(f"SP: No power setpoints calculated for unknown stance {stance}. ")
