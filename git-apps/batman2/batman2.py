@@ -398,7 +398,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     _min_pwr > cs.MIN_DISCHARGE
                 ):
                     # or (self.soc > _min_soc):
-                    _l = f"Greedy for DISCHARGE. Requesting DISCHARGE stance. {_min_pwr:.0f} W available."
+                    _l = f"Greedy for DISCHARGE. Requesting DISCHARGE stance. {_min_pwr:.0f} Wh available."
                     stance = cs.DISCHARGE
                 self.log(_l)
             case _:
