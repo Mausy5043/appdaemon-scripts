@@ -418,7 +418,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.pwr_sp_list = [0, 0]
                 self.log("SP: No power setpoints. Unit is IDLE. ")
             case cs.CHARGE:
-                _cp = (100 - self.soc) * 100 / -2
+                _cp = int((100 - self.soc) * 100 / -2)
                 _chrgpwr = max(cs.CHARGE_PWR, _cp)
                 self.pwr_sp_list = [_chrgpwr, _chrgpwr]
                 # self.step_cnt = self.steps
@@ -426,7 +426,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} Wh"
                 )
             case cs.DISCHARGE:
-                _dp = (self.bats_min_soc - self.soc) * 100 / -2
+                _dp = int((self.bats_min_soc - self.soc) * 100 / -2)
                 _discpwr = min(cs.DISCHARGE_PWR, _dp)
                 self.pwr_sp_list = [_discpwr, _discpwr]
                 # self.step_cnt = self.steps
