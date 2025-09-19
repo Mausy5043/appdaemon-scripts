@@ -418,20 +418,20 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.pwr_sp_list = [0, 0]
                 self.log("SP: No power setpoints. Unit is IDLE. ")
             case cs.CHARGE:
-                self.pwr_sp_list = [cs.CHARGE_PWR, cs.CHARGE_PWR]
-                _cp = (100 - self.soc) * 100 / 2
-                self.step_cnt = self.steps
+                _cp = (100 - self.soc) * 100 / -2
+                _chrgpwr = max(cs.CHARGE_PWR, _cp)
+                self.pwr_sp_list = [_chrgpwr, _chrgpwr]
+                # self.step_cnt = self.steps
                 self.log(
-                    f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} (alt. {
-                        _cp:.0f} Wh)"
+                    f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} Wh"
                 )
             case cs.DISCHARGE:
-                self.pwr_sp_list = [cs.DISCHARGE_PWR, cs.DISCHARGE_PWR]
-                _cp = (self.bats_min_soc - self.soc) * 100 / 2
-                self.step_cnt = self.steps
+                _dp = (self.bats_min_soc - self.soc) * 100 / -2
+                _discpwr = min(cs.DISCHARGE_PWR, _dp)
+                self.pwr_sp_list = [_discpwr, _discpwr]
+                # self.step_cnt = self.steps
                 self.log(
-                    f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} (alt. {
-                        _cp:.0f} Wh)"
+                    f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} Wh"
                 )
             case _:
                 self.logf(f"SP: No power setpoints calculated for unknown stance {stance}. ")
