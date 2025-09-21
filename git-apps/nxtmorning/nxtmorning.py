@@ -6,8 +6,8 @@ import contextlib
 import datetime as dt
 import statistics as stat
 from functools import partial
-from zoneinfo import ZoneInfo
 from statistics import quantiles as stqu
+from zoneinfo import ZoneInfo
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import astral.sun as astsun
@@ -145,10 +145,16 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         Returns:
             int: median of the historical data"""
         data = []
+        _prev = self.eb_median  # use baseload as initial previous value
         self.log(f"Processing history callback for {hours} hours")
         for _d in history:
             with contextlib.suppress(ValueError):
                 _dstate = float(_d["state"])
+                # due to a mismatch in update intervals of the various kWh-meters we sometimes get negative values
+                # in that case we use the previous value
+                if _dstate <= 0.0:
+                    _dstate = _prev
+                _prev = _dstate
                 data.append(_dstate)
         _mean_data = int(round(stat.fmean(data), 0))
         _median_data = int(round(stat.median(data), 0))
@@ -174,6 +180,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         )
         self.log(f"Statistics own usage past {hours} hours:\n {data_stats}")
         return _median_data
+
 
 def find_time_for_elevation(
     locatie: LocationInfo, datum: dt.date, elevatie: float, tolerance: float = TOLERANCE
