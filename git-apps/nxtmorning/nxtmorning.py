@@ -106,6 +106,11 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             self.log(f"Calculated minimum SoC        : {minimum_soc:.2f} %")
         self.set_state("sensor.bats_minimum_soc", state=minimum_soc, attributes=ATTR_BMS)
 
+    def set_eigen_bedrijf_median(self, value: float):
+        """Update the Home Baseload with the median own usage (eigen bedrijf)."""
+        self.log(f"Setting home baseload: {value:.2f} W")
+        self.set_state(ENTITY_BASELOAD, state=value, attributes=ATTR_BL)
+
     def get_eigen_bedrijf_history(self, hours: float):
         """Request X hours of historical data from 'sensor.eigen_bedrijf'."""
         end_time = dt.datetime.now()
@@ -136,11 +141,6 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             self.eb_median = _median_data
             self.set_bats_minimum_soc()
         self.callback_active = False
-
-    def set_eigen_bedrijf_median(self, value: float):
-        """Update the Home Baseload with the median own usage (eigen bedrijf)."""
-        self.log(f"Setting home baseload: {value:.2f} W")
-        self.set_state(ENTITY_BASELOAD, state=value, attributes=ATTR_BL)
 
 
 def find_time_for_elevation(
