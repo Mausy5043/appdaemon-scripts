@@ -178,7 +178,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             f"Max: {self.usage_stats.get('max', 'N/A'):.3f}, "
             f"IQR: {self.usage_stats.get('iqr', 'N/A'):.3f}"
         )
-        self.log(f"Statistics own usage past {hours} hours:\n \t{data_stats}")
+        self.log(f"Statistics own usage past {hours} hours:\n :\t\t {data_stats}")
         return _median_data
 
 
