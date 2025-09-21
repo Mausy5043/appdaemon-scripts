@@ -422,17 +422,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 _chrgpwr = max(cs.CHARGE_PWR, _cp)
                 self.pwr_sp_list = [_chrgpwr, _chrgpwr]
                 # self.step_cnt = self.steps
-                self.log(
-                    f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} Wh"
-                )
+                self.log(f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} W")
             case cs.DISCHARGE:
                 _dp = int((self.bats_min_soc - self.soc) * 100 / -2)
                 _discpwr = min(cs.DISCHARGE_PWR, _dp)
                 self.pwr_sp_list = [_discpwr, _discpwr]
                 # self.step_cnt = self.steps
-                self.log(
-                    f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} Wh"
-                )
+                self.log(f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} W")
             case _:
                 self.logf(f"SP: No power setpoints calculated for unknown stance {stance}. ")
 
