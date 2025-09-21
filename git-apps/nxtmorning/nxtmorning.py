@@ -7,6 +7,7 @@ import datetime as dt
 import statistics as stat
 from functools import partial
 from zoneinfo import ZoneInfo
+from statistics import quantiles as stqu
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 import astral.sun as astsun
@@ -106,7 +107,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             self.log(f"Calculated minimum SoC        : {minimum_soc:.2f} %")
         self.set_state("sensor.bats_minimum_soc", state=minimum_soc, attributes=ATTR_BMS)
 
-    def set_eigen_bedrijf_median(self, value: float):
+    def set_baseload(self, value: float):
         """Update the Home Baseload with the median own usage (eigen bedrijf)."""
         self.log(f"Setting home baseload: {value:.2f} W")
         self.set_state(ENTITY_BASELOAD, state=value, attributes=ATTR_BL)
@@ -126,22 +127,53 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         # Extract the list of state changes for the sensor
         hours: float = kwargs["hours"]
         history: list = kwargs["result"]
-        data = []
-        for _d in history[0]:
-            with contextlib.suppress(ValueError):
-                _dstate = float(_d["state"])
-                data.append(_dstate)
-        _mean_data: float = int(round(stat.mean(data), 0))
-        _median_data: float = int(round(stat.median(data), 0))
-        self.log(f"Processing history callback for {hours} hours")
-        self.log(f"Mean   own usage past hours   : {_mean_data:.2f} W ")
-        self.log(f"Median own usage past hours   : {_median_data:.2f} W ")
+        _res = self.calc_stats(history[0], hours)
+
         if hours == HISTORY_HOURS:
-            self.set_eigen_bedrijf_median(_median_data)
-            self.eb_median = _median_data
+            self.set_baseload(_res)
+            self.eb_median = _res
             self.set_bats_minimum_soc()
         self.callback_active = False
 
+    def calc_stats(self, history: list, hours: float) -> int:
+        """Calculate various statistics of the historical data.
+
+        Args:
+            history: list of state changes from get_history
+            hours:   number of hours the history covers
+
+        Returns:
+            int: median of the historical data"""
+        data = []
+        self.log(f"Processing history callback for {hours} hours")
+        for _d in history:
+            with contextlib.suppress(ValueError):
+                _dstate = float(_d["state"])
+                data.append(_dstate)
+        _mean_data = int(round(stat.fmean(data), 0))
+        _median_data = int(round(stat.median(data), 0))
+        _q1 = int(round(stqu(data, n=4, method="inclusive")[0], 0))
+        _q3 = int(round(stqu(data, n=4, method="inclusive")[2], 0))
+        self.usage_stats = {
+            "min": int(round(min(data), 0)),
+            "q1": _q1,
+            "med": _median_data,
+            "avg": _mean_data,
+            "q3": _q3,
+            "max": int(round(max(data), 0)),
+            "iqr": _q3 - _q1,
+        }
+        data_stats = (
+            f"Min: {self.usage_stats.get('min', 'N/A'):.3f}, "
+            f"Q1 : {self.usage_stats.get('q1', 'N/A'):.3f}, "
+            f"Med: {self.usage_stats.get('med', 'N/A'):.3f}, "
+            f"Avg: {self.usage_stats.get('avg', 'N/A'):.3f}, "
+            f"Q3 : {self.usage_stats.get('q3', 'N/A'):.3f}, "
+            f"Max: {self.usage_stats.get('max', 'N/A'):.3f}, "
+            f"IQR: {self.usage_stats.get('iqr', 'N/A'):.3f}"
+        )
+        self.log(f"Statistics own usage past {hours} hours:\n {data_stats}")
+        return _median_data
 
 def find_time_for_elevation(
     locatie: LocationInfo, datum: dt.date, elevatie: float, tolerance: float = TOLERANCE
