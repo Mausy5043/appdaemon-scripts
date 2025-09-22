@@ -3,9 +3,9 @@
 # when changing dependencies also check `environment.yml`
 
 [project]
-name = "appdaemon-apps"
+name = "appdaemon-scripts"
 version = "0.0.0"   # rolling release has no version
-description = "AppDaemon apps for Home Assistant"
+description = "AppDaemon scripts for Home Assistant"
 dependencies = [
     "astral",
     "appdaemon",
