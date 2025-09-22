@@ -365,8 +365,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # because that would drain the batteries and negatively affect
         # solar availability for the EV charger.
         # winterstand forces behaviour to a non-sunny day when true
+        _sunny_day: bool = (self.datum["sunny"] and not self.winterstand)
         if (
-            (self.datum["sunny"] and not self.winterstand)
+            _sunny_day
             and (self.soc > _min_soc)
             and (_hr in self.price["expen_slot"])
         ):
@@ -374,7 +375,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             stance = cs.NOM
             self.log(f"Sunny day, expensive hour and  SoC > {_min_soc:.2f}%, but requesting NOM stance.")
         if (
-            (not self.datum["sunny"] or self.winterstand)
+            not _sunny_day
             and (self.soc < self.bats_min_soc or self.prv_stance == cs.CHARGE)
             and (_hr in self.price["cheap_slot"])
         ):
