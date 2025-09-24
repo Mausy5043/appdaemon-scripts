@@ -112,7 +112,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         self.log(f"Setting home baseload: {value:.2f} W")
         self.set_state(ENTITY_BASELOAD, state=value, attributes=ATTR_BL)
 
-    def get_eigen_bedrijf_history(self, hours: float):
+    def get_eigen_bedrijf_history(self, hours: float) -> None:
         """Request X hours of historical data from 'sensor.eigen_bedrijf'."""
         end_time = dt.datetime.now()
         start_time = end_time - dt.timedelta(hours=hours)
@@ -122,8 +122,15 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         self.get_history(entity_id=ENTITY_EB, start_time=start_time, end_time=end_time, callback=_cb)
         self.log(f"Requested {hours:.1f} hours of history for sensor.eigen_bedrijf")
 
-    def get_eigen_bedrijf_history_cb(self, **kwargs):
-        """Callback to process the X-hour history data from 'sensor.eigen_bedrijf'."""
+    def get_eigen_bedrijf_history_cb(self, **kwargs) -> None:
+        """Callback to process the X-hour history data from 'sensor.eigen_bedrijf'.
+
+        Args:
+            kwargs: dict with 'result'
+
+        Returns:
+            None
+        """
         # Extract the list of state changes for the sensor
         hours: float = kwargs["hours"]
         history: list = kwargs["result"]
@@ -145,16 +152,17 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         Returns:
             int: median of the historical data"""
         data = []
-        _prev = self.eb_median  # use baseload as initial previous value
+        # _prev = self.eb_median  # use baseload as initial previous value
+        _dstate: float = self.eb_median
         self.log(f"Processing history callback for {hours} hours")
         for _d in history:
             with contextlib.suppress(ValueError):
+                _prev = _dstate
                 _dstate = float(_d["state"])
                 # due to a mismatch in update intervals of the various kWh-meters we sometimes get negative values
                 # in that case we use the previous value
                 if _dstate <= 0.0:
                     _dstate = _prev
-                _prev = _dstate
                 data.append(_dstate)
         _mean_data = int(round(stat.fmean(data), 0))
         _median_data = int(round(stat.median(data), 0))
@@ -178,8 +186,11 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             f"Max: {self.usage_stats.get('max', 'N/A'):.3f}, "
             f"IQR: {self.usage_stats.get('iqr', 'N/A'):.3f}"
         )
-        self.log(f"Statistics own usage past {hours} hours:\n :\t\t {data_stats}")
-        return _median_data
+        # if avg > Q3 then avg does not represent the baseload (probably caused by EV charging)
+        # if avg < Q3 then pick either median or avg depending on which is bigger.
+        _ret_value = max(_median_data, min(_mean_data, _q3))    # _median_data
+        self.log(f"Statistics own usage past {hours} hours:\n :\t\t {data_stats} => {_ret_value:.0f}")
+        return _ret_value
 
 
 def find_time_for_elevation(
