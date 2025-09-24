@@ -178,13 +178,13 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             "iqr": _q3 - _q1,
         }
         data_stats = (
-            f"Min: {self.usage_stats.get('min', 'N/A'):.3f}, "
-            f"Q1 : {self.usage_stats.get('q1', 'N/A'):.3f}, "
-            f"Med: {self.usage_stats.get('med', 'N/A'):.3f}, "
-            f"Avg: {self.usage_stats.get('avg', 'N/A'):.3f}, "
-            f"Q3 : {self.usage_stats.get('q3', 'N/A'):.3f}, "
-            f"Max: {self.usage_stats.get('max', 'N/A'):.3f}, "
-            f"IQR: {self.usage_stats.get('iqr', 'N/A'):.3f}"
+            f"Min: {self.usage_stats.get('min', 'N/A'):.0f}, "
+            f"Q1 : {self.usage_stats.get('q1', 'N/A'):.0f}, "
+            f"Med: {self.usage_stats.get('med', 'N/A'):.0f}, "
+            f"Avg: {self.usage_stats.get('avg', 'N/A'):.0f}, "
+            f"Q3 : {self.usage_stats.get('q3', 'N/A'):.0f}, "
+            f"Max: {self.usage_stats.get('max', 'N/A'):.0f}, "
+            f"IQR: {self.usage_stats.get('iqr', 'N/A'):.0f}"
         )
         # if avg > Q3 then avg does not represent the baseload (probably caused by EV charging)
         # if avg < Q3 then pick either median or avg depending on which is bigger.
