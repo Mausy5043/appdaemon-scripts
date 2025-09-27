@@ -424,7 +424,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     # EV charges at 5200 W
                     # limit battery charging to 2x1345 W when EV is charging
                     # to keep total below 8000 W (allows for 2kW loads in the house)
-                    self.pwr_sp_list = [1345, 1345]
+                    self.pwr_sp_list = [-1345, -1345]
                     self.log("SP: Reduced power setpoints because EV is charging. ")
                 # self.step_cnt = self.steps
                 self.log(f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} W")
