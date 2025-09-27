@@ -420,6 +420,12 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 _cp = int((100 - self.soc) * 100 / -2)
                 _chrgpwr = max(cs.CHARGE_PWR, _cp)
                 self.pwr_sp_list = [_chrgpwr, _chrgpwr]
+                if self.ev_charging:
+                    # EV charges at 5200 W
+                    # limit battery charging to 2x1345 W when EV is charging
+                    # to keep total below 8000 W (allows for 2kW loads in the house)
+                    self.pwr_sp_list = [1345, 1345]
+                    self.log("SP: Reduced power setpoints because EV is charging. ")
                 # self.step_cnt = self.steps
                 self.log(f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} W")
             case cs.DISCHARGE:
@@ -513,7 +519,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             #     _api = self.bat_ctrl[bat]["api"]
             #     _s = _api.set_strategy(stance.lower())
             #     self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
-            if self.greedy != 0:
+            if self.greedy != 0 or self.ev_charging:
+                # override IDLE stance when prices are very low or EV is charging
                 self.start_nom()
             self.adjust_pwr_sp()
 
