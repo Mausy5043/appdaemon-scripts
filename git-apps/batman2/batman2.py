@@ -365,12 +365,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # because that would drain the batteries and negatively affect
         # solar availability for the EV charger.
         # winterstand forces behaviour to a non-sunny day when true
-        _sunny_day: bool = (self.datum["sunny"] and not self.winterstand)
-        if (
-            _sunny_day
-            and (self.soc > _min_soc)
-            and (_hr in self.price["expen_slot"])
-        ):
+        _sunny_day: bool = self.datum["sunny"] and not self.winterstand
+        if _sunny_day and (self.soc > _min_soc) and (_hr in self.price["expen_slot"]):
             # For now we use NOM to avoid locking out the EV charger.
             stance = cs.NOM
             self.log(f"Sunny day, expensive hour and  SoC > {_min_soc:.2f}%, but requesting NOM stance.")
@@ -396,12 +392,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.log(_l)
             case 1:
                 _l = f"Greedy for DISCHARGE. But too low SoC ({self.soc:.1f} %)."
-                if (
-                    _sunny_day
-                    and (
-                        (self.prv_stance == cs.DISCHARGE and self.soc > self.bats_min_soc)
-                        or (_min_pwr > cs.MIN_DISCHARGE)
-                    )
+                if _sunny_day and (
+                    (self.prv_stance == cs.DISCHARGE and self.soc > self.bats_min_soc)
+                    or (_min_pwr > cs.MIN_DISCHARGE)
                 ):
                     # or (self.soc > _min_soc):
                     _l = f"Greedy for DISCHARGE. Requesting DISCHARGE stance. {_min_pwr:.0f} Wh available."

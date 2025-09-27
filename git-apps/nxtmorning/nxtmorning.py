@@ -188,7 +188,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         )
         # if avg > Q3 then avg does not represent the baseload (probably caused by EV charging)
         # if avg < Q3 then pick either median or avg depending on which is bigger.
-        _ret_value = max(_median_data, min(_mean_data, _q3))    # _median_data
+        _ret_value = max(_median_data, min(_mean_data, _q3))  # _median_data
         self.log(f"Statistics own usage past {hours} hours:\n :\t\t {data_stats} => {_ret_value:.0f}")
         return _ret_value
 
