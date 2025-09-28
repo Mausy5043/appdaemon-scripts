@@ -47,6 +47,10 @@ PV_CURRENT_MAX = 23.5  # A;abs
 PV_VOLTAGE = "sensor.pv_kwh_meter_voltage"
 # power reading HomeWizard meter on PV
 PV_POWER = "sensor.pv_kwh_meter_power"
+# detect low PV export/import values
+LOW_PV = "binary_sensor.lowpv"
+# power reading HomeWizard meter on PV
+PV_POWER = "sensor.pv_kwh_meter_power"
 BATTERIES = ["sensor.bat1_state_of_charge", "sensor.bat2_state_of_charge"]
 SETPOINTS = ["number.bat1_power_setpoint", "number.bat2_power_setpoint"]
 BAT_XOM_SP = "number.sessy_p1_grid_target"
