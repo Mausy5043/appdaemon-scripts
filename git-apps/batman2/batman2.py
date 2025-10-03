@@ -294,11 +294,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.log(
                 f"Today's pricelist           =  {
                     [f'{n:.3f}' for n in self.price['today']]
-                }\n                                       : cheap slots                 = [{
+                }\n                : cheap slots                 = [{
                     ', '.join(f'{v / 4:.2f}' for v in self.price['cheap_slot'])
-                }]\n                                       : expensive slots             = [{
+                }]\n               : expensive slots             = [{
                     ', '.join(f'{v / 4:.2f}' for v in self.price['expen_slot'])
-                }]\n                                       : STATISTICS\n :                {
+                }]\n               : STATISTICS\n :                {
                     self.price['stats']['text']
                 }"
             )
