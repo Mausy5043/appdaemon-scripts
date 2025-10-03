@@ -264,9 +264,12 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # make a list of the cheap and expensive hours
         _cslot = cs.SLOTS[0] * -1
         _dslot = cs.SLOTS[1]
+        _div = 1
         if self.tibber_quarters:
-            _cslot *= 4
-            _dslot *= 4
+            _div = 4
+
+        _cslot *= _div
+        _dslot *= _div
         charge_today = ut.sort_index(_p, rev=True)[_cslot:]
         discharge_today = ut.sort_index(_p, rev=True)[:_dslot]
         charge_today.sort()
@@ -291,9 +294,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 f"Today's pricelist           =  {
                     [f'{n:.3f}' for n in self.price['today']]
                 }\n                                       : cheap slots                 = {
-                    self.price['cheap_slot']
+                    self.price['cheap_slot'] / _div
                 }\n                                       : expensive slots             = {
-                    self.price['expen_slot']
+                    self.price['expen_slot'] / _div
                 }\n                                       : STATISTICS\n :                {
                     self.price['stats']['text']
                 }"
