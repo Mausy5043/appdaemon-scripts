@@ -95,11 +95,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.GREED_HH))
         # low PV
         self.callback_handles.append(
-            self.listen_state(
-                self.watchdog_cb,
-                cs.LOW_PV,
-                duration=dt.timedelta(seconds=60)
-            )
+            self.listen_state(self.watchdog_cb, cs.LOW_PV, duration=dt.timedelta(seconds=60))
         )
 
     def update_price_states(self) -> None:
