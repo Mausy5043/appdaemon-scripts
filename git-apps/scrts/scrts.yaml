@@ -6,6 +6,7 @@ scrts:
   # Tibber API
   tibber_token: !secret tibber_token
   tibber_url: !secret tibber_url
+  tibber_price_sensor: !secret tibber_price_sensor
   # Sessy API
   # URL  = "http://0.0.0.0" of "http://sessy-BAT1.local"
   # AUTH = "XXXXXXXX.YYYYYYYY"; XXXXXXXX=username, YYYYYYYY=password
