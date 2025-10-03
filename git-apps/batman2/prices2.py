@@ -149,6 +149,5 @@ def price_statistics(prices: list) -> dict:
         f"Q3 : {price_stats.get('q3', 'N/A'):.3f}, "
         f"Max: {price_stats.get('max', 'N/A'):.3f}, "
         f"Range: {price_stats.get('range', 'N/A'):.3f}"
-        f"  -  N={len(prices)}"
     )
     return price_stats
