@@ -74,8 +74,10 @@ PRICES: dict = {
         "list": "attributes",
     },
     "adjust": {"hike": 0.021, "extra": 2.0, "taxes": 10.15, "btw": 1.21},
-    "qry_now": "{viewer {homes {currentSubscription { priceInfo {today      { total energy tax startsAt } } } } } }",
-    "qry_nxt": "{viewer {homes {currentSubscription { priceInfo {tomorrow   { total energy tax startsAt } } } } } }",
+    "qry_now": "{viewer {homes {currentSubscription { priceInfo(resolution: QUARTER_HOURLY) {today      { total energy tax startsAt } } } } } }",
+    "qry_nxt": "{viewer {homes {currentSubscription { priceInfo(resolution: QUARTER_HOURLY) {tomorrow   { total energy tax startsAt } } } } } }",
+    # "qry_now": "{viewer {homes {currentSubscription { priceInfo {today      { total energy tax startsAt } } } } } }",
+    # "qry_nxt": "{viewer {homes {currentSubscription { priceInfo {tomorrow   { total energy tax startsAt } } } } } }",
 }
 
 # create translation table between battery strategies and battalk stances
