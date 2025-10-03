@@ -294,9 +294,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 f"Today's pricelist           =  {
                     [f'{n:.3f}' for n in self.price['today']]
                 }\n                                       : cheap slots                 = {
-                    self.price['cheap_slot'] / _div
+                    self.price['cheap_slot']
                 }\n                                       : expensive slots             = {
-                    self.price['expen_slot'] / _div
+                    self.price['expen_slot']
                 }\n                                       : STATISTICS\n :                {
                     self.price['stats']['text']
                 }"
