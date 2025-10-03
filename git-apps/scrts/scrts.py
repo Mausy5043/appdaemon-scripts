@@ -33,6 +33,17 @@ class Secrets(hass.Hass):  # type: ignore[misc]
             self.log("**** Empty 'tibber_url' found in args", level="ERROR")
         return _url
 
+    def get_tibber_sensor(self) -> str:
+        """Get the Tibber price sensor from the secrets.yaml."""
+        _url: str = ""
+        if "tibber_price_sensor" not in self.args:
+            self.log("*** No 'tibber_price_sensor' found in args", level="ERROR")
+            return "NO_SENSOR_FOUND"
+        _url = self.args["tibber_price_sensor"]
+        if not _url:
+            self.log("**** Empty 'tibber_price_sensor' found in args", level="ERROR")
+        return _url
+
     def get_sessy_secrets(self, battery: str) -> dict[str, str]:
         """Get the Sessy API info from the secrets.yaml."""
         _url: str = ""
