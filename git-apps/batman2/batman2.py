@@ -30,6 +30,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.new_stance: str = cs.DEFAULT_STANCE
         self.prv_stance: str = cs.DEFAULT_STANCE
         self.tibber_prices: dict[str, float] = {}
+        self.tibber_sensor: str = self.secrets.get_tibber_sensor()
         self.tibber_quarters: bool = False  # whether the Tibber prices are quarterly or not
         self.price: dict = {
             "today": [],
@@ -74,8 +75,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # TODO: Callback at the top of the hour to catch hours that have the same price.
         self.callback_handles.append(
             self.listen_state(
-                self.price_current_cb,
-                cs.PRICES["entity"],
+                callback=self.price_current_cb,
+                entity_id=self.tibber_sensor,
                 attribute=cs.PRICES["attr"]["now"],
                 duration=10,
             )
