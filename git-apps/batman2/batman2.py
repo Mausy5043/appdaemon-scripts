@@ -570,7 +570,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.tibber_quarters:
             # callback will be either on the hour or on the quarter
             _mul = 4
-            _qrtr: int = int(round(dt.datetime.now().minute / 15) * 15)
+            _qrtr: int = int(dt.datetime.now().minute // 15) * 15
         return (float(_hr) + float(_qrtr) / 60.0) * _mul
 
     def is_expensive(self, slot:float) -> bool:
