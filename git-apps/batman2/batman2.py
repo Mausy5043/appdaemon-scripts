@@ -550,11 +550,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     # SECRETS
 
-    def get_tibber(self) -> tuple[str, str]:
-        """Get the Tibber token and URL from the secrets."""
-        _scrt = self.secrets.get_tibber_token()
-        _url = self.secrets.get_tibber_url()
-        return _scrt, _url
+    # def get_tibber(self) -> tuple[str, str]:
+    #     """Get the Tibber token and URL from the secrets."""
+    #     _scrt = self.secrets.get_tibber_token()
+    #     _url = self.secrets.get_tibber_url()
+    #     return _scrt, _url
 
     def get_bats(self):
         """Get the battery credentials from the secrets."""
