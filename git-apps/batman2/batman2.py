@@ -15,7 +15,7 @@ Listen to changes in the battery state and control the charging/discharging base
 class BatMan2(hass.Hass):  # type: ignore[misc]
     def initialize(self):
         """Initialize the app."""
-        self.log(f"===================================== BatMan2 v{cs.VERSION} ====")
+        self.log(f"===================================== BatMan2 v{cs.VERSION} ====", level="INFO")
         # Keep track of active callbacks
         self.starting = True
         self.callback_handles: list[Any] = []
@@ -67,7 +67,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # update monitors with actual data
         self.update_price_states()
 
-        self.log("BatMan2 is running...")
+        self.log("BatMan2 is running...", level="INFO")
         self.starting = False
 
     def set_call_backs(self) -> None:
@@ -113,7 +113,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             try:
                 _soc = float(_s)
             except ValueError:
-                self.log(f"*** Invalid SoC value for {bat}: {_s}. Setting to 0.0")
+                self.log(f"*** Invalid SoC value for {bat}: {_s}. Setting to 0.0", level="ERROR")
                 _soc = 0.0
             soc_list.append(_soc)
         soc_now: float = sum(soc_list) / len(soc_list)
@@ -128,7 +128,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             try:
                 _setpoint = int(_sp)
             except ValueError:
-                self.log(f"*** Invalid setpoint value for {bat}: {_sp}. Setting to 0")
+                self.log(f"*** Invalid setpoint value for {bat}: {_sp}. Setting to 0", level="ERROR")
                 _setpoint = 0
             pwr_list.append(_setpoint)
 
@@ -147,36 +147,36 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def update_states(self):
         """Update internal states based on current conditions."""
-        self.log("---------------------------   ------------------------")
+        self.log("---------------------------   ------------------------", level="DEBUG")
         # update the calendar/season info
         self.datum = ut.get_these_days()
         # minimum SoC required to provide power until next morning
         _bms: Any = self.get_state(cs.BAT_MIN_SOC)
         self.bats_min_soc = float(_bms)
-        self.log(f"BAT minimum SoC             = {self.bats_min_soc:8.1f}  %")
+        self.log(f"BAT minimum SoC             = {self.bats_min_soc:8.1f}  %", level="DEBUG")
         # get current SoC
         self.soc, self.soc_list = self.get_soc()
-        self.log(f"BAT current SoC             = {self.soc:8.1f}  %  <- {self.soc_list}")
+        self.log(f"BAT current SoC             = {self.soc:8.1f}  %  <- {self.soc_list}", level="DEBUG")
         # get battery power setpoints
         self.pwr_sp_list = self.get_pwr_sp()
         _ssp = sum(self.pwr_sp_list)
-        self.log(f"BAT actual setpoints        = {_ssp:+6.0f}    W  <- {self.pwr_sp_list}")
+        self.log(f"BAT actual setpoints        = {_ssp:+6.0f}    W  <- {self.pwr_sp_list}", level="DEBUG")
         # get battery power stances
         self.stance_list = self.get_bat_strat()
-        self.log(f"BAT current stance          = {self.stance_list}")
+        self.log(f"BAT current stance          = {self.stance_list}", level="DEBUG")
         # get PV current and power values
         _pvc: Any = self.get_state(cs.PV_CURRENT)
         self.pv_current = float(_pvc)
-        self.log(f"PV actual current           = {self.pv_current:9.2f} A")
+        self.log(f"PV actual current           = {self.pv_current:9.2f} A", level="DEBUG")
         _pvv: Any = self.get_state(cs.PV_VOLTAGE)
         self.pv_volt = int(float(_pvv))
-        self.log(f"PV actual voltage           = {self.pv_volt:9.2f} V")
-        self.log(f"PV calculated power (I x U) = {(self.pv_current * self.pv_volt):8.1f}  W")
+        self.log(f"PV actual voltage           = {self.pv_volt:9.2f} V", level="DEBUG")
+        self.log(f"PV calculated power (I x U) = {(self.pv_current * self.pv_volt):8.1f}  W", level="DEBUG")
         _pvp: Any = self.get_state(cs.PV_POWER)
         self.pv_power = int(float(_pvp))
         # fmt: off
         self.log(
-            f"PV actual power             = {self.pv_power:+6.0f}    W  (delta={abs(abs(self.pv_power) - (self.pv_current * self.pv_volt)):.0f})"
+            f"PV actual power             = {self.pv_power:+6.0f}    W  (delta={abs(abs(self.pv_power) - (self.pv_current * self.pv_volt)):.0f})", level="DEBUG"
         )
         # fmt: on
         # check if we are greedy (price must have been updated already!)
@@ -193,54 +193,56 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 _s = "greedy for DISCHARGE"
             case _:
                 _s = "NOT greedy"
-        self.log(f"Greed                       =  {_s}  ({self.greedy_ll:.1f} / {self.greedy_hh:.1f})")
+        self.log(
+            f"Greed                       =  {_s}  ({self.greedy_ll:.1f} / {self.greedy_hh:.1f})", level="DEBUG"
+        )
         # check whether the EV is currently charging
         _evc: Any = self.get_state(cs.EV_REQ_PWR)
         self.ev_charging = False
         if str(_evc) == "on":
             self.ev_charging = True
-        self.log(f"EV charging                 =  {str(_evc).upper()}")
+        self.log(f"EV charging                 =  {str(_evc).upper()}", level="DEBUG")
         # check if we are going to assist the EV
         self.ev_assist = cs.EV_ASSIST
         if self.price["now"] > self.price["stats"]["q3"]:
             self.ev_assist = True
-            self.log("EV assist                   =  ENABLED")
+            self.log("EV assist                   =  ENABLED", level="INFO")
         else:
-            self.log("EV assist                   =  DISABLED")
+            self.log("EV assist                   =  DISABLED", level="DEBUG")
         # check if we are allowed to control the batteries
         _ctrl: Any = self.get_state(cs.CTRL_BY_ME)
         self.ctrl_by_me = False
         if str(_ctrl) == "on":
             self.ctrl_by_me = True
-            self.log("Control by app              =  ENABLED")
+            self.log("Control by app              =  ENABLED", level="DEBUG")
         else:
-            self.log("Control by app              =  DISABLED")
+            self.log("Control by app              =  DISABLED", level="INFO")
         # winterstand
         self.winterstand = False
         if self.get_state(cs.WINTERSTAND) == "on":
             self.winterstand = True
         if self.winterstand:
-            self.log("Winterstand                 =  ENABLED")
+            self.log("Winterstand                 =  ENABLED", level="INFO")
         else:
-            self.log("Winterstand                 =  DISABLED")
+            self.log("Winterstand                 =  DISABLED", level="DEBUG")
 
     def update_tibber_prices(self) -> None:
         self.tibber_prices = p2.get_pricedict(
             token=self.secrets.get_tibber_token(), url=self.secrets.get_tibber_url()
         )
-        self.log(f"Updated Tibber prices: {len(self.tibber_prices)} prices received.")
+        self.log(f"Updated Tibber prices: {len(self.tibber_prices)} prices received.", level="DEBUG")
         self.tibber_quarters = False
         if len(self.tibber_prices) == 96:
             self.tibber_quarters = True
 
     def terminate(self) -> None:
         """Clean up app."""
-        self.log("__Terminating BatMan2...")
+        self.log("__Terminating BatMan2...", level="INFO")
         # Cancel all registered callbacks
         for handle in self.callback_handles:
             self.cancel_listen_state(handle)
         self.callback_handles.clear()
-        self.log("__...terminated BatMan2.")
+        self.log("__...terminated BatMan2.", level="INFO")
 
     # CALLBACKS
 
@@ -289,7 +291,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.price_diff = _pt - self.price["stats"]["min"]
         # log the current price
         if self.debug:
-            self.log(f"Current Tibber price        = {_pt:+.3f} ({self.price_diff:.3f})")
+            self.log(f"Current Tibber price        = {_pt:+.3f} ({self.price_diff:.3f})", level="DEBUG")
         if self.debug and ((_qr == 0 and _hr == 0) or self.starting):
             self.log(
                 f"Today's pricelist           =  {
@@ -298,9 +300,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     ', '.join(f'{v / 4:.2f}' for v in self.price['cheap_slot'])
                 }]\n               : expensive slots             = [{
                     ', '.join(f'{v / 4:.2f}' for v in self.price['expen_slot'])
-                }]\n               : STATISTICS\n :                {
-                    self.price['stats']['text']
-                }"
+                }]\n               : STATISTICS\n :                {self.price['stats']['text']}",
+                level="INFO",
             )
 
         # determine the new stance ...
@@ -310,7 +311,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
-        self.log(f"*** Watchdog triggered by {entity} ({attribute}) change: {old} -> {new}")
+        self.log(f"*** Watchdog triggered by {entity} ({attribute}) change: {old} -> {new}", level="INFO")
         # watchdog changes are not immediate, so we callback watchdog_runin_cb() after N seconds
         # to allow the system to stabilize
         self.run_in(self.watchdog_runin_cb, 2, entity=entity, attribute=attribute, old=old, new=new)
@@ -323,7 +324,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # ... and set it
         self.set_stance()
         # Log the current stance
-        self.log(f"Current stance              =  {self.new_stance}")
+        self.log(f"Current stance              =  {self.new_stance}", level="DEBUG")
 
     def ramp_sp_runin_cb(self, entity, attribute, old, new, **kwargs):
         self.ramp_sp()
@@ -333,13 +334,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def calc_stance(self):
         """Choose the current stance based on the current price and battery state
         and determine the battery power setpoint."""
-        self.log("=========================== ! ========================")
+        self.log("=========================== ! ========================", level="DEBUG")
         stance: str = self.new_stance
         self.prv_stance = self.new_stance  # Keep the current stance
-        self.log(f"Previous stance was: {self.prv_stance}")
+        self.log(f"Previous stance was: {self.prv_stance}", level="DEBUG")
         if self.ctrl_by_me is False:
             # we are switched off
-            self.log("*** Control by app is disabled. No stance change! ***")
+            self.log("*** Control by app is disabled. No stance change! ***", level="WARNING")
             return
 
         _hr: int = dt.datetime.now().hour
@@ -363,7 +364,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.log(
                     f"EV is charging and price is above Q3 ({_q3:.3f}), but proposing to keep stance ({
                         stance
-                    })."
+                    }).",
+                    level="DEBUG",
                 )
         else:
             stance = cs.NOM  # default stance is NOM
@@ -377,7 +379,10 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if _sunny_day and (self.soc > _min_soc) and (_hr in self.price["expen_slot"]):
             # For now we use NOM to avoid locking out the EV charger.
             stance = cs.NOM
-            self.log(f"Sunny day, expensive hour and  SoC > {_min_soc:.2f}%, but requesting NOM stance.")
+            self.log(
+                f"Sunny day, expensive hour and  SoC > {_min_soc:.2f}%, but requesting NOM stance.",
+                level="INFO",
+            )
         if (
             not _sunny_day
             and (self.soc < self.bats_min_soc or self.prv_stance == cs.CHARGE)
@@ -385,7 +390,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         ):
             # this is supposed to charge the battery during the cheap hours in winter mimicking the ECO-mode
             self.log(
-                f"Non-sunny day, cheap hour {_hr} and SoC < {self.bats_min_soc:.2f}%, so requesting CHARGE stance."
+                f"Non-sunny day, cheap hour {_hr} and SoC < {self.bats_min_soc:.2f}%, so requesting CHARGE stance.",
+                level="INFO",
             )
             stance = cs.CHARGE
 
@@ -413,17 +419,17 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
         self.new_stance = stance
         self.calc_pwr_sp(self.new_stance)
-        self.log("======================================================")
+        self.log("======================================================", level="DEBUG")
 
     def calc_pwr_sp(self, stance):
         """Calculate the power setpoints for the current stance."""
         match stance:
             case cs.NOM:
                 self.pwr_sp_list = [0, 0]
-                self.log("SP: No action required. Unit is in control (NOM).")
+                self.log("SP: No action required. Unit is in control (NOM).", level="DEBUG")
             case cs.IDLE:
                 self.pwr_sp_list = [0, 0]
-                self.log("SP: No power setpoints. Unit is IDLE. ")
+                self.log("SP: No power setpoints. Unit is IDLE. ", level="DEBUG")
             case cs.CHARGE:
                 _cp = int((100 - self.soc) * 100 / -2)
                 _chrgpwr = max(cs.CHARGE_PWR, _cp)
@@ -435,17 +441,23 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     # SP on P1 (grid target) = 5200 + 2690 = 7890 W
                     # SP on each battery = -3945 W
                     self.pwr_sp_list = [-3945, -3945]
-                    self.log("SP: Reduced power setpoints because EV is charging. ")
+                    self.log("SP: Reduced power setpoints because EV is charging. ", level="INFO")
                 # self.step_cnt = self.steps
-                self.log(f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} W")
+                self.log(
+                    f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} W",
+                    level="INFO",
+                )
             case cs.DISCHARGE:
                 _dp = int((self.bats_min_soc - self.soc) * 100 / -2)
                 _discpwr = min(cs.DISCHARGE_PWR, _dp)
                 self.pwr_sp_list = [_discpwr, _discpwr]
                 # self.step_cnt = self.steps
-                self.log(f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} W")
+                self.log(
+                    f"SP: Power setpoints calculated for {stance} stance: {self.pwr_sp_list} W",
+                    level="INFO",
+                )
             case _:
-                self.logf(f"SP: No power setpoints calculated for unknown stance {stance}. ")
+                self.logf(f"SP: No power setpoints calculated for unknown stance {stance}. ", level="ERROR")
 
     def adjust_pwr_sp(self):
         """Control each battery to the desired power setpoint."""
@@ -470,7 +482,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     _s: dict | str = _api.set_xom_setpoint(xom_sp)
                 except Exception as her:
                     _s = f"UNSUCCESFULL: {her}"
-                self.log(f"Set XOM SP to ............... {xom_sp:+.0f} W  {_s}")
+                self.log(f"Set XOM SP to ............... {xom_sp:+.0f} W  {_s}", level="INFO")
 
     def set_stance(self):
         """Set the current stance based on the current state."""
@@ -490,7 +502,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             case cs.DISCHARGE:
                 self.start_discharge()
             case _:
-                self.log(f"*** Unknown stance: {self.new_stance}. Switching to NOM.")
+                self.log(f"*** Unknown stance: {self.new_stance}. Switching to NOM.", level="ERROR")
                 self.start_nom()
 
     def start_nom(self):
@@ -504,7 +516,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 if bat != "p1":
                     _api = self.bat_ctrl[bat]["api"]
                     _s = _api.set_strategy(stance.lower())
-                    self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
+                    self.log(f"Sent {bat} to {stance:>4} ........... {_s}", level="DEBUG")
 
     def start_idle(self):
         """Start the IDLE stance."""
@@ -517,7 +529,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 if bat != "p1":
                     _api = self.bat_ctrl[bat]["api"]
                     _s = _api.set_strategy(stance.lower())
-                    self.log(f"Sent {bat} to {stance:>4} ........... {_s}")
+                    self.log(f"Sent {bat} to {stance:>4} ........... {_s}", level="DEBUG")
 
     def start_charge(self, power: int = cs.CHARGE_PWR):
         """Start the API- stance."""
