@@ -264,7 +264,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.price["today"] = _p
         self.price["stats"] = p2.price_statistics(_p)
 
-        # make a list of the cheap and expensive hours
+        # make a list of the cheap and expensive slots
         _cslot = cs.SLOTS[0] * -1
         _dslot = cs.SLOTS[1]
         _div = 1
@@ -291,7 +291,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.price_diff = _pt - self.price["stats"]["min"]
         # log the current price
         if self.debug:
-            self.log(f"Current Tibber price        = {_pt:+.3f} ({self.price_diff:.3f})", level="DEBUG")
+            self.log(f"Current Tibber price        = {_pt:+.3f} ({self.price_diff:.3f})", level="INFO")
         if self.debug and ((_qr == 0 and _hr == 0) or self.starting):
             self.log(
                 f"Today's pricelist           =  {
@@ -376,7 +376,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # solar availability for the EV charger.
         # winterstand forces behaviour to a non-sunny day when true
         _sunny_day: bool = self.datum["sunny"] and not self.winterstand
-        if _sunny_day and (self.soc > _min_soc) and (_hr in self.price["expen_slot"]):
+        if _sunny_day and (self.soc > _min_soc) and (self.is_expensive(self.get_slot())):
             # For now we use NOM to avoid locking out the EV charger.
             stance = cs.NOM
             self.log(
@@ -386,7 +386,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if (
             not _sunny_day
             and (self.soc < self.bats_min_soc or self.prv_stance == cs.CHARGE)
-            and (_hr in self.price["cheap_slot"])
+            and (self.is_cheap(self.get_slot()))
         ):
             # this is supposed to charge the battery during the cheap hours in winter mimicking the ECO-mode
             self.log(
@@ -559,6 +559,26 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             if self.greedy != 0:
                 self.start_nom()
             self.adjust_pwr_sp()
+
+    def get_slot(self) -> float:
+        """Get the current slot."""
+        _hr: int = dt.datetime.now().hour
+        _qrtr: int = 0
+        _mul = 1
+        if self.tibber_quarters:
+            # callback will be either on the hour or on the quarter
+            _mul = 4
+            _qrtr: int = int(round(dt.datetime.now().minute / 15) * 15)
+        return (float(_hr) + float(_qrtr) / 60.0) * _mul
+
+    def is_expensive(self, slot:float) -> bool:
+        """Check if the current slot is in the list of expensive slots."""
+        return slot in self.price["expen_slot"]
+
+    def is_cheap(self, slot:float|int) -> bool:
+        """Check if the current slot is in the list of cheap slots."""
+        return slot in self.price["cheap_slot"]
+
 
     # SECRETS
 
