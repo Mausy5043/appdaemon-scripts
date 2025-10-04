@@ -291,8 +291,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.price_diff = _pt - self.price["stats"]["min"]
         # log the current price
         if self.debug:
+            _slot = self.get_slot()
             self.log(f"Current Tibber price        = {_pt:+.3f} ({self.price_diff:.3f})", level="INFO")
-            self.log(f"Current time slot           =  {self.get_slot():.2f}", level="INFO")
+            self.log(f"Current time slot           =  {_slot:.0f} ({_slot/4:.2f})", level="INFO")
         if self.debug and ((_qr == 0 and _hr == 0) or self.starting):
             self.log(
                 f"Today's pricelist           =  {
