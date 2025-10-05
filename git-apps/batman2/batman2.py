@@ -337,12 +337,12 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def lowpv_runin_cb(self, entity, new, **kwargs):
         """Handle low PV condition changes."""
-        self.log(f"*** Activity triggered by {entity} -> {new}", level="INFO")
         match str(new):
             case "on" | "off":
                 # Only update if state actually changes
                 new_state = new == "on"
                 if new_state != self.low_pv:
+                    self.log(f"*** Activity triggered by {entity} -> {new}", level="INFO")
                     self.low_pv = new_state
                     # Set power based on state: 100W each when low PV, 0W when normal
                     self.pwr_sp_list = [100, 100] if self.low_pv else [0, 0]
