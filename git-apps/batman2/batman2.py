@@ -115,9 +115,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def update_price_states(self) -> None:
         """Get current states for prices by calling the callback directly"""
-        self.price_current_cb(
-            "entity", "list", "none", self.get_state(cs.PRICES["entity"], attribute=cs.PRICES["attr"]["now"])
-        )
+        self.price_current_cb()
+        # "entity", "list", "none", self.get_state(cs.PRICES["entity"], attribute=cs.PRICES["attr"]["now"]) )
 
     def get_soc(self) -> tuple[float, list[float]]:
         """Get current state of charge (SoC) for all batteries."""
