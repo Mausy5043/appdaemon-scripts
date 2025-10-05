@@ -293,7 +293,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.debug:
             _slot = self.get_slot()
             self.log(f"Current Tibber price        = {_pt:+.3f} ({self.price_diff:.3f})", level="INFO")
-            self.log(f"Current time slot           =  {_slot:.0f} ({_slot/4:.2f})", level="INFO")
+            self.log(f"Current time slot           =  {_slot:.0f} ({_slot / 4:.2f})", level="INFO")
         if self.debug and ((_qr == 0 and _hr == 0) or self.starting):
             self.log(
                 f"Today's pricelist           =  {
@@ -573,14 +573,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             _qrtr: int = int(dt.datetime.now().minute // 15) * 15
         return (float(_hr) + float(_qrtr) / 60.0) * _mul
 
-    def is_expensive(self, slot:float) -> bool:
+    def is_expensive(self, slot: float) -> bool:
         """Check if the current slot is in the list of expensive slots."""
         return slot in self.price["expen_slot"]
 
-    def is_cheap(self, slot:float|int) -> bool:
+    def is_cheap(self, slot: float) -> bool:
         """Check if the current slot is in the list of cheap slots."""
         return slot in self.price["cheap_slot"]
-
 
     # SECRETS
 
