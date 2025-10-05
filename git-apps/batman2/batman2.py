@@ -73,16 +73,27 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def set_call_backs(self) -> None:
         """Set-up callbacks for price changes and watchdogs."""
-        # TODO: Callback at the top of the hour to catch hours that have the same price.
-
         # Set-up callback for 10s after a price change
+        # self.callback_handles.append(
+        #     self.listen_state(
+        #         callback=self.price_current_cb,
+        #         entity_id=self.tibber_sensor,
+        #         attribute=cs.PRICES["attr"]["now"],
+        #         duration=10,
+        #     )
+        # )
+        # Callback at the top of the slot to catch slots that have the same price.
+        now = dt.datetime.now()
+        quarter = 15
+        minutes = (now.minute // quarter + 1) * quarter
+        next_quarter = now.replace(minute=0, second=0, microsecond=0) + dt.timedelta(minutes=minutes, seconds=20)
+        self.log(f"Next quarter callback       = {next_quarter.strftime("%Y-%m-%d %H:%M:%S")}", level="INFO")
         self.callback_handles.append(
-            self.listen_state(
+            self.run_every(
                 callback=self.price_current_cb,
-                entity_id=self.tibber_sensor,
-                attribute=cs.PRICES["attr"]["now"],
-                duration=10,
-            )
+                start=next_quarter,
+                interval=cs.PRICES["update_interval"],
+                )
         )
         # Set-up callbacks for watchdog changes
         # EV starts charging
