@@ -3,7 +3,7 @@
 from typing import Any
 
 # ### GENERAL SETTINGS ### #
-VERSION = "2.2.2"
+VERSION = "2.3.4"
 # debugging mode
 DEBUG = True
 # timezone for the app
