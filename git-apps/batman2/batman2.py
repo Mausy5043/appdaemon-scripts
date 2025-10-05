@@ -260,7 +260,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     # CALLBACKS
 
-    def price_current_cb(self, entity, attribute, old, new, **kwargs) -> None:
+    # def price_current_cb(self, entity, attribute, old, new, **kwargs) -> None:
+    def price_current_cb(self, **kwargs) -> None:
         """Callback for current price change."""
         # update dates
         self.datum = ut.get_these_days()
