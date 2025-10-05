@@ -364,7 +364,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.log("*** Control by app is disabled. No stance change! ***", level="WARNING")
             return
 
-        _hr: int = dt.datetime.now().hour
         # calculate the SoC needed to be able to discharge for at least a whole hour.
         _min_soc: float = self.bats_min_soc + (1 * cs.MIN_DISCHARGE / 100)
         # calculate the power needed to discharge to the minimum SoC in an hour
