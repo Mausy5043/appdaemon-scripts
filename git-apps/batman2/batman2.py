@@ -336,8 +336,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.log(f"*** Activity triggered by {entity} -> {new}", level="INFO")
         match str(new):
             case "on":
-                # low PV detected, so we set a XOM setpoint of -200 W
-                self.pwr_sp_list = [-100, -100]
+                # low PV detected, so we set a XOM setpoint of 200 W
+                self.pwr_sp_list = [100, 100]
             case "off":
                 # low PV is gone, so we reset the XOM setpoint to 0 W
                 self.pwr_sp_list = [0, 0]
