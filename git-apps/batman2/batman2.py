@@ -48,6 +48,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.pv_current: float = 0.0  # A; used to monitor PV overcurrent
         self.pv_volt: float = 0.0  # V; used to control PV current
         self.pv_power: int = 0  # W
+        self.low_pv = False  # whether low PV has been detected
         self.soc: float = 0.0  # % average state of charge
         self.soc_list: list[float] = [0.0, 0.0]  # %; state of charge for each battery
         self.pwr_sp_list: list[int] = [0, 0]  # W; power setpoints of batteries
@@ -73,6 +74,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     def set_call_backs(self) -> None:
         """Set-up callbacks for price changes and watchdogs."""
         # TODO: Callback at the top of the hour to catch hours that have the same price.
+
+        # Set-up callback for 10s after a price change
         self.callback_handles.append(
             self.listen_state(
                 callback=self.price_current_cb,
@@ -94,7 +97,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.GREED_LL))
         # maximum greed
         self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.GREED_HH))
-        # low PV
+        # low PV continuously for 60s
         self.callback_handles.append(
             self.listen_state(self.watchdog_cb, cs.LOW_PV, duration=dt.timedelta(seconds=60))
         )
@@ -336,15 +339,20 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.log(f"*** Activity triggered by {entity} -> {new}", level="INFO")
         match str(new):
             case "on":
-                # low PV detected, so we set a XOM setpoint of 200 W
-                self.pwr_sp_list = [100, 100]
+                if self.low_pv is False:
+                    # low PV detected, so we set a XOM setpoint of 200 W
+                    self.low_pv = True
+                    self.pwr_sp_list = [100, 100]
+                    self.adjust_pwr_sp()
             case "off":
-                # low PV is gone, so we reset the XOM setpoint to 0 W
-                self.pwr_sp_list = [0, 0]
+                if self.low_pv is True:
+                    # low PV is gone, so we reset the XOM setpoint to 0 W
+                    self.low_pv = False
+                    self.pwr_sp_list = [0, 0]
+                    self.adjust_pwr_sp()
             case _:
                 self.log(f"*** Invalid value for {entity}: {new}. No action taken.", level="ERROR")
                 # don't change self.pwr_sp_list
-        self.adjust_pwr_sp()
 
     # CONTROL LOGIC
 
