@@ -336,23 +336,19 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.log(f"Current stance              =  {self.new_stance}", level="DEBUG")
 
     def lowpv_runin_cb(self, entity, new, **kwargs):
+        """Handle low PV condition changes."""
         self.log(f"*** Activity triggered by {entity} -> {new}", level="INFO")
         match str(new):
-            case "on":
-                if self.low_pv is False:
-                    # low PV detected, so we set a XOM setpoint of 200 W
-                    self.low_pv = True
-                    self.pwr_sp_list = [100, 100]
-                    self.adjust_pwr_sp()
-            case "off":
-                if self.low_pv is True:
-                    # low PV is gone, so we reset the XOM setpoint to 0 W
-                    self.low_pv = False
-                    self.pwr_sp_list = [0, 0]
+            case "on" | "off":
+                # Only update if state actually changes
+                new_state = new == "on"
+                if new_state != self.low_pv:
+                    self.low_pv = new_state
+                    # Set power based on state: 100W each when low PV, 0W when normal
+                    self.pwr_sp_list = [100, 100] if self.low_pv else [0, 0]
                     self.adjust_pwr_sp()
             case _:
                 self.log(f"*** Invalid value for {entity}: {new}. No action taken.", level="ERROR")
-                # don't change self.pwr_sp_list
 
     # CONTROL LOGIC
 
