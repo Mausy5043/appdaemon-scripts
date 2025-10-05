@@ -316,7 +316,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.log(f"*** Watchdog triggered by {entity} ({attribute}) change: {old} -> {new}", level="INFO")
         # watchdog changes are not immediate, so we callback watchdog_runin_cb() after N seconds
         # to allow the system to stabilize
-        self.run_in(self.watchdog_runin_cb, 2, entity=entity, attribute=attribute, old=old, new=new)
+        # low PV is a special case, because it needs different actions
+        if entity == cs.LOW_PV:
+            self.run_in(self.lowpv_runin_cb, 2, entity=entity, new=new)
+        else:
+            self.run_in(self.watchdog_runin_cb, 2, entity=entity, attribute=attribute, old=old, new=new)
 
     def watchdog_runin_cb(self, entity, attribute, old, new, **kwargs):
         # Update the current state of the system
@@ -328,8 +332,19 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # Log the current stance
         self.log(f"Current stance              =  {self.new_stance}", level="DEBUG")
 
-    def ramp_sp_runin_cb(self, entity, attribute, old, new, **kwargs):
-        self.ramp_sp()
+    def lowpv_runin_cb(self, entity, new, **kwargs):
+        self.log(f"*** Activity triggered by {entity} -> {new}", level="INFO")
+        match str(new):
+            case "on":
+                # low PV detected, so we set a XOM setpoint of -200 W
+                self.pwr_sp_list = [-100, -100]
+            case "off":
+                # low PV is gone, so we reset the XOM setpoint to 0 W
+                self.pwr_sp_list = [0, 0]
+            case _:
+                self.log(f"*** Invalid value for {entity}: {new}. No action taken.", level="ERROR")
+                # don't change self.pwr_sp_list
+        self.adjust_pwr_sp()
 
     # CONTROL LOGIC
 
