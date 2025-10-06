@@ -49,7 +49,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.pv_volt: float = 0.0  # V; used to control PV current
         self.pv_power: int = 0  # W
         self.low_pv = self.get_state(cs.LOW_PV) == "on"
-        self.log(f"{self.get_state(cs.LOW_PV)}")
         self.soc: float = 0.0  # % average state of charge
         self.soc_list: list[float] = [0.0, 0.0]  # %; state of charge for each battery
         self.pwr_sp_list: list[int] = [0, 0]  # W; power setpoints of batteries
@@ -91,13 +90,12 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             minutes=minutes, seconds=20
         )
         self.log(f"Next quarter callback       = {next_quarter.strftime("%Y-%m-%d %H:%M:%S")}", level="INFO")
-
+        # run_every callbacks can't be cancelled
         self.run_every(
             callback=self.price_current_cb,
             start=next_quarter,
             interval=cs.PRICES["update_interval"],
         )
-
         # Set-up callbacks for watchdog changes
         # EV starts charging
         self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.EV_REQ_PWR))
