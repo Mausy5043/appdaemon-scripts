@@ -408,7 +408,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # winterstand forces behaviour to a non-sunny day when true
         _sunny_day: bool = self.datum["sunny"] and not self.winterstand
         if _sunny_day and (self.soc > _min_soc) and (self.is_expensive(self.get_slot())):
-            # For now we use NOM to avoid locking out the EV charger.
+            # For now we use NOM to avoid locking out the EV charger during "Grid Rewards".
             stance = cs.NOM
             self.log(
                 f"Sunny day, expensive slot {(self.get_slot() / 4):.2f} and  SoC > {_min_soc:.2f}%, but requesting NOM stance.",
