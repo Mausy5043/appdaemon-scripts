@@ -461,6 +461,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             case cs.NOM:
                 self.pwr_sp_list = [0, 0]
                 self.log("SP: No action required. Unit is in control (NOM).", level="DEBUG")
+                if self.low_pv:
+                    self.pwr_sp_list = [100, 100]
+                    self.log("SP: Low PV detected, keeping setpoint.", level="INFO")
             case cs.IDLE:
                 self.pwr_sp_list = [0, 0]
                 self.log("SP: No power setpoints. Unit is IDLE. ", level="DEBUG")
