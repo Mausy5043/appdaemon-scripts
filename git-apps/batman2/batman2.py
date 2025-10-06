@@ -591,16 +591,17 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.start_nom()
             self.adjust_pwr_sp()
 
-    def get_slot(self) -> float:
+    def get_slot(self) -> int:
         """Get the current slot."""
         _hr: int = dt.datetime.now().hour
+        _mn: int = dt.datetime.now().minute
         _qrtr: int = 0
-        _mul = 1
+        _mul: int = 1
         if self.tibber_quarters:
             # callback will be either on the hour or on the quarter
             _mul = 4
-            _qrtr = int(dt.datetime.now().minute // 15) * 15
-        return (float(_hr) + float(_qrtr) / 60.0) * _mul
+            _qrtr = int(_mn // 15) * 15
+        return int((_hr + _qrtr / 60) * _mul)
 
     def is_expensive(self, slot: float) -> bool:
         """Check if the current slot is in the list of expensive slots."""
