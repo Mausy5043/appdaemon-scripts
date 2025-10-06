@@ -86,14 +86,16 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         now = dt.datetime.now()
         quarter = 15
         minutes = (now.minute // quarter + 1) * quarter
-        next_quarter = now.replace(minute=0, second=0, microsecond=0) + dt.timedelta(minutes=minutes, seconds=20)
+        next_quarter = now.replace(minute=0, second=0, microsecond=0) + dt.timedelta(
+            minutes=minutes, seconds=20
+        )
         self.log(f"Next quarter callback       = {next_quarter.strftime("%Y-%m-%d %H:%M:%S")}", level="INFO")
         self.callback_handles.append(
             self.run_every(
                 callback=self.price_current_cb,
                 start=next_quarter,
                 interval=cs.PRICES["update_interval"],
-                )
+            )
         )
         # Set-up callbacks for watchdog changes
         # EV starts charging
