@@ -243,7 +243,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     def update_tibber_prices(self) -> None:
         self.tibber_prices = p2.get_pricedict(
-            token=self.secrets.get_tibber_token(), url=self.secrets.get_tibber_url()
+            token=self.secrets.get_tibber_token(),
+            url=self.secrets.get_tibber_url(),
         )
         self.log(f"Updated Tibber prices: {len(self.tibber_prices)} prices received.", level="DEBUG")
         self.tibber_quarters = False
