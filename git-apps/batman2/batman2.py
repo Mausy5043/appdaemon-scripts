@@ -48,7 +48,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.pv_current: float = 0.0  # A; used to monitor PV overcurrent
         self.pv_volt: float = 0.0  # V; used to control PV current
         self.pv_power: int = 0  # W
-        self.low_pv = False  # whether low PV has been detected
+        self.low_pv = self.get_state(cs.LOW_PV) == "on"
         self.soc: float = 0.0  # % average state of charge
         self.soc_list: list[float] = [0.0, 0.0]  # %; state of charge for each battery
         self.pwr_sp_list: list[int] = [0, 0]  # W; power setpoints of batteries
