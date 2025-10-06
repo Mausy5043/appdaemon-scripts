@@ -265,16 +265,18 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
     # def price_current_cb(self, entity, attribute, old, new, **kwargs) -> None:
     def price_current_cb(self, **kwargs) -> None:
         """Callback for current price change."""
-        # update dates
-        self.datum = ut.get_these_days()
-        # get the prices for today
-        self.update_tibber_prices()
-        # lookup Tibber price for the current hour and quarter
+        # get current hour, quarter and slot
         _hr: int = dt.datetime.now().hour
         _qr: int = 0
         if self.tibber_quarters:
             # callback will be either on the hour or on the quarter
             _qr = dt.datetime.now().minute
+        _slot: int = self.get_slot()
+        # update dates
+        self.datum = ut.get_these_days()
+        # get the prices for today
+        self.update_tibber_prices()
+        # lookup Tibber price for the current hour and quarter
 
         # get a list of hourly (or quarterly) prices and do some basic statistics
         _p: list[float] = p2.total_price(self.tibber_prices)
@@ -308,7 +310,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.price_diff = _pt - self.price["stats"]["min"]
         # log the current price
         if self.debug:
-            _slot = self.get_slot()
             self.log(f"Current Tibber price        = {_pt:+.3f} ({self.price_diff:.3f})", level="INFO")
             self.log(f"Current time slot           =  {_slot:.0f} ({_slot / 4:.2f})", level="INFO")
         if self.debug and ((_qr == 0 and _hr == 0) or self.starting):
