@@ -359,7 +359,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     self.log(f"*** Activity triggered by {entity} -> {new}", level="INFO")
                     self.low_pv = new_state
                     # Set power based on state: 100W each when low PV, 0W when normal
-                    if abs(self.pwr_sp_list[0]) < 110: # avoid overwriting a CHARGE or DISCHARGE stance
+                    if abs(self.pwr_sp_list[0]) < 110:  # avoid overwriting a CHARGE or DISCHARGE stance
                         self.pwr_sp_list = [100, 100] if self.low_pv else [0, 0]
                         self.adjust_pwr_sp()
             case _:
@@ -443,7 +443,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     stance = cs.CHARGE
                 self.log(_l)
             case 1:
-                _l = f"Greedy for DISCHARGE. But unfavourable conditions."
+                _l = "Greedy for DISCHARGE. But unfavourable conditions."
                 if _sunny_day and (
                     (self.prv_stance == cs.DISCHARGE and self.soc > self.bats_min_soc)
                     or (_min_pwr > cs.MIN_DISCHARGE)
@@ -472,7 +472,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.pwr_sp_list = [0, 0]
                 self.log("SP: No power setpoints. Unit is IDLE. ", level="DEBUG")
             case cs.CHARGE:
-                _cp = int((100 - self.soc) * 100 / -2)
+                _cp = int((100 - self.soc) * 100 / -2) * 4  # 2 batteries; 4 quarters
                 _chrgpwr = max(cs.CHARGE_PWR, _cp)
                 self.pwr_sp_list = [_chrgpwr, _chrgpwr]
                 if self.ev_charging:
@@ -480,7 +480,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     # limit battery charging to below 8000 W
                     # (allows for 2kW loads in the house)
                     # SP on P1 (grid target) = 5200 + 2690 = 7890 W
-                    # SP on each battery = -3945 W
+                    # SP on each battery = (7890 / -2) -3945 W
                     self.pwr_sp_list = [-3945, -3945]
                     self.log("SP: Reduced power setpoints because EV is charging. ", level="INFO")
                 # self.step_cnt = self.steps
@@ -489,7 +489,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     level="INFO",
                 )
             case cs.DISCHARGE:
-                _dp = int((self.bats_min_soc - self.soc) * 100 / -2)
+                _dp = int((self.bats_min_soc - self.soc) * 100 / -2) * 4  # 2 batteries; 4 quarters
                 _discpwr = min(cs.DISCHARGE_PWR, _dp)
                 self.pwr_sp_list = [_discpwr, _discpwr]
                 # self.step_cnt = self.steps
