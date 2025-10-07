@@ -427,7 +427,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             # TODO: consider using ABC-concept (Always Be Charging) and ignore SoC or prv_stance,
             #       but charge *always* during cheap slots.
             self.log(
-                f"Non-sunny day, cheap slot {(self.get_slot() / 4):.2f} and SoC < {self.bats_min_soc:.2f}%, so requesting CHARGE stance.",
+                f"Non-sunny day and cheap slot {(_slot / 4):.2f}, so requesting CHARGE stance.",
                 level="INFO",
             )
             stance = cs.CHARGE
@@ -442,7 +442,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     stance = cs.CHARGE
                 self.log(_l)
             case 1:
-                _l = f"Greedy for DISCHARGE. But too low SoC ({self.soc:.1f} %)."
+                _l = f"Greedy for DISCHARGE. But unfavourable conditions."
                 if _sunny_day and (
                     (self.prv_stance == cs.DISCHARGE and self.soc > self.bats_min_soc)
                     or (_min_pwr > cs.MIN_DISCHARGE)
