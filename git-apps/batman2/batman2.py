@@ -386,6 +386,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if _min_pwr < cs.MIN_DISCHARGE:
             _min_pwr = 0
         _q3 = self.price["stats"]["q3"]
+        _slot = self.get_slot()
 
         if self.ev_charging:
             # automation will have switched the batteries to IDLE.
@@ -421,7 +422,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if (
             not _sunny_day
             and (self.soc < self.bats_min_soc or self.prv_stance == cs.CHARGE)
-            and (self.is_cheap(self.get_slot()))
+            and (self.is_cheap(_slot))
         ):
             # this is supposed to charge the battery during the cheap hours in winter mimicking the ECO-mode
             # TODO: consider using ABC-concept (Always Be Charging) and ignore SoC or prv_stance,
