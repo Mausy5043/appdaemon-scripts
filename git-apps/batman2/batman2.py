@@ -421,7 +421,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             )
         if (
             not _sunny_day
-            and (self.soc < self.bats_min_soc or self.prv_stance == cs.CHARGE)
+            # and (self.soc < self.bats_min_soc or self.prv_stance == cs.CHARGE)
             and (self.is_cheap(_slot))
         ):
             # this is supposed to charge the battery during the cheap hours in winter mimicking the ECO-mode
