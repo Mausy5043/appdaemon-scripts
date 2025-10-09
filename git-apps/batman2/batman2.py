@@ -31,7 +31,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.prv_stance: str = cs.DEFAULT_STANCE
         self.tibber_prices: dict[str, float] = {}
         self.tibber_sensor: str = self.secrets.get_tibber_sensor()
-        self.tibber_quarters: bool = False  # whether the Tibber prices are quarterly or not
+        self.tibber_quarters: bool = True  # whether the Tibber prices are quarterly or not
         self.price: dict = {
             "today": [],
             "tomor": [],
