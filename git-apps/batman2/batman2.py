@@ -250,6 +250,27 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if len(self.tibber_prices) == 96:
             self.tibber_quarters = True
 
+    def update_price_slots(self, prices: list[float]) -> None:
+        """Update the cheap and expensive price slots.
+
+        Args:
+            prices (list[float]): list of prices for today
+
+        Returns:
+            None
+        """
+        _cslot = cs.SLOTS[0] * -1
+        _dslot = cs.SLOTS[1]
+        _div = 4 if self.tibber_quarters else 1
+        _cslot *= _div
+        _dslot *= _div
+        charge_today = ut.sort_index(prices, rev=True)[_cslot:]
+        discharge_today = ut.sort_index(prices, rev=True)[:_dslot]
+        charge_today.sort()
+        discharge_today.sort()
+        self.price["cheap_slot"] = charge_today
+        self.price["expen_slot"] = discharge_today
+
     def terminate(self) -> None:
         """Clean up app."""
         self.log("__Terminating BatMan2...", level="INFO")
