@@ -288,37 +288,23 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # get current hour, quarter and slot
         _hr: int = dt.datetime.now().hour
         _qr: int = 0
+        _slot: int = self.get_slot()
+        if _slot == 0 or self.starting:
+            # update dates
+            self.datum = ut.get_these_days()
+            # get the prices for today
+            self.update_tibber_prices()
+            # get a list of hourly (or quarterly) prices and do some basic statistics
+            _p: list[float] = p2.total_price(self.tibber_prices)
+            self.price["today"] = _p
+            self.price["stats"] = p2.price_statistics(prices=_p)
+            self.update_price_slots(prices=_p)
+
         if self.tibber_quarters:
             # callback will be either on the hour or on the quarter
             _qr = dt.datetime.now().minute
-        _slot: int = self.get_slot()
-        # update dates
-        self.datum = ut.get_these_days()
-        # get the prices for today
-        self.update_tibber_prices()
         # lookup Tibber price for the current hour and quarter
-
-        # get a list of hourly (or quarterly) prices and do some basic statistics
-        _p: list[float] = p2.total_price(self.tibber_prices)
-        self.price["today"] = _p
-        self.price["stats"] = p2.price_statistics(_p)
-
-        # make a list of the cheap and expensive slots
-        _cslot = cs.SLOTS[0] * -1
-        _dslot = cs.SLOTS[1]
-        _div = 1
-        if self.tibber_quarters:
-            _div = 4
-
-        _cslot *= _div
-        _dslot *= _div
-        charge_today = ut.sort_index(_p, rev=True)[_cslot:]
-        discharge_today = ut.sort_index(_p, rev=True)[:_dslot]
-        charge_today.sort()
-        discharge_today.sort()
-        self.price["cheap_slot"] = charge_today
-        self.price["expen_slot"] = discharge_today
-
+        _pn =  self.price["today"][_slot]
         # get the price for the current timeslot
         _pt = p2.get_price(self.tibber_prices, _hr, _qr)
         self.price["now"] = _pt
