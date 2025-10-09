@@ -89,7 +89,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         next_quarter = now.replace(minute=0, second=0, microsecond=0) + dt.timedelta(
             minutes=minutes, seconds=20
         )
-        self.log(f"Next quarter callback       = {next_quarter.strftime("%Y-%m-%d %H:%M:%S")}", level="INFO")
+        self.log(f"Next quarter callback       =  {next_quarter.strftime("%Y-%m-%d %H:%M:%S")}", level="INFO")
         # run_every callbacks can't be cancelled
         self.run_every(
             callback=self.price_current_cb,
@@ -304,7 +304,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             # callback will be either on the hour or on the quarter
             _qr = dt.datetime.now().minute
         # lookup Tibber price for the current hour and quarter
-        _pn =  self.price["today"][_slot]
+        _pn = self.price["today"][_slot]
         # get the price for the current timeslot
         _pt = p2.get_price(self.tibber_prices, _hr, _qr)
         self.price["now"] = _pt
@@ -317,9 +317,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # log the current price
         if self.debug:
             self.log(
-                f"Current Tibber price        = {_pt:+.3f} = {_pn:+.3f} ({self.price_diff:.3f})", level="INFO"
+                f"Current Tibber price        = {_pt:+.3f} = {_pn:+.3f} ({self.price_diff:.3f})",
+                level="INFO",
             )
-            self.log(f"Current time slot           =  {_slot:.0f} ({_slot / 4:.2f})", level="INFO")
+            self.log(
+                f"Current time slot           =  {_slot:.0f} ({_slot / 4:.2f})",
+                level="INFO",
+            )
         if self.debug and ((_qr == 0 and _hr == 0) or self.starting):
             self.log(
                 f"Today's pricelist           =  {
