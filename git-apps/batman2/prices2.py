@@ -129,7 +129,7 @@ def total_price(pricelist: dict[str, float]) -> list[float]:
     return _p
 
 
-def price_statistics(prices: list) -> dict:
+def price_statistics(prices: list[float]) -> dict:
     """Calculate and return price statistics."""
     price_stats = {
         "min": round(min(prices), 3),
