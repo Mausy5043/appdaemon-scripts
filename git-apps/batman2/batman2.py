@@ -303,9 +303,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.tibber_quarters:
             # callback will be either on the hour or on the quarter
             _qr = dt.datetime.now().minute
-        # lookup Tibber price for the current hour and quarter
-        _pn = self.price["today"][_slot]
         # get the price for the current timeslot
+        _pn = self.price["today"][_slot]
+        # lookup Tibber price for the current hour and quarter
         _pt = p2.get_price(self.tibber_prices, _hr, _qr)
         self.price["now"] = _pt
 
