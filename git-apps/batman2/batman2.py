@@ -264,9 +264,29 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _div = 4 if self.tibber_quarters else 1
         _cslot *= _div
         _dslot *= _div
-        charge_today = ut.sort_index(prices, rev=True)[_cslot:]
-        discharge_today = ut.sort_index(prices, rev=True)[:_dslot]
+        # Get the average price for comparison
+        avg_price = self.price["stats"]["avg"]
+        # Original code (kept for reference):
+        # # Get sorted indices from highest to lowest price
+        # sorted_indices = ut.sort_index(prices, rev=True)
+        # # Get the N cheapest slots indices
+        # charge_today = sorted_indices[_cslot:]
+        # # Get the N most expensive slots indices
+        # discharge_today = sorted_indices[:_dslot]
+        # charge_today.sort()
+        # discharge_today.sort()
+
+        # Modified version with average price filtering:
+        # Get sorted indices from highest to lowest price
+        sorted_indices = ut.sort_index(prices, rev=True)
+        # Get the N cheapest slots indices
+        all_cheap = sorted_indices[_cslot:]
+        # Filter cheap slots to only those below average
+        charge_today = [idx for idx in all_cheap if prices[idx] < avg_price]
         charge_today.sort()
+        # Get the N most expensive slots indices and filter to above average
+        all_expensive = sorted_indices[:_dslot]
+        discharge_today = [idx for idx in all_expensive if prices[idx] > avg_price]
         discharge_today.sort()
         self.price["cheap_slot"] = charge_today
         self.price["expen_slot"] = discharge_today
