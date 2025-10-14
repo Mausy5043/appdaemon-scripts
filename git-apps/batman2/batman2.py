@@ -322,18 +322,18 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # get the price for the current timeslot
         _pn = self.price["today"][_slot]
         # lookup Tibber price for the current hour and quarter
-        _pt = p2.get_price(self.tibber_prices, _hr, _qr)
-        self.price["now"] = _pt
+        # _pt = p2.get_price(self.tibber_prices, _hr, _qr)
+        self.price["now"] = _pn
 
         # every time the current prices are updated, we update other stuff too:
         self.update_states()
 
         # calculate the distance to the minimum price
-        self.price_diff = _pt - self.price["stats"]["min"]
+        self.price_diff = _pn - self.price["stats"]["min"]
         # log the current price
         if self.debug:
             self.log(
-                f"Current Tibber price        = {_pt:+.3f} = {_pn:+.3f} ({self.price_diff:.3f})",
+                f"Current Tibber price        = {_pn:+.3f} ({self.price_diff:.3f})",
                 level="INFO",
             )
             self.log(
