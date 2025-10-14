@@ -515,7 +515,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     level="INFO",
                 )
             case cs.DISCHARGE:
-                _dp = int((self.bats_min_soc - self.soc) * 100 / -2) * 4  # 2 batteries; 4 quarters
+                _dp = int((self.bats_min_soc - self.soc) * 100 / -2) # * 4  # 2 batteries; 4 quarters
                 _discpwr = min(cs.DISCHARGE_PWR, _dp)
                 self.pwr_sp_list = [_discpwr, _discpwr]
                 # self.step_cnt = self.steps
