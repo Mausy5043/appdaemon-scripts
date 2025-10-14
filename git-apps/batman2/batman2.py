@@ -193,6 +193,10 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             f"PV actual power             = {self.pv_power:+6.0f}    W  (delta={abs(abs(self.pv_power) - (self.pv_current * self.pv_volt)):.0f})", level="DEBUG"
         )
         # fmt: on
+        # winterstand
+        self.winterstand = False
+        if self.get_state(cs.WINTERSTAND) == "on":
+            self.winterstand = True
         # check if we are greedy (price must have been updated already!)
         _any: Any = self.get_state(cs.GREED_LL)
         self.greedy_ll = float(_any)
@@ -231,10 +235,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.log("Control by app              =  ENABLED", level="DEBUG")
         else:
             self.log("Control by app              =  DISABLED", level="INFO")
-        # winterstand
-        self.winterstand = False
-        if self.get_state(cs.WINTERSTAND) == "on":
-            self.winterstand = True
         if self.winterstand:
             self.log("Winterstand                 =  ENABLED", level="INFO")
         else:
