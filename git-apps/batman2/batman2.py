@@ -203,7 +203,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _any = self.get_state(cs.GREED_HH)
         self.greedy_hh = float(_any)
         price_diff: float = self.price["now"] - self.price["stats"]["min"]
-        self.greedy = ut.get_greedy(self.price["now"], price_diff, self.greedy_ll, self.greedy_hh)
+        self.greedy = ut.get_greedy(
+            self.price["now"],
+            price_diff,
+            self.greedy_ll,
+            self.greedy_hh,
+            self.datum["sunny"] and not self.winterstand,
+        )
         match self.greedy:
             case -1:
                 _s = "greedy to CHARGE"
@@ -464,7 +470,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.log(_l)
             case 1:
                 _l = "Greedy for DISCHARGE. But unfavourable conditions."
-                if _sunny_day and (
+                if (
                     (self.prv_stance == cs.DISCHARGE and self.soc > self.bats_min_soc)
                     or (_min_pwr > cs.MIN_DISCHARGE)
                 ):
