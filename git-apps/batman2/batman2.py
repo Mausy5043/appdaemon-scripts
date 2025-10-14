@@ -446,7 +446,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # this is supposed to charge the battery during the cheap hours in winter mimicking the ECO-mode
         # using ABC-concept (Always Be Charging) and ignore SoC or prv_stance,
         #       and charging *always* during the cheap slots.
-        if             not _sunny_day            and (self.is_cheap(_slot)        ):
+        if not _sunny_day and (self.is_cheap(_slot)):
             self.log(
                 f"Non-sunny day and cheap slot {(_slot / 4):.2f}, so requesting CHARGE stance.",
                 level="INFO",
