@@ -99,8 +99,8 @@ def get_greedy(price: float, diff: float, lo_price: float, hi_diff: float, sunny
          0 for neutral price (not greedy),
          1 for high price (greedy for high).
     """
-    if sunny:
-        hi_diff *= 1.5  # be less greedy on sunny days
+    if not sunny:
+        hi_diff *= 1.5  # be less greedy on non-sunny days
     _g = 0  # not greedy
     if price <= lo_price:
         _g = -1  # greedy for low price
