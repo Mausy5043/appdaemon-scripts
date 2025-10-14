@@ -266,18 +266,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _dslot *= _div
         # Get the average price for comparison
         avg_price = self.price["stats"]["avg"]
-        # Original code (kept for reference):
-        # # Get sorted indices from highest to lowest price
-        # sorted_indices = ut.sort_index(prices, rev=True)
-        # # Get the N cheapest slots indices
-        # charge_today = sorted_indices[_cslot:]
-        # # Get the N most expensive slots indices
-        # discharge_today = sorted_indices[:_dslot]
-        # charge_today.sort()
-        # discharge_today.sort()
-
-        # Modified version with average price filtering:
-        # Get sorted indices from highest to lowest price
+        # Get sorted indices
         sorted_indices = ut.sort_index(prices, rev=True)
         # Get the N cheapest slots indices
         all_cheap = sorted_indices[_cslot:]
@@ -453,14 +442,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 f"Sunny day, expensive slot {(self.get_slot() / 4):.2f} and  SoC > {_min_soc:.2f}%, but requesting NOM stance.",
                 level="INFO",
             )
-        if (
-            not _sunny_day
-            # and (self.soc < self.bats_min_soc or self.prv_stance == cs.CHARGE)
-            and (self.is_cheap(_slot))
-        ):
-            # this is supposed to charge the battery during the cheap hours in winter mimicking the ECO-mode
-            # TODO: consider using ABC-concept (Always Be Charging) and ignore SoC or prv_stance,
-            #       but charge *always* during cheap slots.
+
+        # this is supposed to charge the battery during the cheap hours in winter mimicking the ECO-mode
+        # using ABC-concept (Always Be Charging) and ignore SoC or prv_stance,
+        #       and charging *always* during the cheap slots.
+        if             not _sunny_day            and (self.is_cheap(_slot)        ):
             self.log(
                 f"Non-sunny day and cheap slot {(_slot / 4):.2f}, so requesting CHARGE stance.",
                 level="INFO",
