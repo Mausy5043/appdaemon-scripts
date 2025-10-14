@@ -303,7 +303,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.datum = ut.get_these_days()
             # get the prices for today
             self.update_tibber_prices()
-            _slot: int = self.get_slot()
+            _slot = self.get_slot()
             # get a list of hourly (or quarterly) prices and do some basic statistics
             _p: list[float] = p2.total_price(self.tibber_prices)
             self.price["today"] = _p
