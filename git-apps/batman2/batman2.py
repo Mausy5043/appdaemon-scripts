@@ -496,7 +496,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     self.log("SP: Low PV detected, keeping setpoint.", level="INFO")
             case cs.IDLE:
                 # self.pwr_sp_list = [0, 0]
-                self.log("SP: No power setpoints. Unit is IDLE. ", level="INFO")
+                self.log("SP: No power setpoints. Unit is IDLE. ", level="DEBUG")
             case cs.CHARGE:
                 _cp = int((100 - self.soc) * 100 / -2) * 4  # 2 batteries; 4 quarters
                 _chrgpwr = max(cs.CHARGE_PWR, _cp)
@@ -549,7 +549,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     _s: dict | str = _api.set_xom_setpoint(xom_sp)
                 except Exception as her:
                     _s = f"UNSUCCESFULL: {her}"
-                self.log(f"Set XOM SP to ............... {xom_sp:+.0f} W  {_s}", level="INFO")
+                self.log(f"Set XOM SP to ............... {xom_sp:+.0f} W  {_s} / {self.new_stance}", level="INFO")
 
     def set_stance(self):
         """Set the current stance based on the current state."""
