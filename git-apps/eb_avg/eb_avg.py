@@ -6,7 +6,7 @@ import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 
 """Calculate moving average of Eigen Bedrijf to dampen peaks."""
 
-VERSION: str = "1.1.1"
+VERSION: str = "1.2.1"
 QLEN: int = 12
 
 
@@ -32,13 +32,18 @@ class EigenBedrijf_Avg(hass.Hass):  # type: ignore[misc]
         self.log("__...terminated EigenBedrijf_Avg.")
 
     def collect_value(self, entity, attribute, old, new, **kwargs):
-        with contextlib.suppress(ValueError):
-            self.values.append(float(new))
+        try:
+            _insert = float(new)
+            _insert = max(0.0, _insert)
+        except ValueError:
+            _insert = 0.0
+        self.values.append(_insert)
 
     def calculate_average(self, **kwargs):
-        if self.values:
-            # avg_value = round(sum(self.values) / len(self.values), 1)
-            med_value = int(round(stat.median(self.values), 0))
-            self.set_state(self.avg_sensor, state=med_value)
-        else:
-            self.set_state(self.avg_sensor, state=0)
+        # if self.values:
+        #     med_value = int(round(stat.median(self.values), 0))
+        #     self.set_state(self.avg_sensor, state=med_value)
+        # else:
+        #     self.set_state(self.avg_sensor, state=0)
+        med_value = int(round(stat.median(self.values), 0)) if self.values else 0
+        self.set_state(self.avg_sensor, state=med_value)
