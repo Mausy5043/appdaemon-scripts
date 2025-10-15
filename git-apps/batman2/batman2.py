@@ -495,8 +495,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     self.pwr_sp_list = [100, 100]
                     self.log("SP: Low PV detected, keeping setpoint.", level="INFO")
             case cs.IDLE:
-                self.pwr_sp_list = [0, 0]
-                self.log("SP: No power setpoints. Unit is IDLE. ", level="DEBUG")
+                # self.pwr_sp_list = [0, 0]
+                self.log("SP: No power setpoints. Unit is IDLE. ", level="INFO")
             case cs.CHARGE:
                 _cp = int((100 - self.soc) * 100 / -2) * 4  # 2 batteries; 4 quarters
                 _chrgpwr = max(cs.CHARGE_PWR, _cp)
