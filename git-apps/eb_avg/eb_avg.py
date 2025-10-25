@@ -40,11 +40,12 @@ class EigenBedrijf_Avg(hass.Hass):  # type: ignore[misc]
         self.values.append(_insert)
 
     def calculate_average(self, **kwargs):
-        # if self.values:
-        #     med_value = int(round(stat.median(self.values), 0))
-        #     self.set_state(self.avg_sensor, state=med_value)
+        med_value: float = 0
+        if self.values:
+            med_value = int(round(stat.median(self.values), 0))
+            self.set_state(self.avg_sensor, state=med_value)
         # else:
         #     self.set_state(self.avg_sensor, state=0)
-        med_value = int(round(stat.median(self.values), 0)) if len(self.values) > 0 else 0
+        # med_value = int(round(stat.median(self.values), 0)) if len(self.values) > 0 else 0
         self.log(f"Calculated average : {med_value}... ({len(self.values)})")
-        self.set_state(self.avg_sensor, state=med_value)
+        # self.set_state(entity_id=self.avg_sensor, state=med_value)
