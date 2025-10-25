@@ -387,10 +387,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 if new_state != self.low_pv:
                     self.log(f"*** Activity triggered by {entity} -> {new}", level="INFO")
                     self.low_pv = new_state
-                    # Set power based on state: 100W each when low PV, 0W when normal
-                    if abs(self.pwr_sp_list[0]) < 110:  # avoid overwriting a CHARGE or DISCHARGE stance
-                        self.pwr_sp_list = [100, 100] if self.low_pv else [0, 0]
-                        self.adjust_pwr_sp()
+                    if self.bat_ctrl:
+                        # Set power based on state: 100W each when low PV, 0W when normal
+                        if abs(self.pwr_sp_list[0]) < 110:  # avoid overwriting a CHARGE or DISCHARGE stance
+                            self.pwr_sp_list = [100, 100] if self.low_pv else [0, 0]
+                            self.adjust_pwr_sp()
+                    else:
+                        self.log("*** Activity canceled. App is not in control.", level="ERROR")
             case _:
                 self.log(f"*** Invalid value for {entity}: {new}. No action taken.", level="ERROR")
 
