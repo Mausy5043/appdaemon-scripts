@@ -393,7 +393,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                             self.pwr_sp_list = [100, 100] if self.low_pv else [0, 0]
                             self.adjust_pwr_sp()
                     else:
-                        self.log("*** Activity canceled. App is not in control.", level="ERROR")
+                        self.log("*** Activity canceled. App is not in control.", level="WARNING")
             case _:
                 self.log(f"*** Invalid value for {entity}: {new}. No action taken.", level="ERROR")
 
