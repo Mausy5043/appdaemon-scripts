@@ -45,6 +45,6 @@ class EigenBedrijf_Avg(hass.Hass):  # type: ignore[misc]
         #     self.set_state(self.avg_sensor, state=med_value)
         # else:
         #     self.set_state(self.avg_sensor, state=0)
-        med_value = int(round(stat.median(self.values), 0)) if self.values else 0
+        med_value = int(round(stat.median(self.values), 0)) if len(self.values) > 0 else 0
         self.log(f"Calculated average : {med_value}... ({len(self.values)})")
         self.set_state(self.avg_sensor, state=med_value)
