@@ -43,4 +43,9 @@ class EigenBedrijf_Avg(hass.Hass):  # type: ignore[misc]
         med_value: float = 0
         if self.values:
             med_value = int(round(stat.median(self.values), 0))
-            self.set_state(self.avg_sensor, state=med_value)
+            try:
+                self.set_state(entity_id=self.avg_sensor, state=med_value)
+            except Exception as her:
+                self.log(str(her), level="ERROR")
+                self.log(str(type(her)), level="ERROR")
+                self.log(f"Could not calculate or update average {med_value} for {self.values}", level="ERROR")
