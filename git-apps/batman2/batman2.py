@@ -309,7 +309,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.datum = ut.get_these_days()
             # get the prices for today
             self.update_tibber_prices()
-            _slot = self.get_slot()
+            # _slot = self.get_slot()   # no_redef
             # get a list of hourly (or quarterly) prices and do some basic statistics
             _p: list[float] = p2.total_price(self.tibber_prices)
             self.price["today"] = _p
@@ -473,9 +473,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.log(_l)
             case 1:
                 _l = "Greedy for DISCHARGE. But unfavourable conditions."
-                if (
-                    (self.prv_stance == cs.DISCHARGE and self.soc > self.bats_min_soc)
-                    or (_min_pwr > cs.MIN_DISCHARGE)
+                if (self.prv_stance == cs.DISCHARGE and self.soc > self.bats_min_soc) or (
+                    _min_pwr > cs.MIN_DISCHARGE
                 ):
                     # or (self.soc > _min_soc):
                     _l = f"Greedy for DISCHARGE. Requesting DISCHARGE stance. {_min_pwr:.0f} Wh available."
@@ -518,7 +517,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     level="INFO",
                 )
             case cs.DISCHARGE:
-                _dp = int((self.bats_min_soc - self.soc) * 100 / -2) # * 4  # 2 batteries; 4 quarters
+                _dp = int((self.bats_min_soc - self.soc) * 100 / -2)  # * 4  # 2 batteries; 4 quarters
                 _discpwr = min(cs.DISCHARGE_PWR, _dp)
                 self.pwr_sp_list = [_discpwr, _discpwr]
                 # self.step_cnt = self.steps
@@ -552,7 +551,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                     _s: dict | str = _api.set_xom_setpoint(xom_sp)
                 except Exception as her:
                     _s = f"UNSUCCESFULL: {her}"
-                self.log(f"Set XOM SP to ............... {xom_sp:+.0f} W  {_s} / {self.new_stance}", level="INFO")
+                self.log(
+                    f"Set XOM SP to ............... {xom_sp:+.0f} W  {_s} / {self.new_stance}", level="INFO"
+                )
 
     def set_stance(self):
         """Set the current stance based on the current state."""
