@@ -89,7 +89,13 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             self.log(f"Time until next sun_on_panels : {self.next_sun_on_panels:.2f} hours")
 
         # Update the prediction in HA
-        self.set_state(entity_id="sensor.next_sun_on_panels", state=self.next_sun_on_panels, attributes=ATTR_NSOP)
+        try:
+            self.set_state(entity_id="sensor.next_sun_on_panels", state=self.next_sun_on_panels, attributes=ATTR_NSOP)
+        except Exception as her:
+                self.log(str(type(her)), level="ERROR")
+                self.log(str(her), level="ERROR")
+                self.log(f"Could not update sensor.next_sun_on_panels with {self.next_sun_on_panels} hr", level="ERROR")
+
         # and update the minimum SoC required to reach the next morning
         self.set_bats_minimum_soc()
 
@@ -105,12 +111,23 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         minimum_soc: float = round((self.next_sun_on_panels * self.eb_median / CONVERSION), 1)
         if self.starting:
             self.log(f"Calculated minimum SoC        : {minimum_soc:.2f} %")
-        self.set_state("sensor.bats_minimum_soc", state=minimum_soc, attributes=ATTR_BMS)
+        try:
+            self.set_state(entity_id="sensor.bats_minimum_soc", state=minimum_soc, attributes=ATTR_BMS)
+        except Exception as her:
+                self.log(str(type(her)), level="ERROR")
+                self.log(str(her), level="ERROR")
+                self.log(f"Could not update sensor.bats_minimum_soc with {minimum_soc} %", level="ERROR")
+
 
     def set_baseload(self, value: float):
         """Update the Home Baseload with the median own usage (eigen bedrijf)."""
         self.log(f"Setting home baseload: {value:.2f} W")
-        self.set_state(ENTITY_BASELOAD, state=value, attributes=ATTR_BL)
+        try:
+            self.set_state(entity_id=ENTITY_BASELOAD, state=value, attributes=ATTR_BL)
+        except Exception as her:
+                self.log(str(type(her)), level="ERROR")
+                self.log(str(her), level="ERROR")
+                self.log(f"Could not update {ENTITY_BASELOAD} with {value} W", level="ERROR")
 
     def get_eigen_bedrijf_history(self, hours: float) -> None:
         """Request X hours of historical data from 'sensor.eigen_bedrijf'."""
