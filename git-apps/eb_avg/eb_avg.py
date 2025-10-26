@@ -48,4 +48,4 @@ class EigenBedrijf_Avg(hass.Hass):  # type: ignore[misc]
             except Exception as her:
                 self.log(str(type(her)), level="ERROR")
                 self.log(str(her), level="ERROR")
-                self.log(f"Could not calculate or update average {med_value} for {self.values}", level="ERROR")
+                self.log(f"Could not update average {med_value} from {self.values} for {self.avg_sensor}", level="ERROR")
