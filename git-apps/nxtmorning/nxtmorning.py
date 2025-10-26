@@ -5,6 +5,7 @@
 import contextlib
 import datetime as dt
 import statistics as stat
+import traceback
 from functools import partial
 from statistics import quantiles as stqu
 from zoneinfo import ZoneInfo
@@ -90,11 +91,17 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
 
         # Update the prediction in HA
         try:
-            self.set_state(entity_id="sensor.next_sun_on_panels", state=self.next_sun_on_panels, attributes=ATTR_NSOP)
+            self.set_state(
+                entity_id="sensor.next_sun_on_panels", state=self.next_sun_on_panels, attributes=ATTR_NSOP
+            )
         except Exception as her:
-                self.log(str(type(her)), level="ERROR")
-                self.log(str(her), level="ERROR")
-                self.log(f"Could not update sensor.next_sun_on_panels with {self.next_sun_on_panels} hr", level="ERROR")
+            self.log(str(type(her)), level="ERROR")
+            self.log(str(her), level="ERROR")
+            self.log(traceback.format_exc(), level="ERROR")
+            self.log(
+                f"Could not update sensor.next_sun_on_panels with {self.next_sun_on_panels} hr",
+                level="ERROR",
+            )
 
         # and update the minimum SoC required to reach the next morning
         self.set_bats_minimum_soc()
@@ -114,10 +121,10 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         try:
             self.set_state(entity_id="sensor.bats_minimum_soc", state=minimum_soc, attributes=ATTR_BMS)
         except Exception as her:
-                self.log(str(type(her)), level="ERROR")
-                self.log(str(her), level="ERROR")
-                self.log(f"Could not update sensor.bats_minimum_soc with {minimum_soc} %", level="ERROR")
-
+            self.log(str(type(her)), level="ERROR")
+            self.log(str(her), level="ERROR")
+            self.log(traceback.format_exc(), level="ERROR")
+            self.log(f"Could not update sensor.bats_minimum_soc with {minimum_soc} %", level="ERROR")
 
     def set_baseload(self, value: float):
         """Update the Home Baseload with the median own usage (eigen bedrijf)."""
@@ -125,9 +132,10 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         try:
             self.set_state(entity_id=ENTITY_BASELOAD, state=value, attributes=ATTR_BL)
         except Exception as her:
-                self.log(str(type(her)), level="ERROR")
-                self.log(str(her), level="ERROR")
-                self.log(f"Could not update {ENTITY_BASELOAD} with {value} W", level="ERROR")
+            self.log(str(type(her)), level="ERROR")
+            self.log(str(her), level="ERROR")
+            self.log(traceback.format_exc(), level="ERROR")
+            self.log(f"Could not update {ENTITY_BASELOAD} with {value} W", level="ERROR")
 
     def get_eigen_bedrijf_history(self, hours: float) -> None:
         """Request X hours of historical data from 'sensor.eigen_bedrijf'."""
