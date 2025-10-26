@@ -28,7 +28,7 @@ ATTR_NSOP: dict = {"unit_of_measurement": "h", "friendly_name": "next_sun_on_pan
 ATTR_BMS: dict = {"unit_of_measurement": "%", "friendly_name": "bats_minimum_soc"}
 ATTR_BL: dict = {"unit_of_measurement": "W", "friendly_name": "home_baseload"}
 
-VERSION: str = "1.3.1"
+VERSION: str = "1.4.1"
 
 
 class NextMorning(hass.Hass):  # type: ignore[misc]

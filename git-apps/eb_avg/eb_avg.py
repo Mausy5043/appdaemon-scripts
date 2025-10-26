@@ -6,7 +6,7 @@ import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 
 """Calculate moving average of Eigen Bedrijf to dampen peaks."""
 
-VERSION: str = "1.2.1"
+VERSION: str = "1.4.1"
 QLEN: int = 12
 
 
