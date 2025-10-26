@@ -83,13 +83,13 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             _target = find_time_for_elevation(self.location, _datum, ELEVATION)
         if self.starting:
             self.log(f"Sun reaches {ELEVATION:.2f} deg at: {_target.strftime('%Y-%m-%d %H:%M:%S %Z')}")
-        _t_sec = max(0, (_target - _now).total_seconds())  # avoid negative _t_sec in edge-cases
-        self.next_sun_on_panels = round(_t_sec / 3600, 2)
+        _t_sec: float = max(0.0, (_target - _now).total_seconds())  # avoid negative _t_sec in edge-cases
+        self.next_sun_on_panels: float = round(_t_sec / 3600, 2)
         if self.starting:
             self.log(f"Time until next sun_on_panels : {self.next_sun_on_panels:.2f} hours")
 
         # Update the prediction in HA
-        self.set_state("sensor.next_sun_on_panels", state=self.next_sun_on_panels, attributes=ATTR_NSOP)
+        self.set_state(entity_id="sensor.next_sun_on_panels", state=self.next_sun_on_panels, attributes=ATTR_NSOP)
         # and update the minimum SoC required to reach the next morning
         self.set_bats_minimum_soc()
 
