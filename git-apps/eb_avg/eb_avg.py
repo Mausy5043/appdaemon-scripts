@@ -1,5 +1,5 @@
-import contextlib
 import statistics as stat
+import traceback
 from collections import deque
 
 import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
@@ -8,6 +8,7 @@ import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
 
 VERSION: str = "1.4.1"
 QLEN: int = 12
+ATTR_EB: dict = {"unit_of_measurement": "W", "friendly_name": "eigen_bedrijf_avg"}
 
 
 class EigenBedrijf_Avg(hass.Hass):  # type: ignore[misc]
@@ -44,8 +45,12 @@ class EigenBedrijf_Avg(hass.Hass):  # type: ignore[misc]
         if self.values:
             med_value = int(round(stat.mean(self.values), 0))
             try:
-                self.set_state(entity_id=self.avg_sensor, state=med_value)
+                self.set_state(entity_id=self.avg_sensor, state=med_value, attributes=ATTR_EB)
             except Exception as her:
                 self.log(str(type(her)), level="ERROR")
                 self.log(str(her), level="ERROR")
-                self.log(f"Could not update average {med_value} from {self.values} for {self.avg_sensor}", level="ERROR")
+                self.log(traceback.format_exc(), level="ERROR")
+                self.log(
+                    f"Could not update average {med_value} from {self.values} for {self.avg_sensor}",
+                    level="ERROR",
+                )
