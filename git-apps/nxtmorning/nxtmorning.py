@@ -28,6 +28,8 @@ ENTITY_EB: str = "sensor.eigen_bedrijf"  # entity from which to fetch historical
 ATTR_NSOP: dict = {"unit_of_measurement": "h", "friendly_name": "next_sun_on_panels"}
 ATTR_BMS: dict = {"unit_of_measurement": "%", "friendly_name": "bats_minimum_soc"}
 ATTR_BL: dict = {"unit_of_measurement": "W", "friendly_name": "home_baseload"}
+EPS: float = 0.0001
+
 
 VERSION: str = "1.4.1"
 
@@ -119,6 +121,8 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         if self.starting:
             self.log(f"Calculated minimum SoC        : {minimum_soc:.2f} %")
         try:
+            if abs(minimum_soc) < EPS:
+                minimum_soc = EPS
             self.set_state(entity_id="sensor.bats_minimum_soc", state=minimum_soc, attributes=ATTR_BMS)
         except Exception as her:
             self.log(str(type(her)), level="ERROR")
@@ -130,6 +134,8 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
         """Update the Home Baseload with the median own usage (eigen bedrijf)."""
         self.log(f"Setting home baseload: {value:.2f} W")
         try:
+            if abs(value) < EPS:
+                value = EPS
             self.set_state(entity_id=ENTITY_BASELOAD, state=value, attributes=ATTR_BL)
         except Exception as her:
             self.log(str(type(her)), level="ERROR")
