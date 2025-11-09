@@ -265,6 +265,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         Returns:
             None
         """
+        self.log(f"I think the SoC is now {self.soc} %") # TODO: can we calculate the number of charge slots?
         _cslot = cs.SLOTS[0] * -1
         _dslot = cs.SLOTS[1]
         # allow for hourly prices
