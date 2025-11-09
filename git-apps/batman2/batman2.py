@@ -271,7 +271,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # / ( 2 [bat]
         #     * (cs.MAX_CHARGE [W/h.bat] / 100 [W/%] )
         #     ) * 4 [qrt/hr] = [qrt]
-        _cqrtrs: int = (100 - self.soc) / (2 * (cs.MAX_CHARGE / 100)) * 4
+        _cqrtrs: int = int(  (100 - self.soc) / (2 * (abs(cs.MAX_CHARGE) / 100)) * 4  )
         self.log(f"I think I need to charge for {_cqrtrs} quarters today.", level="INFO")
         _cslot = cs.SLOTS[0] * -1
         _dslot = cs.SLOTS[1]
