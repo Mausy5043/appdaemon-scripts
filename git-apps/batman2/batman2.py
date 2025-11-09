@@ -267,9 +267,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         """
         _cslot = cs.SLOTS[0] * -1
         _dslot = cs.SLOTS[1]
-        _div = 4 if self.tibber_quarters else 1
-        _cslot *= _div
-        _dslot *= _div
+        # allow for hourly prices
+        _div = 1 if self.tibber_quarters else 4
+        # in case of hourly prices we need to make sure we get int(hours)
+        _cslot = int(_cslot/_div)
+        _dslot = int(_dslot/_div)
         # Get the average price for comparison
         avg_price = self.price["stats"]["avg"]
         # Get sorted indices
@@ -297,7 +299,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
     # CALLBACKS
 
-    # def price_current_cb(self, entity, attribute, old, new, **kwargs) -> None:
     def price_current_cb(self, **kwargs) -> None:
         """Callback for current price change."""
         # get current hour, quarter and slot
@@ -309,7 +310,6 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.datum = ut.get_these_days()
             # get the prices for today
             self.update_tibber_prices()
-            # _slot = self.get_slot()   # no_redef
             # get a list of hourly (or quarterly) prices and do some basic statistics
             _p: list[float] = p2.total_price(self.tibber_prices)
             self.price["today"] = _p
