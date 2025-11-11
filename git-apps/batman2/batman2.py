@@ -272,8 +272,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         #     ) * 4 [qrt/hr] = [qrt]
         _cqrtrs: int = int(  (100 - self.soc) / (abs(cs.MAX_CHARGE) / 100) * 4  )
         self.log(f"I think I need to charge for {_cqrtrs} quarters today.", level="INFO")
-        _cslot = cs.SLOTS[0] * -1
-        _dslot = cs.SLOTS[1]
+        _cslot: int = -1 * _cqrtrs # cs.SLOTS[0]
+        _dslot: int = cs.SLOTS[1]
         # allow for hourly prices
         _div = 1 if self.tibber_quarters else 4
         # in case of hourly prices we need to make sure we get int(hours)
