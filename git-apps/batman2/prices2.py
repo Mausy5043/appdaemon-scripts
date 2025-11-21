@@ -139,8 +139,11 @@ def price_statistics(prices: list[float]) -> dict:
         "q3": round(stqu(prices, n=4, method="inclusive")[2], 3),
         "max": round(max(prices), 3),
         "range": round(max(prices) - min(prices), 3),
+        "bep": 0,
         "text": "",
     }
+    # calculate BEP for charging
+    price_stats["bep"] = price_stats["avg"] / cs.AVG_RTE
     price_stats["text"] = (
         f"Min: {price_stats.get('min', 'N/A'):.3f}, "
         f"Q1 : {price_stats.get('q1', 'N/A'):.3f}, "
@@ -149,5 +152,6 @@ def price_statistics(prices: list[float]) -> dict:
         f"Q3 : {price_stats.get('q3', 'N/A'):.3f}, "
         f"Max: {price_stats.get('max', 'N/A'):.3f}, "
         f"Range: {price_stats.get('range', 'N/A'):.3f}"
+        f"BEP: {price_stats.get('bep', 'N/A'):.3f}"
     )
     return price_stats

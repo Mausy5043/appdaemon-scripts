@@ -13,6 +13,8 @@ MAX_CHARGE = -2200
 MIN_CHARGE = -160
 MAX_DISCHARGE = 1700
 MIN_DISCHARGE = 160
+# Average round-trip efficiency is not read from HA because is hardly changes:
+AVG_RTE = 0.8
 # set to True to enable more aggressive (dis)charging when prices are favourable
 TRADING = False
 # number of hours that we want to (dis)charge the batteries when prices are favourable
