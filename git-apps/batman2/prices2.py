@@ -154,4 +154,18 @@ def price_statistics(prices: list[float]) -> dict:
         f"Range: {price_stats.get('range', 'N/A'):.3f}, "
         f"BEP: {price_stats.get('bep', 'N/A'):.3f}"
     )
+    """
+    Ik zie voor vannacht weer een dalletje van 25 cent en een piek in de middag oplopend
+    tot 37 cent. Dus, zou effe moeten rekenen of laden in het dal een goed idee is en
+    waar nou precies de grens ligt.
+
+    De BEP is volgens mij de <gemiddelde laadprijs> / <gemiddelde RTE van de batterijen>
+
+    Dus, in mijn geval de gemiddelde prijs om de batterijen te laden is 25 ct.
+    Mijn RTE is een schamele 79%. Dus de gemiddelde prijs over de rest van de
+    dag moet >= (25/0.79 =) 31.6 ct zijn. Dan concludeer ik dat de komende 24 uur
+    de batterijen even op NOM mogen.
+
+    TODO: Wat is de gemiddelde prijs van "de rest van de dag" ?
+    """
     return price_stats
