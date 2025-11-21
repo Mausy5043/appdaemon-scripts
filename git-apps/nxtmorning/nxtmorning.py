@@ -15,6 +15,13 @@ import astral.sun as astsun
 from astral import LocationInfo
 
 # --- Configuration ---
+"""
+In winter the rising edge of the PV occurs when the sun reaches approx. 7 degrees above the eastern horizon.
+In summer, due to the trees having leaves, this is approx. 11 degrees.
+
+Also, in winter the falling edge, in the west, occurs when the sun drops below 5 degrees.
+In summer this elevation is the same.
+"""
 ELEVATION: float = 11.11  # target elevation of the sun in degrees
 TOLERANCE: float = 0.005  # elevation tolerance
 CB_TIME: int = 60  # callback interval in seconds
