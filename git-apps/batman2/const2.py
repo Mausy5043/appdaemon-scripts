@@ -17,7 +17,7 @@ MIN_DISCHARGE = 160
 TRADING = False
 # number of hours that we want to (dis)charge the batteries when prices are favourable
 # index 0 is for charging, index 1 is for discharging
-SLOTS = [12, 12]
+SLOTS = [14, 12]
 # stances  (Sessy calls this 'strategy')
 NOM: str = "NOM"
 DISCHARGE: str = "API+"  # (+)-ve power setting
