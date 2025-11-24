@@ -280,21 +280,38 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _div = 1 if self.tibber_quarters else 4
         # in case of hourly prices we need to make sure we get int(hours)
         _cslot = int(_cslot/_div)
-        _dslot = int(_dslot/_div)
         # Get the average price for comparison
         avg_price = self.price["stats"]["avg"]
-        # Get sorted indices
+
+        # Get sorted indices of the price list
         sorted_indices = ut.sort_index(prices, rev=True)
         # Get the N cheapest slots indices
         all_cheap = sorted_indices[_cslot:]
+        # Get a list of all the other indices
+        not_cheap = sorted_indices[:_cslot]
         # Filter cheap slots to only those below average
         charge_today = [idx for idx in all_cheap if prices[idx] < avg_price]
         charge_today.sort()
+        # Get the indices not in charge_today
+        not_charge_today = [idx for idx in sorted_indices if idx not in charge_today]
+        not_charge_today.sort()
+        avg_charge_price_today = sum(prices[idx] for idx in charge_today) / len(charge_today)
+        avg_notcharge_price_today = sum(prices[idx] for idx in not_charge_today) / len(not_charge_today)
+        self.log(f"Avg price during charge slots will be     {avg_charge_price_today:.3f}", level="INFO")
+        self.log(f"Avg price during non-charge slots will be {avg_notcharge_price_today:.3f}", level="INFO")
+        _bep = avg_charge_price_today / cs.AVG_RTE
+        self.log(f"Charging BEP will be at or above          {_bep:.3f}", level="INFO")
+        if _bep < avg_notcharge_price_today:
+            self.log(f"Proposing to NOT charge today.", level="INFO")
+        self.price["cheap_slot"] = charge_today
+
+        # ...do the same for discharging
+        _dslot = int(_dslot/_div)
         # Get the N most expensive slots indices and filter to above average
         all_expensive = sorted_indices[:_dslot]
+        not_expensive = sorted_indices[_dslot:]
         discharge_today = [idx for idx in all_expensive if prices[idx] > avg_price]
         discharge_today.sort()
-        self.price["cheap_slot"] = charge_today
         self.price["expen_slot"] = discharge_today
 
     def terminate(self) -> None:
