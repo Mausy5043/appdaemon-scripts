@@ -301,7 +301,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.log(f"Avg price during non-charge slots will be {avg_notcharge_price_today:.3f}", level="INFO")
         _bep = avg_charge_price_today / cs.AVG_RTE
         self.log(f"Charging BEP will be at or above          {_bep:.3f}", level="INFO")
-        if _bep < avg_notcharge_price_today:
+        if _bep >= avg_notcharge_price_today:
             self.log(f"Proposing to NOT charge today.", level="INFO")
         self.price["cheap_slot"] = charge_today
 
