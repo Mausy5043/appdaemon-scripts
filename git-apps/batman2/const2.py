@@ -19,7 +19,7 @@ AVG_RTE = 0.8
 TRADING = False
 # number of hours that we want to (dis)charge the batteries when prices are favourable
 # index 0 is for charging, index 1 is for discharging
-SLOTS = [14, 12]
+SLOTS = [18, 12]
 # stances  (Sessy calls this 'strategy')
 NOM: str = "NOM"
 DISCHARGE: str = "API+"  # (+)-ve power setting
