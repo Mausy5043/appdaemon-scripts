@@ -361,10 +361,14 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         if self.debug:
             self.log(
                 f"Current Tibber price        = {_pn:+.3f} ({self.price_diff:.3f})",
-                level="INFO",
+                level="DEBUG",
             )
             self.log(
-                f"Current time slot           =  {_slot:.0f} ({_slot / 4:.2f})",
+                f"Current time slot           =  ",
+                level="DEBUG",
+            )
+            self.log(
+                f"Current price @ slot          = {_pn:+.3f} ({self.price_diff:.3f}) @ {_slot:.0f} ({_slot / 4:.2f})",
                 level="INFO",
             )
         if self.debug and ((_qr == 0 and _hr == 0) or self.starting):
