@@ -8,7 +8,7 @@ scrts:
   tibber_url: !secret tibber_url
   tibber_price_sensor: !secret tibber_price_sensor
   # Sessy API
-  # URL  = "http://0.0.0.0" of "http://sessy-BAT1.local"
+  # URL  = "http://0.0.0.0" of "http://sessy-bat1.lan"
   # AUTH = "XXXXXXXX.YYYYYYYY"; XXXXXXXX=username, YYYYYYYY=password
   sessy_bat1_auth: !secret sessy_bat1_auth
   sessy_bat1_url: !secret sessy_bat1_url
