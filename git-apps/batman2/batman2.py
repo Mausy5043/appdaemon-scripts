@@ -270,16 +270,16 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # (100 [%] - self.soc [%] )
         # / ( (cs.MAX_CHARGE [W/h.bat] / 100 [W/%] )
         #     ) * 4 [qrt/hr] = [qrt]
-        _cqrtrs: int = int(  (100 - self.soc) / (abs(cs.MAX_CHARGE) / 100) * 4  )
+        _cqrtrs: int = int((100 - self.soc) / (abs(cs.MAX_CHARGE) / 100) * 4)
         self.log(f"I think I need to charge for {_cqrtrs} quarters today.", level="INFO")
         if _cqrtrs > cs.SLOTS[0]:
             _cqrtrs = cs.SLOTS[0]
-        _cslot: int = -1 * _cqrtrs # cs.SLOTS[0]
+        _cslot: int = -1 * _cqrtrs  # cs.SLOTS[0]
         _dslot: int = cs.SLOTS[1]
         # allow for hourly prices
         _div = 1 if self.tibber_quarters else 4
         # in case of hourly prices we need to make sure we get int(hours)
-        _cslot = int(_cslot/_div)
+        _cslot = int(_cslot / _div)
         # Get the average price for comparison
         avg_price = self.price["stats"]["avg"]
 
@@ -302,15 +302,16 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _bep = avg_charge_price_today / cs.AVG_RTE
         self.log(f"Charging BEP will be at or above          {_bep:.3f}", level="INFO")
         if _bep >= avg_notcharge_price_today:
-            self.log(f"Proposing to NOT charge today.", level="INFO")
+            self.log("Proposing to NOT charge today.", level="INFO")
             charge_today = []
         self.price["cheap_slot"] = charge_today
 
         # ...do the same for discharging
-        _dslot = int(_dslot/_div)
+        _dslot = int(_dslot / _div)
         # Get the N most expensive slots indices and filter to above average
         all_expensive = sorted_indices[:_dslot]
         not_expensive = sorted_indices[_dslot:]
+        # discharge_today = [idx for idx in all_expensive if prices[idx] > _bep]
         discharge_today = [idx for idx in all_expensive if prices[idx] > avg_price]
         discharge_today.sort()
         self.price["expen_slot"] = discharge_today
@@ -364,7 +365,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 level="DEBUG",
             )
             self.log(
-                f"Current time slot           =  ",
+                "Current time slot           =  ",
                 level="DEBUG",
             )
             self.log(
