@@ -60,9 +60,17 @@ def is_sunny_day(datum: dt.date) -> bool:
     It is expected that power production is high enough during this period.
     """
     year = datum.year
+    spring_month = 3
+    spring_day = 21
+    autumn_month = 9
+    autumn_day = 21
     # Approximate equinox dates (can be adjusted for precision)
-    spring_equinox = dt.date(year, 3, 21) + dt.timedelta(days=cs.SPRING_EQUINOX_OFFSET)
-    autumn_equinox = dt.date(year, 9, 21) + dt.timedelta(days=cs.AUTUMN_EQUINOX_OFFSET)
+    spring_equinox = dt.date(year=year, month=spring_month, day=spring_day) + dt.timedelta(
+        days=cs.SPRING_EQUINOX_OFFSET
+    )
+    autumn_equinox = dt.date(year=year, month=autumn_month, day=autumn_day) + dt.timedelta(
+        days=cs.AUTUMN_EQUINOX_OFFSET
+    )
     return spring_equinox <= datum <= autumn_equinox
 
 
