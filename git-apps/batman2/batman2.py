@@ -193,10 +193,10 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             f"PV actual power             = {self.pv_power:+6.0f}    W  (delta={abs(abs(self.pv_power) - (self.pv_current * self.pv_volt)):.0f})", level="DEBUG"
         )
         # fmt: on
-        # winterstand
-        self.winterstand = False
-        if self.get_state(cs.WINTERSTAND) == "on":
-            self.winterstand = True
+        # do we have an override for the default sunny/non-sunny behaviour ?
+        self.zomwin_override = False
+        if self.get_state(cs.ZOMWIN_OVERRIDE) == "on":
+            self.zomwin_override = True
         # check if we are greedy (price must have been updated already!)
         _any: Any = self.get_state(cs.GREED_LL)
         self.greedy_ll = float(_any)
@@ -208,7 +208,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             price_diff,
             self.greedy_ll,
             self.greedy_hh,
-            self.datum["sunny"] and not self.winterstand,
+            self.datum["sunny"] and not self.zomwin_override,
         )
         match self.greedy:
             case -1:
@@ -241,10 +241,10 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             self.log("Control by app              =  ENABLED", level="DEBUG")
         else:
             self.log("Control by app              =  DISABLED", level="INFO")
-        if self.winterstand:
-            self.log("Winterstand                 =  ENABLED", level="INFO")
+        if self.zomwin_override:
+            self.log("Zomer/Winter Override       =  ENABLED", level="INFO")
         else:
-            self.log("Winterstand                 =  DISABLED", level="DEBUG")
+            self.log("Zomer/Winter Override       =  DISABLED", level="DEBUG")
 
     def update_tibber_prices(self) -> None:
         self.tibber_prices = p2.get_pricedict(
@@ -474,8 +474,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # and we don't want to discharge during the expensive timeslots
         # because that would drain the batteries and negatively affect
         # solar availability for the EV charger.
-        # winterstand forces behaviour to a non-sunny day when true
-        _sunny_day: bool = self.datum["sunny"] and not self.winterstand
+        # zomwin_override flips behaviour from a sunny to a non-sunny day or vv.
+        _sunny_day: bool = self.datum["sunny"] and not self.zomwin_override
         if _sunny_day and (self.soc > _min_soc) and (self.is_expensive(self.get_slot())):
             # For now we use NOM to avoid locking out the EV charger during "Grid Rewards".
             stance = cs.NOM
