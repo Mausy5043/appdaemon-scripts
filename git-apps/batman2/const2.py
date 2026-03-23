@@ -61,7 +61,7 @@ BAT_STANCE = ["select.bat1_power_strategy", "select.bat2_power_strategy"]
 RAMP_RATE = [0.4, 23]  # [growthrate, time between steps]
 ZOMWIN_OVERRIDE = "input_boolean.bat_winterstand"
 AUTUMN_EQUINOX_OFFSET = -7  # days to start 'winterstand'
-SPRING_EQUINOX_OFFSET = 0  # days to end 'winterstand'
+SPRING_EQUINOX_OFFSET = -7  # days to end 'winterstand'
 
 # make greediness configurable in HA
 GREED_LL = "input_number.greed_ll"
