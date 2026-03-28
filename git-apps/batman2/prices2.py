@@ -150,6 +150,7 @@ def price_statistics(prices: list[float]) -> dict:
     # price_stats["bep"] = price_stats["avg"] / cs.AVG_RTE
     # build a list of indices lowest to highest price
     sorted_indices = ut.sort_index(prices, rev=False)
+    __si = sorted_indices
     # build a list of the slots that are in Q1 (in the interval min...q1)
     Q1 = [idx for idx in sorted_indices if prices[idx] < Q[0]]
     # remove the indices in Q1
@@ -165,6 +166,7 @@ def price_statistics(prices: list[float]) -> dict:
                           "Q2": Q2,
                           "Q3": Q3,
                           "Q4": Q4,
+                          "ALL": __si,
                           }
     price_stats["Q1avg"] = sum(Q1) / len(Q1)
     price_stats["Q2avg"] = sum(Q2) / len(Q2)
