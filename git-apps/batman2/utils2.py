@@ -18,7 +18,7 @@ def log_entity_attr(hass, entity_id, attribute="all", level="DEBUG") -> None:
 
 
 def sort_index(lst: list, rev=True) -> list:
-    """Return a list of indexes of the sorted list of prices provided"""
+    """Return a list of indexes of the sorted list provided"""
     s: list = [i[0] for i in sorted(enumerate(lst), key=lambda x: x[1], reverse=rev)]
     return s
 
