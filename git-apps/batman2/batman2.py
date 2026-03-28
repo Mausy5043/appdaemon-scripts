@@ -286,9 +286,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # Get sorted indices of the price list
         # sorted_indices = ut.sort_index(prices, rev=True)
         sorted_indices = self.price["stats"]["idx"]["ALL"]
+        self.log(f"{sorted_indices} prices received.", level="INFO")
         # Get the N cheapest slots indices
         # all_cheap = sorted_indices[_cslot:]
         all_cheap = self.price["stats"]["idx"]["Q1"][_cslot:]
+        self.log(f"Q1  = {all_cheap} ", level="INFO")
         # Get a list of all the other indices
         # not_cheap = sorted_indices[:_cslot]
 
