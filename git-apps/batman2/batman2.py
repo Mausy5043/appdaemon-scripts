@@ -296,8 +296,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
         # Filter cheap slots to only those below average
         # prices in Q1 are by definition below the average
-        charge_today = all_cheap.sort() # [idx for idx in all_cheap if prices[idx] < avg_price]
-        # charge_today.sort()
+        charge_today = all_cheap # [idx for idx in all_cheap if prices[idx] < avg_price]
+        charge_today.sort()
         avg_charge_price_today = sum(prices[idx] for idx in charge_today) / len(charge_today)
         self.log(f"Avg price during charge slots will be     {avg_charge_price_today:.3f}", level="INFO")
         # Get the indices not in charge_today
@@ -321,8 +321,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # not_expensive = sorted_indices[_dslot:]
         # discharge_today = [idx for idx in all_expensive if prices[idx] > _bep]
         # prices in Q4 are by definition above the average
-        discharge_today = all_expensive.sort() # [idx for idx in all_expensive if prices[idx] > avg_price]
-        # discharge_today.sort()
+        discharge_today = all_expensive # [idx for idx in all_expensive if prices[idx] > avg_price]
+        discharge_today.sort()
         self.price["expen_slot"] = discharge_today
 
     def terminate(self) -> None:
