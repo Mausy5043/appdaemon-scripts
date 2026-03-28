@@ -29,8 +29,8 @@ class Tibber:
         now_data: dict = {}
         data: dict = {"error": "no data returned"}
         payload: dict = {"query": self.qry_now}
-        now_data = post_request(self.api_url, self.headers_post, payload)
-        resp_data: list[dict] = unpeel(now_data, "today")
+        now_data = post_request(_url=self.api_url, _headers=self.headers_post, _payload=payload)
+        resp_data: list[dict] = unpeel(_data=now_data, _key="today")
         data = convert(resp_data)
         return data
 
@@ -45,7 +45,6 @@ def post_request(_url: str, _headers: dict[str, str], _payload: dict[str, str]) 
 
     Returns:
         dict: contains the query results
-
     """
     try:
         response = requests.post(
@@ -97,6 +96,7 @@ def convert(_data: list[dict]) -> dict[str, float]:
     #  '2025-06-22 01:00:00': 27.0,
     #  '2025-06-22 02:00:00': 26.75,
     #  '2025-06-22 03:00:00': 25.729999999999997,
+    #  }
     # fmt: on
     return dict(sorted(_ret.items()))
 
@@ -139,20 +139,21 @@ def price_statistics(prices: list[float]) -> dict:
         "q3": round(stqu(prices, n=4, method="inclusive")[2], 3),
         "max": round(max(prices), 3),
         "range": round(max(prices) - min(prices), 3),
-        "bep": 0,
+        "iqr": 0,
         "text": "",
     }
     # calculate BEP for charging
-    price_stats["bep"] = price_stats["avg"] / cs.AVG_RTE
+    price_stats["iqr"] = price_stats["q3"] - price_stats["q1"]
+    # price_stats["bep"] = price_stats["avg"] / cs.AVG_RTE
     price_stats["text"] = (
-        f"Min: {price_stats.get('min', 'N/A'):.3f}, "
-        f"Q1 : {price_stats.get('q1', 'N/A'):.3f}, "
-        f"Med: {price_stats.get('med', 'N/A'):.3f}, "
-        f"Avg: {price_stats.get('avg', 'N/A'):.3f}, "
-        f"Q3 : {price_stats.get('q3', 'N/A'):.3f}, "
-        f"Max: {price_stats.get('max', 'N/A'):.3f}, "
-        f"Range: {price_stats.get('range', 'N/A'):.3f}, "
-        f"BEP: {price_stats.get('bep', 'N/A'):.3f}"
+        f"min: {price_stats.get('min', 'N/A'):.3f}, "
+        f"q1 : {price_stats.get('q1', 'N/A'):.3f}, "
+        f"med: {price_stats.get('med', 'N/A'):.3f}, "
+        f"avg: {price_stats.get('avg', 'N/A'):.3f}, "
+        f"q3 : {price_stats.get('q3', 'N/A'):.3f}, "
+        f"max: {price_stats.get('max', 'N/A'):.3f}, "
+        f"range: {price_stats.get('range', 'N/A'):.3f}, "
+        f"iqr: {price_stats.get('iqr', 'N/A'):.3f}"
     )
     """
     Ik zie voor vannacht weer een dalletje van 25 cent en een piek in de middag oplopend
