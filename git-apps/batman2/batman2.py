@@ -334,7 +334,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         _qr: int = 0
         _slot: int = self.get_slot()
         if _slot == 0 or self.starting:
-            # update dates
+            # update info at midnight or when the app is starting up
             self.datum = ut.get_these_days()
             # get the prices for today
             self.update_tibber_prices()
@@ -475,10 +475,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # because that would drain the batteries and negatively affect
         # solar availability for the EV charger.
         # zomwin_override flips behaviour from a sunny to a non-sunny day or vv.
-        _discharge_bool = ((self.datum["sunny"]) and            # sunny day
-                           (not self.zomwin_override) and       # override switch is off
-                           (self.is_expensive(self.get_slot())) # expensive slot
-                           )
+        _discharge_bool = (
+            (self.datum["sunny"])  # sunny day
+            and (not self.zomwin_override)  # override switch is off
+            and (self.is_expensive(self.get_slot()))  # expensive slot
+        )
         _sunny_day: bool = self.datum["sunny"] and not self.zomwin_override
         # if _sunny_day and (self.soc > _min_soc) and (self.is_expensive(self.get_slot())):
         if _discharge_bool:
@@ -492,10 +493,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # this is supposed to charge the battery during the cheap hours in winter mimicking the ECO-mode
         # using ABC-concept (Always Be Charging) and ignore SoC or prv_stance,
         #       and charging *always* during the cheap slots.
-        _charge_bool = ((not self.datum["sunny"]) and       # not a sunny day
-                        (not self.zomwin_override) and      # override switch is off
-                        (self.is_cheap(_slot))              # cheap slot
-                        )
+        _charge_bool = (
+            (not self.datum["sunny"])  # not a sunny day
+            and (not self.zomwin_override)  # override switch is off
+            and (self.is_cheap(_slot))  # cheap slot
+        )
         # if (not self.datum["sunny"]) and (not self.zomwin_override) and (self.is_cheap(_slot)):
         if _charge_bool:
             self.log(
