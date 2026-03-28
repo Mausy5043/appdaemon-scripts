@@ -168,10 +168,10 @@ def price_statistics(prices: list[float]) -> dict:
                           "Q4": Q4,
                           "ALL": __si,
                           }
-    price_stats["Q1avg"] = sum(Q1) / len(Q1)
-    price_stats["Q2avg"] = sum(Q2) / len(Q2)
-    price_stats["Q3avg"] = sum(Q3) / len(Q3)
-    price_stats["Q4avg"] = sum(Q4) / len(Q4)
+    # price_stats["Q1avg"] = sum(Q1) / len(Q1)
+    # price_stats["Q2avg"] = sum(Q2) / len(Q2)
+    # price_stats["Q3avg"] = sum(Q3) / len(Q3)
+    # price_stats["Q4avg"] = sum(Q4) / len(Q4)
     """
     Ik zie voor vannacht weer een dalletje van 25 cent en een piek in de middag oplopend
     tot 37 cent. Dus, zou effe moeten rekenen of laden in het dal een goed idee is en
