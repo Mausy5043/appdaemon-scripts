@@ -189,6 +189,5 @@ def price_statistics(prices: list[float]) -> dict:
         f"max: {price_stats.get('max', 'N/A'):.3f}, "
         f"range: {price_stats.get('range', 'N/A'):.3f}, "
         f"iqr: {price_stats.get('iqr', 'N/A'):.3f}"
-        f"\n{price_stats['idx']}"
     )
     return price_stats
