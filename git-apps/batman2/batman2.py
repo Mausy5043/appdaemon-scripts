@@ -274,7 +274,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         self.log(f"I think I need to charge for {_cqrtrs} quarters today.", level="INFO")
         if _cqrtrs > cs.SLOTS[0]:
             _cqrtrs = cs.SLOTS[0]
-        _cslot: int = -1 * _cqrtrs  # cs.SLOTS[0]
+        _cslot: int = -1 * _cqrtrs
         _dslot: int = cs.SLOTS[1]
         # allow for hourly prices
         _div = 1 if self.tibber_quarters else 4
