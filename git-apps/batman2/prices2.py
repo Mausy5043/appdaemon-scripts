@@ -158,7 +158,7 @@ def price_statistics(prices: list[float]) -> dict:
     Q2 = [idx for idx in sorted_indices if prices[idx] < Q[1]]
     sorted_indices = sorted_indices[len(Q2):]
     # build a list of the slots that are in Q3 (in the interval median...q3)
-    Q3 = [idx for idx in sorted_indices if prices[idx] < Q[3]]
+    Q3 = [idx for idx in sorted_indices if prices[idx] < Q[2]]
     sorted_indices = sorted_indices[len(Q3):]
     Q4 = sorted_indices
     price_stats["idx"] = {"Q1": Q1,
