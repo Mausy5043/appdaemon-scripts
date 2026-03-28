@@ -4,8 +4,8 @@ import datetime as dt
 from statistics import quantiles as stqu
 
 import const2 as cs
-import utils2 as ut
 import requests
+import utils2 as ut
 from dateutil import parser
 
 requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
@@ -154,20 +154,21 @@ def price_statistics(prices: list[float]) -> dict:
     # build a list of the slots that are in Q1 (in the interval min...q1)
     Q1 = [idx for idx in sorted_indices if prices[idx] < Q[0]]
     # remove the indices in Q1
-    sorted_indices = sorted_indices[len(Q1):]
+    sorted_indices = sorted_indices[len(Q1) :]
     # build a list of the slots that are in Q2 (in the interval q1...median)
     Q2 = [idx for idx in sorted_indices if prices[idx] < Q[1]]
-    sorted_indices = sorted_indices[len(Q2):]
+    sorted_indices = sorted_indices[len(Q2) :]
     # build a list of the slots that are in Q3 (in the interval median...q3)
     Q3 = [idx for idx in sorted_indices if prices[idx] < Q[2]]
-    sorted_indices = sorted_indices[len(Q3):]
+    sorted_indices = sorted_indices[len(Q3) :]
     Q4 = sorted_indices
-    price_stats["idx"] = {"Q1": Q1,
-                          "Q2": Q2,
-                          "Q3": Q3,
-                          "Q4": Q4,
-                          "ALL": __si,
-                          }
+    price_stats["idx"] = {
+        "Q1": Q1,
+        "Q2": Q2,
+        "Q3": Q3,
+        "Q4": Q4,
+        "ALL": __si,
+    }
     # price_stats["Q1avg"] = sum(Q1) / len(Q1)
     # price_stats["Q2avg"] = sum(Q2) / len(Q2)
     # price_stats["Q3avg"] = sum(Q3) / len(Q3)
