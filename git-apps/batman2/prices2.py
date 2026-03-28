@@ -131,15 +131,17 @@ def total_price(pricelist: dict[str, float]) -> list[float]:
 
 def price_statistics(prices: list[float]) -> dict:
     """Calculate and return price statistics."""
+    Q = stqu(prices, n=4, method="inclusive")
     price_stats = {
         "min": round(min(prices), 3),
-        "q1": round(stqu(prices, n=4, method="inclusive")[0], 3),
-        "med": round(stqu(prices, n=4, method="inclusive")[1], 3),
+        "q1": round(Q[0], 3),
+        "med": round(Q[1], 3),
         "avg": round(sum(prices) / len(prices), 3),
-        "q3": round(stqu(prices, n=4, method="inclusive")[2], 3),
+        "q3": round(Q[2], 3),
         "max": round(max(prices), 3),
         "range": round(max(prices) - min(prices), 3),
         "iqr": 0,
+        "idx": {},
         "text": "",
     }
     # calculate BEP for charging
@@ -155,6 +157,7 @@ def price_statistics(prices: list[float]) -> dict:
         f"range: {price_stats.get('range', 'N/A'):.3f}, "
         f"iqr: {price_stats.get('iqr', 'N/A'):.3f}"
     )
+    #price_stats["idx"] = {"Q1": }
     """
     Ik zie voor vannacht weer een dalletje van 25 cent en een piek in de middag oplopend
     tot 37 cent. Dus, zou effe moeten rekenen of laden in het dal een goed idee is en
