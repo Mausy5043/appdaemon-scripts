@@ -4,6 +4,7 @@ import datetime as dt
 from statistics import quantiles as stqu
 
 import const2 as cs
+import utils2 as ut
 import requests
 from dateutil import parser
 
@@ -147,17 +148,24 @@ def price_statistics(prices: list[float]) -> dict:
     # calculate BEP for charging
     price_stats["iqr"] = price_stats["q3"] - price_stats["q1"]
     # price_stats["bep"] = price_stats["avg"] / cs.AVG_RTE
-    price_stats["text"] = (
-        f"min: {price_stats.get('min', 'N/A'):.3f}, "
-        f"q1 : {price_stats.get('q1', 'N/A'):.3f}, "
-        f"med: {price_stats.get('med', 'N/A'):.3f}, "
-        f"avg: {price_stats.get('avg', 'N/A'):.3f}, "
-        f"q3 : {price_stats.get('q3', 'N/A'):.3f}, "
-        f"max: {price_stats.get('max', 'N/A'):.3f}, "
-        f"range: {price_stats.get('range', 'N/A'):.3f}, "
-        f"iqr: {price_stats.get('iqr', 'N/A'):.3f}"
-    )
-    #price_stats["idx"] = {"Q1": }
+    # build a list of indices lowest to highest price
+    sorted_indices = ut.sort_index(prices, rev=False)
+    # build a list of the slots that are in Q1 (in the interval min...q1)
+    Q1 = [idx for idx in sorted_indices if prices[idx] < Q[0]]
+    # remove the indices in Q1
+    sorted_indices = sorted_indices[len(Q1):]
+    # build a list of the slots that are in Q2 (in the interval q1...median)
+    Q2 = [idx for idx in sorted_indices if prices[idx] < Q[1]]
+    sorted_indices = sorted_indices[len(Q2):]
+    # build a list of the slots that are in Q3 (in the interval median...q3)
+    Q3 = [idx for idx in sorted_indices if prices[idx] < Q[3]]
+    sorted_indices = sorted_indices[len(Q3):]
+    Q4 = sorted_indices
+    price_stats["idx"] = {"Q1": Q1,
+                          "Q2": Q2,
+                          "Q3": Q3,
+                          "Q4": Q4,
+                          }
     """
     Ik zie voor vannacht weer een dalletje van 25 cent en een piek in de middag oplopend
     tot 37 cent. Dus, zou effe moeten rekenen of laden in het dal een goed idee is en
@@ -172,4 +180,15 @@ def price_statistics(prices: list[float]) -> dict:
 
     TODO: Wat is de gemiddelde prijs van "de rest van de dag" ?
     """
+    price_stats["text"] = (
+        f"min: {price_stats.get('min', 'N/A'):.3f}, "
+        f"q1 : {price_stats.get('q1', 'N/A'):.3f}, "
+        f"med: {price_stats.get('med', 'N/A'):.3f}, "
+        f"avg: {price_stats.get('avg', 'N/A'):.3f}, "
+        f"q3 : {price_stats.get('q3', 'N/A'):.3f}, "
+        f"max: {price_stats.get('max', 'N/A'):.3f}, "
+        f"range: {price_stats.get('range', 'N/A'):.3f}, "
+        f"iqr: {price_stats.get('iqr', 'N/A'):.3f}"
+        f"\n{price_stats['idx']}"
+    )
     return price_stats
