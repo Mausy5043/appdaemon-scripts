@@ -284,30 +284,27 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         avg_price = self.price["stats"]["avg"]
 
         # Get sorted indices of the price list
-        # sorted_indices = ut.sort_index(prices, rev=True)
         sorted_indices = self.price["stats"]["idx"]["ALL"]
-        self.log(f"{sorted_indices} prices received.", level="INFO")
-        # Get the N cheapest slots indices
-        # all_cheap = sorted_indices[_cslot:]
-        all_cheap = self.price["stats"]["idx"]["Q1"][_cslot:]
-        self.log(f"Q1  = {all_cheap} ", level="INFO")
-        # Get a list of all the other indices
-        # not_cheap = sorted_indices[:_cslot]
 
-        # Filter cheap slots to only those below average
-        # prices in Q1 are by definition below the average
-        charge_today = all_cheap # [idx for idx in all_cheap if prices[idx] < avg_price]
+        # Get the N cheapest slots indices in Q1
+        all_cheap = self.price["stats"]["idx"]["Q1"][_cslot:]
+        charge_today = all_cheap
         charge_today.sort()
+        # get the average price during the charge slots
         avg_charge_price_today = sum(prices[idx] for idx in charge_today) / len(charge_today)
         self.log(f"Avg price during charge slots will be     {avg_charge_price_today:.3f}", level="INFO")
-        # Get the indices not in charge_today
-        not_charge_today = [idx for idx in sorted_indices if idx not in charge_today]
-        # not_charge_today.sort()
 
+        # Get the average price for the rest of the day (not charging)
+        not_charge_today = [idx for idx in sorted_indices if idx not in charge_today]
         avg_notcharge_price_today = sum(prices[idx] for idx in not_charge_today) / len(not_charge_today)
         self.log(f"Avg price during non-charge slots will be {avg_notcharge_price_today:.3f}", level="INFO")
+
+        # Determine BEP
         _bep = avg_charge_price_today / cs.AVG_RTE
-        self.log(f"Charging BEP will be at or above          {_bep:.3f}", level="INFO")
+        self.log(f"Charging BEP is                           {_bep:.3f}", level="INFO")
+        _bep2 = avg_notcharge_price_today * cs.AVG_RTE
+        self.log(f"None-charging BEP is                      {_bep2:.3f}", level="INFO")
+
         if _bep >= avg_notcharge_price_today:
             self.log("Proposing to NOT charge today.", level="INFO")
             charge_today = []
@@ -316,12 +313,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # ...do the same for discharging
         _dslot = int(_dslot / _div)
         # Get the N most expensive slots indices and filter to above average
-        # all_expensive = sorted_indices[:_dslot]
         all_expensive = self.price["stats"]["idx"]["Q4"][:_dslot]
-        # not_expensive = sorted_indices[_dslot:]
-        # discharge_today = [idx for idx in all_expensive if prices[idx] > _bep]
         # prices in Q4 are by definition above the average
-        discharge_today = all_expensive # [idx for idx in all_expensive if prices[idx] > avg_price]
+        # are they also above the BEP?
+        discharge_today = [idx for idx in all_expensive if prices[idx] > _bep]
+        # discharge_today = all_expensive
         discharge_today.sort()
         self.price["expen_slot"] = discharge_today
 
