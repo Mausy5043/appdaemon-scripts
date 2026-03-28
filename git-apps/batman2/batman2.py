@@ -271,7 +271,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # / ( (cs.MAX_CHARGE [W/h.bat] / 100 [W/%] )
         #     ) * 4 [qrt/hr] = [qrt]
         _cqrtrs: int = int((100 - self.soc) / (abs(cs.MAX_CHARGE) / 100) * 4)
-        self.log(f"I think I need to charge for {_cqrtrs} quarters today.", level="INFO")
+        self.log(f"I think I need to charge for {_cqrtrs} quarters today.\n  :", level="INFO")
         if _cqrtrs > cs.SLOTS[0]:
             _cqrtrs = cs.SLOTS[0]
         _cslot: int = -1 * _cqrtrs
@@ -301,7 +301,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
         # Determine BEP
         _bep = avg_charge_price_today / cs.AVG_RTE
-        self.log(f"Charging BEP is                           {_bep:.3f}\n", level="INFO")
+        self.log(f"Charging BEP is                           {_bep:.3f}\n  :", level="INFO")
 
         if _bep >= avg_notcharge_price_today:
             self.log("Proposing to NOT charge today.", level="INFO")
@@ -321,7 +321,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
 
         # Determine BEP
         _bep2 = avg_discharge_price_today * cs.AVG_RTE
-        self.log(f"Discharging BEP is                        {_bep2:.3f}\n", level="INFO")
+        self.log(f"Discharging BEP is                        {_bep2:.3f}\n  :", level="INFO")
 
         # are they also above the BEP?
         discharge_today = [idx for idx in all_expensive if prices[idx] > _bep2]
