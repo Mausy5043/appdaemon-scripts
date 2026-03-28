@@ -284,7 +284,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         avg_price = self.price["stats"]["avg"]
 
         # Get sorted indices of the price list
-        sorted_indices = ut.sort_index(prices, rev=True)
+        # sorted_indices = ut.sort_index(prices, rev=True)
+        sorted_indices = self.price["stats"]["idx"]["ALL"]
         # Get the N cheapest slots indices
         # all_cheap = sorted_indices[_cslot:]
         all_cheap = self.price["stats"]["idx"]["Q1"][_cslot:]
@@ -295,11 +296,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # prices in Q1 are by definition below the average
         charge_today = all_cheap.sort() # [idx for idx in all_cheap if prices[idx] < avg_price]
         # charge_today.sort()
-        # Get the indices not in charge_today
-        not_charge_today = [idx for idx in sorted_indices if idx not in charge_today]
-        not_charge_today.sort()
         avg_charge_price_today = sum(prices[idx] for idx in charge_today) / len(charge_today)
         self.log(f"Avg price during charge slots will be     {avg_charge_price_today:.3f}", level="INFO")
+        # Get the indices not in charge_today
+        not_charge_today = [idx for idx in sorted_indices if idx not in charge_today]
+        # not_charge_today.sort()
 
         avg_notcharge_price_today = sum(prices[idx] for idx in not_charge_today) / len(not_charge_today)
         self.log(f"Avg price during non-charge slots will be {avg_notcharge_price_today:.3f}", level="INFO")
