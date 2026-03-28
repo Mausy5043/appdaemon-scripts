@@ -286,12 +286,15 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # Get sorted indices of the price list
         sorted_indices = ut.sort_index(prices, rev=True)
         # Get the N cheapest slots indices
-        all_cheap = sorted_indices[_cslot:]
+        # all_cheap = sorted_indices[_cslot:]
+        all_cheap = self.price["Q1"][_cslot:]
         # Get a list of all the other indices
-        not_cheap = sorted_indices[:_cslot]
+        # not_cheap = sorted_indices[:_cslot]
+
         # Filter cheap slots to only those below average
-        charge_today = [idx for idx in all_cheap if prices[idx] < avg_price]
-        charge_today.sort()
+        # prices in Q1 are by definition below the average
+        charge_today = all_cheap.sort() # [idx for idx in all_cheap if prices[idx] < avg_price]
+        # charge_today.sort()
         # Get the indices not in charge_today
         not_charge_today = [idx for idx in sorted_indices if idx not in charge_today]
         not_charge_today.sort()
@@ -309,11 +312,13 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # ...do the same for discharging
         _dslot = int(_dslot / _div)
         # Get the N most expensive slots indices and filter to above average
-        all_expensive = sorted_indices[:_dslot]
-        not_expensive = sorted_indices[_dslot:]
+        # all_expensive = sorted_indices[:_dslot]
+        all_expensive = self.price["Q4"][:_dslot]
+        # not_expensive = sorted_indices[_dslot:]
         # discharge_today = [idx for idx in all_expensive if prices[idx] > _bep]
-        discharge_today = [idx for idx in all_expensive if prices[idx] > avg_price]
-        discharge_today.sort()
+        # prices in Q4 are by definition above the average
+        discharge_today = all_expensive.sort() # [idx for idx in all_expensive if prices[idx] > avg_price]
+        # discharge_today.sort()
         self.price["expen_slot"] = discharge_today
 
     def terminate(self) -> None:
