@@ -299,7 +299,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         avg_notcharge_price_today = sum(prices[idx] for idx in not_charge_today) / len(not_charge_today)
         self.log(f"Avg price during non-charge slots will be {avg_notcharge_price_today:.3f}", level="INFO")
 
-        # Determine BEP
+        # Determine BEPs
         _bep = avg_charge_price_today / cs.AVG_RTE
         self.log(f"Charging BEP is                           {_bep:.3f}", level="INFO")
         _bep2 = avg_notcharge_price_today * cs.AVG_RTE
@@ -315,10 +315,19 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # Get the N most expensive slots indices and filter to above average
         all_expensive = self.price["stats"]["idx"]["Q4"][:_dslot]
         # prices in Q4 are by definition above the average
+        discharge_today = all_expensive
+        discharge_today.sort()
+        # get the average price during the discharge slots
+        avg_discharge_price_today = sum(prices[idx] for idx in discharge_today) / len(discharge_today)
+        self.log(f"Avg price during discharge slots will be  {avg_discharge_price_today:.3f}", level="INFO")
+        self.price["expen_slot"] = discharge_today
+
         # are they also above the BEP?
         discharge_today = [idx for idx in all_expensive if prices[idx] > _bep]
-        # discharge_today = all_expensive
         discharge_today.sort()
+        # get the average price during the filtered discharge slots
+        avg_discharge_price_today = sum(prices[idx] for idx in discharge_today) / len(discharge_today)
+        self.log(f"Avg price during discharge slots will be  {avg_discharge_price_today:.3f}", level="INFO")
         self.price["expen_slot"] = discharge_today
 
     def terminate(self) -> None:
