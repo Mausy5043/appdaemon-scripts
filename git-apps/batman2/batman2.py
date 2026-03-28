@@ -299,9 +299,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         avg_notcharge_price_today = sum(prices[idx] for idx in not_charge_today) / len(not_charge_today)
         self.log(f"Avg price during non-charge slots will be {avg_notcharge_price_today:.3f}", level="INFO")
 
-        # Determine BEPs
+        # Determine BEP
         _bep = avg_charge_price_today / cs.AVG_RTE
-        self.log(f"Charging BEP is                           {_bep:.3f}", level="INFO")
+        self.log(f"Charging BEP is                           {_bep:.3f}\n", level="INFO")
 
         if _bep >= avg_notcharge_price_today:
             self.log("Proposing to NOT charge today.", level="INFO")
@@ -318,16 +318,17 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         # get the average price during Q4 slots
         avg_discharge_price_today = sum(prices[idx] for idx in discharge_today) / len(discharge_today)
         self.log(f"Avg price during discharge slots will be  {avg_discharge_price_today:.3f}", level="INFO")
-        _bep2 = avg_discharge_price_today * cs.AVG_RTE
-        self.log(f"Discharging BEP is                        {_bep2:.3f}", level="INFO")
 
+        # Determine BEP
+        _bep2 = avg_discharge_price_today * cs.AVG_RTE
+        self.log(f"Discharging BEP is                        {_bep2:.3f}\n", level="INFO")
 
         # are they also above the BEP?
         discharge_today = [idx for idx in all_expensive if prices[idx] > _bep2]
         discharge_today.sort()
         # get the average price during the filtered discharge slots
-        avg_discharge_price_today = sum(prices[idx] for idx in discharge_today) / len(discharge_today)
-        self.log(f"Avg price during f-discharge slots is     {avg_discharge_price_today:.3f}", level="INFO")
+        # avg_discharge_price_today = sum(prices[idx] for idx in discharge_today) / len(discharge_today)
+        # self.log(f"Avg price during f-discharge slots is     {avg_discharge_price_today:.3f}", level="INFO")
         self.price["expen_slot"] = discharge_today
 
     def terminate(self) -> None:
@@ -388,13 +389,11 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             )
         if self.debug and ((_qr == 0 and _hr == 0) or self.starting):
             self.log(
-                f"Today's pricelist           =  {
-                    [f'{n:.3f}' for n in self.price['today']]
-                }\n               : cheap slots                 = [{
+                f"Today's pricelist =  {[f'{n:.3f}' for n in self.price['today']]}\n  : cheap slots  = [{
                     ', '.join(f'{v / 4:.2f}' for v in self.price['cheap_slot'])
-                }]\n               : expensive slots             = [{
+                }]\n  : expensive slots  = [{
                     ', '.join(f'{v / 4:.2f}' for v in self.price['expen_slot'])
-                }]\n               : STATISTICS\n :                {self.price['stats']['text']}",
+                }]\n  : STATISTICS : {self.price['stats']['text']}",
                 level="INFO",
             )
 
