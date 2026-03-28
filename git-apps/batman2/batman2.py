@@ -519,8 +519,9 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             )
             stance = cs.CHARGE
 
-        # if prices are extremely high or low, we get greedy and switch to resp. DISCHARGE or CHARGE stance
-        # on non-sunny days however we suppress the greedy feeling, knowing not what tomorrow might bring...
+        # if prices are extremely high or low, we get greedy and switch to resp. DISCHARGE on sunny days
+        # or CHARGE stance on non-sunny days. However we may have to we suppress the greedy feeling,
+        # knowing not what tomorrow might bring...
         match self.greedy:
             case -1:
                 _l = f"Greedy for CHARGE. But too high SoC ({self.soc:.1f} %)."
