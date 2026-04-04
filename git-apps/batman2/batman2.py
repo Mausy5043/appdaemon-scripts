@@ -499,7 +499,7 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
             # For now we use NOM to avoid locking out the EV charger during "Grid Rewards".
             stance = cs.NOM
             self.log(
-                f"Sunny day, expensive slot {(self.get_slot() / 4):.2f} and  SoC > {_min_soc:.2f}%, but requesting NOM stance.",
+                f"Sunny day, expensive slot {(self.get_slot() / 4):.2f}, but requesting NOM stance.",
                 level="INFO",
             )
 
