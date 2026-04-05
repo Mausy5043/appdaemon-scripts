@@ -459,7 +459,7 @@ class BatMan2(hass.Hass):
         # calculate the SoC needed to be able to discharge for at least a whole hour.
         _min_soc: float = self.bats_min_soc + (1 * cs.MIN_DISCHARGE / 100)
         # calculate the power needed to discharge to the minimum SoC in an hour
-        _min_pwr: float = (self.soc - self.bats_min_soc) * 100
+        _min_pwr: float = (self.soc - _min_soc) * 100
         if _min_pwr < cs.MIN_DISCHARGE:
             _min_pwr = 0
         _q3 = self.price["stats"]["q3"]
@@ -471,7 +471,7 @@ class BatMan2(hass.Hass):
             # we overrule this only if ev_assist is true
             #   and the price is above Q3
             #   and the SoC is above bats_min_soc
-            if self.ev_assist and self.soc > self.bats_min_soc:  # or p1_power < -200
+            if self.ev_assist and self.soc > _min_soc:  # or p1_power < -200
                 # stance = cs.DISCHARGE
                 # EV assist is essentially not available for now.
                 self.log(
@@ -525,16 +525,14 @@ class BatMan2(hass.Hass):
         match self.greedy:
             case -1:
                 _l = f"Greedy for CHARGE. But too high SoC ({self.soc:.1f} %)."
-                c_greed: bool = (self.prv_stance == cs.CHARGE and self.soc < 99.9) or (
-                    self.soc < self.bats_min_soc
-                )
+                c_greed: bool = (self.prv_stance == cs.CHARGE and self.soc < 99.9) or (self.soc < _min_soc)
                 if c_greed:
                     _l = "Greedy for CHARGE. Requesting CHARGE stance."
                     stance = cs.CHARGE
                 self.log(_l)
             case 1:
                 _l = "Greedy for DISCHARGE. But unfavourable conditions."
-                d_greed: bool = (self.prv_stance == cs.DISCHARGE and self.soc > self.bats_min_soc) or (
+                d_greed: bool = (self.prv_stance == cs.DISCHARGE and self.soc > _min_soc) or (
                     _min_pwr > cs.MIN_DISCHARGE
                 )
                 # or (self.soc > _min_soc)
