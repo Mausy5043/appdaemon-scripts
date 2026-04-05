@@ -146,7 +146,7 @@ def price_statistics(prices: list[float]) -> dict:
         "text": "",
     }
     # calculate BEP for charging
-    price_stats["iqr"] = float(price_stats["q3"]) - float(price_stats["q1"])
+    price_stats["iqr"] = float(price_stats["q3"]) - float(price_stats["q1"])  # type: ignore[arg-type]
     # price_stats["bep"] = price_stats["avg"] / cs.AVG_RTE
     # build a list of indices lowest to highest price
     sorted_indices = ut.sort_index(prices, rev=False)
