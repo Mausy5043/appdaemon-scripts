@@ -525,9 +525,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
         match self.greedy:
             case -1:
                 _l = f"Greedy for CHARGE. But too high SoC ({self.soc:.1f} %)."
-                c_greed: bool = (
-                    (self.prv_stance == cs.CHARGE and self.soc < 99.9)
-                    or (self.soc < self.bats_min_soc)
+                c_greed: bool = (self.prv_stance == cs.CHARGE and self.soc < 99.9) or (
+                    self.soc < self.bats_min_soc
                 )
                 if c_greed:
                     _l = "Greedy for CHARGE. Requesting CHARGE stance."
@@ -535,9 +534,8 @@ class BatMan2(hass.Hass):  # type: ignore[misc]
                 self.log(_l)
             case 1:
                 _l = "Greedy for DISCHARGE. But unfavourable conditions."
-                d_greed: bool = (
-                    (self.prv_stance == cs.DISCHARGE and self.soc > self.bats_min_soc)
-                    or (_min_pwr > cs.MIN_DISCHARGE)
+                d_greed: bool = (self.prv_stance == cs.DISCHARGE and self.soc > self.bats_min_soc) or (
+                    _min_pwr > cs.MIN_DISCHARGE
                 )
                 # or (self.soc > _min_soc)
                 if d_greed:
