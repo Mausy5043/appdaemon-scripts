@@ -2,7 +2,7 @@ import statistics as stat
 import traceback
 from collections import deque
 
-import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
+import appdaemon.plugins.hass.hassapi as hass
 
 """Calculate moving average of Eigen Bedrijf to dampen peaks."""
 
@@ -11,7 +11,7 @@ QLEN: int = 12
 ATTR_EB: dict = {"unit_of_measurement": "W", "friendly_name": "eigen_bedrijf_avg"}
 
 
-class EigenBedrijf_Avg(hass.Hass):  # type: ignore[misc]
+class EigenBedrijf_Avg(hass.Hass):
     def initialize(self):
         self.log(f"============================= EigenBedrijf_Avg v{VERSION} ====")
         self.sensor = "sensor.eigen_bedrijf"

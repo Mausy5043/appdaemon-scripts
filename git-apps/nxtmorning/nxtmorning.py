@@ -10,7 +10,7 @@ from functools import partial
 from statistics import quantiles as stqu
 from zoneinfo import ZoneInfo
 
-import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
+import appdaemon.plugins.hass.hassapi as hass
 import astral.sun as astsun
 from astral import LocationInfo
 
@@ -41,7 +41,7 @@ EPS: float = 0.0001
 VERSION: str = "1.4.1"
 
 
-class NextMorning(hass.Hass):  # type: ignore[misc]
+class NextMorning(hass.Hass):
     def initialize(self):
         self.log(f"============================== NextMorning v{VERSION} ====")
         self.starting = True

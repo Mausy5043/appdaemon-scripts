@@ -1,10 +1,10 @@
-import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
+import appdaemon.plugins.hass.hassapi as hass
 
 """Access secrets.yaml file for other apps"""
 VERSION = "1.1.1"
 
 
-class Secrets(hass.Hass):  # type: ignore[misc]
+class Secrets(hass.Hass):
     def initialize(self):
         """Initialize the app."""
         self.log(f"============================== Secret dispenser v{VERSION} ====")

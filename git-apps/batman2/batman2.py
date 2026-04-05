@@ -1,7 +1,7 @@
 import datetime as dt
 from typing import Any
 
-import appdaemon.plugins.hass.hassapi as hass  # type: ignore[import-untyped]
+import appdaemon.plugins.hass.hassapi as hass
 import battalk as bt
 import const2 as cs
 import prices2 as p2
@@ -12,7 +12,7 @@ Listen to changes in the battery state and control the charging/discharging base
 """
 
 
-class BatMan2(hass.Hass):  # type: ignore[misc]
+class BatMan2(hass.Hass):
     def initialize(self):
         """Initialize the app."""
         self.log(f"===================================== BatMan2 v{cs.VERSION} ====", level="INFO")
