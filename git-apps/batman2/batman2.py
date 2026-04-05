@@ -485,13 +485,11 @@ class BatMan2(hass.Hass):
         # and we don't want to discharge during the expensive timeslots
         # because that would drain the batteries and negatively affect
         # solar availability for the EV charger.
-        # zomwin_override flips behaviour from a sunny to a non-sunny day or vv.
-        _discharge_bool = (
-            (self.datum["sunny"])  # sunny day
-            and (not self.zomwin_override)  # override switch is off
-            and (self.is_expensive(self.get_slot()))  # expensive slot
-        )
+        # zomwin_override flips behavior from a sunny to a non-sunny day or vv.
         _sunny_day: bool = self.datum["sunny"] and not self.zomwin_override
+        _discharge_bool = _sunny_day and (  # in spring/summer and not overridden
+            self.is_expensive(self.get_slot())
+        )  # expensive slot
         # if _sunny_day and (self.soc > _min_soc) and (self.is_expensive(self.get_slot())):
         if _discharge_bool:
             # For now we use NOM to avoid locking out the EV charger during "Grid Rewards".
