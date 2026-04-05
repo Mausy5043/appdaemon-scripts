@@ -30,7 +30,7 @@ class BatMan2(hass.Hass):
         self.new_stance: str = cs.DEFAULT_STANCE
         self.prv_stance: str = cs.DEFAULT_STANCE
         self.tibber_prices: dict[str, float] = {}
-        self.tibber_sensor: str = self.secrets.get_tibber_sensor()    # type: ignore[attr-defined]
+        self.tibber_sensor: str = self.secrets.get_tibber_sensor()  # type: ignore[attr-defined]
         self.tibber_quarters: bool = True  # whether the Tibber prices are quarterly or not
         self.price: dict = {
             "today": [],
@@ -248,8 +248,8 @@ class BatMan2(hass.Hass):
 
     def update_tibber_prices(self) -> None:
         self.tibber_prices = p2.get_pricedict(
-            token=self.secrets.get_tibber_token(),    # type: ignore[attr-defined]
-            url=self.secrets.get_tibber_url(),    # type: ignore[attr-defined]
+            token=self.secrets.get_tibber_token(),  # type: ignore[attr-defined]
+            url=self.secrets.get_tibber_url(),  # type: ignore[attr-defined]
         )
         self.log(f"Updated Tibber prices: {len(self.tibber_prices)} prices received.", level="DEBUG")
         self.tibber_quarters = False
