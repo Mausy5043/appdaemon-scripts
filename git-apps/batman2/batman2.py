@@ -588,7 +588,7 @@ class BatMan2(hass.Hass):
                     level="INFO",
                 )
             case _:
-                self.logf(f"SP: No power setpoints calculated for unknown stance {stance}. ", level="ERROR")
+                self.log(f"SP: No power setpoints calculated for unknown stance {stance}. ", level="ERROR")
 
     def adjust_pwr_sp(self):
         """Control each battery to the desired power setpoint."""
@@ -726,7 +726,7 @@ class BatMan2(hass.Hass):
         """Get the battery credentials from the secrets."""
         _auth_dict = {}
         for _b in ["bat1", "bat2", "p1"]:
-            _auth_dict[_b] = self.secrets.get_sessy_secrets(_b)
+            _auth_dict[_b] = self.secrets.get_sessy_secrets(_b)  # type: ignore[attr-defined]
         return _auth_dict
 
 
