@@ -59,7 +59,7 @@ class NextMorning(hass.Hass):
         )
 
         # Initial run at startup
-        _eb_median: str = self.get_state(entity_id=ENTITY_BASELOAD, attribute="state", default="234.5")
+        _eb_median: str = str(self.get_state(entity_id=ENTITY_BASELOAD, attribute="state", default="234.5"))
         self.eb_median: float = float(_eb_median)
         self.update_sunonpanels_sensor(None)
         # to prevent updating the value we ask for a bit more data
