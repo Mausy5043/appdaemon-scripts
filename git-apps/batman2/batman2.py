@@ -370,7 +370,7 @@ class BatMan2(hass.Hass):
         self.update_states()
 
         # calculate the distance to the minimum price
-        self.price_diff = _pn - self.price["stats"]["min"]
+        self.price_diff = _pn - self.price["stats"]["q1"]
         # log the current price
         if self.debug:
             self.log(
