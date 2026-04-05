@@ -141,7 +141,7 @@ def price_statistics(prices: list[float]) -> dict:
         "q3": round(Q[2], 3),
         "max": round(max(prices), 3),
         "range": round(max(prices) - min(prices), 3),
-        "iqr": 0,
+        "iqr": 0.0,
         "idx": {},
         "text": "",
     }
