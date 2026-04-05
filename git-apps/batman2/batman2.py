@@ -280,8 +280,6 @@ class BatMan2(hass.Hass):
         _div = 1 if self.tibber_quarters else 4
         # in case of hourly prices we need to make sure we get int(hours)
         _cslot = int(_cslot / _div)
-        # Get the average price for comparison
-        avg_price = self.price["stats"]["avg"]
 
         # Get sorted indices of the price list
         sorted_indices = self.price["stats"]["idx"]["ALL"]
