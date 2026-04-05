@@ -95,7 +95,7 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
             self.log(f"Sun reaches {ELEVATION:.2f} deg at: {_target.strftime('%Y-%m-%d %H:%M:%S %Z')}")
         # number of seconds until target time is reached:
         _t_sec: float = max(0.0, (_target - _now).total_seconds())  # avoid negative _t_sec in edge-cases
-        self.next_sun_on_panels: float = round(_t_sec / 3600, 2)
+        self.next_sun_on_panels: float = max(EPS, abs(round(_t_sec / 3600, 2)))
         if self.starting or _t_sec < 360:
             self.log(f"Time until next sun_on_panels : {self.next_sun_on_panels:.2f} hours")
 
@@ -125,12 +125,10 @@ class NextMorning(hass.Hass):  # type: ignore[misc]
     def set_bats_minimum_soc(self):
         """Calculate and update the minimum SoC required to reach the next morning."""
         # calculate the minimum SoC required to reach the predicted time
-        minimum_soc: float = round((self.next_sun_on_panels * self.eb_median / CONVERSION), 1)
+        minimum_soc: float = max(EPS, abs(round((self.next_sun_on_panels * self.eb_median / CONVERSION), 1)))
         if self.starting:
             self.log(f"Calculated minimum SoC        : {minimum_soc:.2f} %")
         try:
-            if abs(minimum_soc) < EPS:
-                minimum_soc = EPS
             self.set_state(entity_id="sensor.bats_minimum_soc", state=minimum_soc, attributes=ATTR_BMS)
         except Exception as her:
             self.log(str(type(her)), level="ERROR")
