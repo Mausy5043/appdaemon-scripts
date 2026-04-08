@@ -227,12 +227,12 @@ class BatMan2(hass.Hass):
             self.ev_charging = True
         self.log(f"EV charging                 =  {str(_evc).upper()}", level="DEBUG")
         # check if we are going to assist the EV
-        self.ev_assist = cs.EV_ASSIST
-        if self.price["now"] > self.price["stats"]["q3"]:
-            self.ev_assist = True
-            self.log("EV assist                   =  ENABLED", level="INFO")
-        else:
-            self.log("EV assist                   =  DISABLED", level="DEBUG")
+        # self.ev_assist = cs.EV_ASSIST
+        # if self.price["now"] > self.price["stats"]["q3"]:
+        #     self.ev_assist = True
+        #     self.log("EV assist                   =  ENABLED", level="INFO")
+        # else:
+        #     self.log("EV assist                   =  DISABLED", level="DEBUG")
         # check if we are allowed to control the batteries
         _ctrl: Any = self.get_state(cs.CTRL_BY_ME)
         self.ctrl_by_me = False
@@ -469,15 +469,15 @@ class BatMan2(hass.Hass):
             # we overrule this only if ev_assist is true
             #   and the price is above Q3
             #   and the SoC is above bats_min_soc
-            if self.ev_assist and self.soc > _min_soc:  # or p1_power < -200
-                # stance = cs.DISCHARGE
-                # EV assist is essentially not available for now.
-                self.log(
-                    f"EV is charging and price is above Q3 ({_q3:.3f}), but proposing to keep stance ({
-                        stance
-                    }).",
-                    level="DEBUG",
-                )
+            # if self.ev_assist and self.soc > _min_soc:  # or p1_power < -200
+            #     # stance = cs.DISCHARGE
+            #     # EV assist is essentially not available for now.
+            #     self.log(
+            #         f"EV is charging and price is above Q3 ({_q3:.3f}), but proposing to keep stance ({
+            #             stance
+            #         }).",
+            #         level="DEBUG",
+            #     )
         else:
             stance = cs.NOM  # default stance is NOM
 
