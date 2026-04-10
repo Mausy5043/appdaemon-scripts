@@ -50,6 +50,15 @@ class BatMan3(hass.Hass):
         self.log("BatMan3 is running...", level="INFO")
         self.starting = False
 
+    def terminate(self):
+        """Clean up app."""
+        self.log("__Terminating BatMan3...")
+        # Cancel all registered callbacks
+        for handle in self.callback_handles:
+            self.cancel_listen_state(handle)
+        self.callback_handles.clear()
+        self.log("__...terminated BatMan3.")
+
     def set_call_backs(self) -> None:
         """Set-up callbacks for price changes and watchdogs."""
         # Set-up callback for 10s after a price change
