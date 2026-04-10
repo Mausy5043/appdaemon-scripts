@@ -7,7 +7,7 @@ import const2 as cs
 import prices3 as pr
 import utils2 as ut
 
-"""BatMan2 App
+"""BatMan3 App
 Listen to changes in the battery state and control the charging/discharging based on energy prices and strategies.
 """
 
