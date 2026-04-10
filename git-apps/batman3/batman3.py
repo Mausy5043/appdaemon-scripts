@@ -4,7 +4,7 @@ from typing import Any
 import appdaemon.plugins.hass.hassapi as hass
 # import battalk as bt
 import const2 as cs
-import prices3 as pr
+# import prices3 as pr
 import utils2 as ut
 
 """BatMan3 App
