@@ -1,0 +1,6 @@
+---
+
+batman3:
+  module: batman3
+  class: BatMan3
+  priority: 86

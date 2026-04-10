@@ -1,0 +1,204 @@
+"""Fetch price info from Tibber API instead of from HA."""
+
+import datetime as dt
+from statistics import quantiles as stqu
+from typing import Any
+
+import const2 as cs
+import requests
+import utils2 as ut
+from dateutil import parser
+
+requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
+
+
+class Tibber:
+    """Class to interact with the Tibber API."""
+
+    def __init__(self, token: str, url: str) -> None:
+        """Initialize the Tibber class with the API token and URL."""
+        self.api_key = token
+        self.api_url = url
+        self.qry_now: str = cs.PRICES["qry_now"]
+        self.qry_nxt: str = cs.PRICES["qry_nxt"]
+        self.headers_post: dict = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}",
+        }
+
+    def get_pricedict(self) -> dict[str, float]:
+        """Get the price list from the API."""
+        now_data: dict = {}
+        data: dict = {"error": "no data returned"}
+        payload: dict = {"query": self.qry_now}
+        now_data = post_request(_url=self.api_url, _headers=self.headers_post, _payload=payload)
+        resp_data: list[dict] = unpeel(_data=now_data, _key="today")
+        data = convert(resp_data)
+        return data
+
+
+def post_request(_url: str, _headers: dict[str, str], _payload: dict[str, str]) -> dict:
+    """Make a POST request to the given URL with the specified headers and payload.
+
+    Args:
+        _url (str): URL to call
+        _headers (dict): headers to be used
+        _payload (dict): the query to be used
+
+    Returns:
+        dict: contains the query results
+    """
+    try:
+        response = requests.post(
+            _url,
+            headers=_headers,
+            json=_payload,
+            timeout=30.0,
+            verify=False,  # nosec B501
+        )
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        return dict(response.json())
+    except requests.exceptions.RequestException as her:
+        return {"error": f"An error occurred: {her}"}
+
+
+def unpeel(_data: dict[str, dict], _key: str) -> list[dict]:
+    """Unpeel the data from the given key."""
+    _lkey: list = []
+    try:
+        _ldata: dict = _data["data"]
+        _lviewer: dict = _ldata["viewer"]
+        _lhomes: list = _lviewer["homes"]
+        _lhome: dict = _lhomes[0]
+        _lcurSub: dict = _lhome["currentSubscription"]
+        _lpriceInfo: dict = _lcurSub["priceInfo"]
+        _lkey = _lpriceInfo[_key]
+    except KeyError:
+        pass
+    # fmt: off
+    # _lkey is a list of dicts with the following structure:
+    # [{'total': 0.277, 'energy': 0.1069, 'tax': 0.1701, 'startsAt': '2025-06-22T00:00:00.000+02:00'},
+    #  {'total': 0.27, 'energy': 0.1011, 'tax': 0.1689, 'startsAt': '2025-06-22T01:00:00.000+02:00'},
+    #  {'total': 0.2675, 'energy': 0.099, 'tax': 0.1685, 'startsAt': '2025-06-22T02:00:00.000+02:00'},
+    #  {'total': 0.2573, 'energy': 0.0906, 'tax': 0.1667, 'startsAt': '2025-06-22T03:00:00.000+02:00'},
+    # fmt: on
+    return _lkey
+
+
+def convert(_data: list[dict]) -> dict[str, float]:
+    _ret: dict[str, float] = {}
+    for item in _data:
+        sample_time = parser.isoparse(item["startsAt"]).strftime("%Y-%m-%d %H:%M:%S")
+        price = float(item["total"]) * 100  # float cEUR/kWh
+        _ret[sample_time] = price
+
+    # fmt: off
+    # _ret is a dict with the following structure:
+    # {'2025-06-22 00:00:00': 27.700000000000003,
+    #  '2025-06-22 01:00:00': 27.0,
+    #  '2025-06-22 02:00:00': 26.75,
+    #  '2025-06-22 03:00:00': 25.729999999999997,
+    #  }
+    # fmt: on
+    return dict(sorted(_ret.items()))
+
+
+def get_pricedict(token: str, url: str) -> dict[str, float]:
+    """Get the price list from the API."""
+    price_getter = Tibber(token, url)
+    _a = price_getter.get_pricedict()
+    return _a
+
+
+def get_price(price_dict: dict[str, float], hour: int, min: int) -> float:
+    _price: float = 0.0
+    # Round the minutes to the nearest 15 minutes to get the quarter
+    _qrtr: int = int(round(min / 15) * 15)
+    for _dt, _price in price_dict.items():
+        sample_time: dt.datetime = parser.isoparse(_dt)
+        if sample_time.hour == hour and sample_time.minute == _qrtr:
+            break
+    return _price
+
+
+def total_price(pricelist: dict[str, float]) -> list[float]:
+    """Convert a given list of raw Tibber prices.
+    Note: the output of the convert() method is expected as input
+          we expect the dict to be sorted by sample_time.
+    """
+    # Euro to cents conversion
+    _p: list[float] = list(pricelist.values())
+    return _p
+
+
+def price_statistics(prices: list[float]) -> dict:
+    """Calculate and return price statistics."""
+    Q = stqu(prices, n=4, method="inclusive")
+    price_stats: dict[str, Any] = {
+        "min": round(min(prices), 3),
+        "q1": round(Q[0], 3),
+        "med": round(Q[1], 3),
+        "avg": round(sum(prices) / len(prices), 3),
+        "q3": round(Q[2], 3),
+        "max": round(max(prices), 3),
+        "range": round(max(prices) - min(prices), 3),
+        "iqr": round(Q[2] - Q[0], 3),
+        "idx": {},
+        "text": "",
+    }
+
+    # build a list of indices lowest to highest price
+    sorted_indices = ut.sort_index(prices, rev=False)
+    __si = sorted_indices  # remember this list
+
+    # build a list of the slots that are in Q1 (in the interval min...q1)
+    Q1 = [idx for idx in sorted_indices if prices[idx] < Q[0]]
+    # remove the indices in Q1
+    sorted_indices = sorted_indices[len(Q1) :]
+
+    # build a list of the slots that are in Q2 (in the interval q1...median)
+    Q2 = [idx for idx in sorted_indices if prices[idx] < Q[1]]
+    sorted_indices = sorted_indices[len(Q2) :]
+
+    # build a list of the slots that are in Q3 (in the interval median...q3)
+    Q3 = [idx for idx in sorted_indices if prices[idx] < Q[2]]
+    sorted_indices = sorted_indices[len(Q3) :]
+
+    Q4 = sorted_indices
+
+    price_stats["idx"] = {
+        "Q1": Q1,
+        "Q2": Q2,
+        "Q3": Q3,
+        "Q4": Q4,
+        "ALL": __si,
+    }
+    # price_stats["Q1avg"] = sum(Q1) / len(Q1)
+    # price_stats["Q2avg"] = sum(Q2) / len(Q2)
+    # price_stats["Q3avg"] = sum(Q3) / len(Q3)
+    # price_stats["Q4avg"] = sum(Q4) / len(Q4)
+    """
+    Ik zie voor vannacht weer een dalletje van 25 cent en een piek in de middag oplopend
+    tot 37 cent. Dus, zou effe moeten rekenen of laden in het dal een goed idee is en
+    waar nou precies de grens ligt.
+
+    De BEP is volgens mij de <gemiddelde laadprijs> / <gemiddelde RTE van de batterijen>
+
+    Dus, in mijn geval de gemiddelde prijs om de batterijen te laden is 25 ct.
+    Mijn RTE is een schamele 79%. Dus de gemiddelde prijs over de rest van de
+    dag moet >= (25/0.79 =) 31.6 ct zijn. Dan concludeer ik dat de komende 24 uur
+    de batterijen even op NOM mogen.
+
+    TODO: Wat is de gemiddelde prijs van "de rest van de dag" ?
+    """
+    price_stats["text"] = (
+        f"min: {price_stats.get('min', 'N/A'):.3f}, "
+        f"q1 : {price_stats.get('q1', 'N/A'):.3f}, "
+        f"med: {price_stats.get('med', 'N/A'):.3f}, "
+        f"avg: {price_stats.get('avg', 'N/A'):.3f}, "
+        f"q3 : {price_stats.get('q3', 'N/A'):.3f}, "
+        f"max: {price_stats.get('max', 'N/A'):.3f}, "
+        f"range: {price_stats.get('range', 'N/A'):.3f}, "
+        f"iqr: {price_stats.get('iqr', 'N/A'):.3f}"
+    )
+    return price_stats
