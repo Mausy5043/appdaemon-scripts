@@ -488,8 +488,7 @@ class BatMan2(hass.Hass):
         # zomwin_override flips behavior from a sunny to a non-sunny day or vv.
         _sunny_day: bool = self.datum["sunny"] and not self.zomwin_override
         _discharge_bool = _sunny_day and (  # in spring/summer and not overridden
-            self.is_expensive(self.get_slot()) and
-            self.ev_charging == cs.EV_ASSIST
+            self.is_expensive(self.get_slot()) and self.ev_charging == cs.EV_ASSIST
         )  # expensive slot
         # if _sunny_day and (self.soc > _min_soc) and (self.is_expensive(self.get_slot())):
         if _discharge_bool:

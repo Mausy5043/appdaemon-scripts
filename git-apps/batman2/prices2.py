@@ -149,7 +149,7 @@ def price_statistics(prices: list[float]) -> dict:
 
     # build a list of indices lowest to highest price
     sorted_indices = ut.sort_index(prices, rev=False)
-    __si = sorted_indices   # remember this list
+    __si = sorted_indices  # remember this list
 
     # build a list of the slots that are in Q1 (in the interval min...q1)
     Q1 = [idx for idx in sorted_indices if prices[idx] < Q[0]]
