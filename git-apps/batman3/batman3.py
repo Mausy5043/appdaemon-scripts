@@ -77,30 +77,51 @@ class BatMan3(hass.Hass):
         """Get the state of all monitored entities."""
         # update the calendar/season info
         self.datum = ut.get_these_days()
-        # minimum SoC required to provide power until next morning
-        _bms: Any = self.get_state(cs.BAT_MIN_SOC)
-        self.bats_min_soc = float(_bms)
+        try:
+            # minimum SoC required to provide power until next morning
+            _bms: Any = self.get_state(cs.BAT_MIN_SOC)
+            self.bats_min_soc = float(_bms)
+        except:
+            self.log("*** BAT_MIN_SOC state update failed")
 
-        # check if we are allowed to control the batteries
-        _ctrl: Any = self.get_state(cs.CTRL_BY_ME)
-        self.ctrl_by_me = str(_ctrl) == "on"
-        # check whether the EV is currently charging
-        _evc: Any = self.get_state(cs.EV_REQ_PWR)
-        self.ev_charging = str(_evc) == "on"
-        # check if PV/BAT is delivering electricity
-        _lpv: Any = self.get_state(cs.LOW_PV)
-        self.low_pv = str(_lpv) == "on"
-        # check if PV/BAT is delivering electricity
-        _swo: Any = self.get_state(cs.ZOMWIN_OVERRIDE)
-        self.sw_override = str(_swo) == "on"
+        try:
+            # check if we are allowed to control the batteries
+            _ctrl: Any = self.get_state(cs.CTRL_BY_ME)
+            self.ctrl_by_me = str(_ctrl) == "on"
+        except:
+            self.log("*** CTRL_BY_ME state update failed")
 
-        # get PV/BAT current and power values
-        _pvc: Any = self.get_state(cs.PV_CURRENT)
-        self.pv_current = float(_pvc)  # [A]
-        _pvv: Any = self.get_state(cs.PV_VOLTAGE)
-        self.pv_volt = int(float(_pvv))  # [V]
-        _pvp: Any = self.get_state(cs.PV_POWER)
-        self.pv_power = int(float(_pvp))  # [W]
+        try:
+            # check whether the EV is currently charging
+            _evc: Any = self.get_state(cs.EV_REQ_PWR)
+            self.ev_charging = str(_evc) == "on"
+        except:
+            self.log("*** EV_REQ_PWR state update failed")
+
+        try:
+            # check if PV/BAT is delivering electricity
+            _lpv: Any = self.get_state(cs.LOW_PV)
+            self.low_pv = str(_lpv) == "on"
+        except:
+            self.log("*** LOW_PV state update failed")
+
+        try:
+            # check if PV/BAT is delivering electricity
+            _swo: Any = self.get_state(cs.ZOMWIN_OVERRIDE)
+            self.sw_override = str(_swo) == "on"
+        except:
+            self.log("*** ZOMWIN_OVERRIDE state update failed")
+
+        try:
+            # get PV/BAT current and power values
+            _pvc: Any = self.get_state(cs.PV_CURRENT)
+            self.pv_current = float(_pvc)  # [A]
+            _pvv: Any = self.get_state(cs.PV_VOLTAGE)
+            self.pv_volt = int(float(_pvv))  # [V]
+            _pvp: Any = self.get_state(cs.PV_POWER)
+            self.pv_power = int(float(_pvp))  # [W]
+        except:
+            self.log("*** PV meter state update failed")
 
         self.log_status("get_monitor_states")
 
