@@ -25,6 +25,7 @@ class Tibber:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}",
         }
+        self.prices:dict[str, float] = {}
 
     def fetch_pricedict(self) -> dict[str, float]:
         """Get the price list from the API."""
@@ -34,6 +35,7 @@ class Tibber:
         now_data = post_request(_url=self.api_url, _headers=self.headers_post, _payload=payload)
         resp_data: list[dict] = unpeel(_data=now_data, _key="today")
         data = convert(resp_data)
+        self.prices = data
         return data
 
 
