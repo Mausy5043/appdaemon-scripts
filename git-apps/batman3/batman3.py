@@ -85,7 +85,7 @@ class BatMan3(hass.Hass):
         _f = "\n".join([", ".join(_fstrl[i:i+12]) for i in range(0, len(_fstrl), 12)])
 
         # self.log(f"{json.dumps(self.tibber.pricelist)}", level="INFO")
-        self.log(_f, level="INFO")
+        self.log(f"[ \n{_f} ]", level="INFO")
         """
             2026-04-11 19:04:02.862808 INFO batman3: *** 96 TIBBER prices updated ***
             2026-04-11 20:58:20.429126 INFO batman3: {
