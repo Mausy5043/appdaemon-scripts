@@ -85,7 +85,8 @@ class BatMan3(hass.Hass):
         self.log(f"*** {len(self.tibber.prices)} TIBBER prices available ***")
         # convert to a list of formatted strings
         _fstrl = [f"{i:+06.2f}" for i in self.tibber.pricelist]
-        _f = "\n".join([", ".join(_fstrl[i:i+16]) for i in range(0, len(_fstrl), 12)])
+        _len =16
+        _f = "\n".join([", ".join(_fstrl[i:i+_len]) for i in range(0, len(_fstrl), _len)])
         self.log(f"[ \n{_f} ]", level="INFO")
 
         # self.log(f"{json.dumps(self.tibber.pricelist)}", level="INFO")
