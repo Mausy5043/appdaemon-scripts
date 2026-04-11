@@ -65,6 +65,7 @@ class BatMan3(hass.Hass):
         self.get_monitor_states()
 
         self.log("BatMan3 is running...", level="INFO")
+        self.update_tibber_prices()
         self.starting = False
 
     def terminate(self):
