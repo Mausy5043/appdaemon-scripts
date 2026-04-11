@@ -65,7 +65,7 @@ class BatMan3(hass.Hass):
         self.get_monitor_states()
 
         self.log("BatMan3 is running...", level="INFO")
-        self.update_tibber_prices()
+        self.log_pricelist()
         self.starting = False
 
     def terminate(self):
@@ -79,31 +79,17 @@ class BatMan3(hass.Hass):
 
     def update_tibber_prices(self) -> None:
         self.tibber.update_prices()
-        self.log(f"*** {len(self.tibber.prices)} TIBBER prices updated ***")
+        self.log_pricelist()
+
+    def log_pricelist(self):
+        self.log(f"*** {len(self.tibber.prices)} TIBBER prices available ***")
         # convert to a list of formatted strings
         _fstrl = [f"{i:+06.2f}" for i in self.tibber.pricelist]
-        _f = "\n".join([", ".join(_fstrl[i:i+12]) for i in range(0, len(_fstrl), 12)])
+        _f = "\n".join([", ".join(_fstrl[i:i+16]) for i in range(0, len(_fstrl), 12)])
+        self.log(f"[ \n{_f} ]", level="INFO")
 
         # self.log(f"{json.dumps(self.tibber.pricelist)}", level="INFO")
-        self.log(f"[ \n{_f} ]", level="INFO")
-        """
-            2026-04-11 19:04:02.862808 INFO batman3: *** 96 TIBBER prices updated ***
-            2026-04-11 20:58:20.429126 INFO batman3: {
-            "2026-04-11 00:00:00": 30.69,
-            "2026-04-11 00:15:00": 29.439999999999998,
-            "2026-04-11 00:30:00": 28.04,
-            "2026-04-11 00:45:00": 27.04,
-            "2026-04-11 01:00:00": 28.17,
-            "2026-04-11 01:15:00": 27.529999999999998,
-            "2026-04-11 01:30:00": 26.69,
-            :
-            "2026-04-11 22:30:00": 28.18,
-            "2026-04-11 22:45:00": 24.37,
-            "2026-04-11 23:00:00": 25.669999999999998,
-            "2026-04-11 23:15:00": 23.98,
-            "2026-04-11 23:30:00": 22.49,
-            "2026-04-11 23:45:00": 22.0
-        """
+
 
     def get_monitor_states(self):
         """Get the state of all monitored entities."""
