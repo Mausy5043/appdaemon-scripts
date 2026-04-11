@@ -25,114 +25,97 @@ class Tibber:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}",
         }
-        self.prices:dict[str, float] = {}
+        self.prices: dict[str, float] = {}
+        self.pricelist: list[float] = []
+        self.update_prices()
 
     def fetch_pricedict(self) -> dict[str, float]:
         """Get the price list from the API."""
         now_data: dict = {}
         data: dict = {"error": "no data returned"}
         payload: dict = {"query": self.qry_now}
-        now_data = post_request(_url=self.api_url, _headers=self.headers_post, _payload=payload)
-        resp_data: list[dict] = unpeel(_data=now_data, _key="today")
-        data = convert(resp_data)
-        self.prices = data
+        now_data = self.post_request(payload)
+        resp_data: list[dict] = self.unpeel(_data=now_data, _key="today")
+        data = self.convert(resp_data)
         return data
 
+    def post_request(self, _payload: dict[str, str]) -> dict:
+        """Make a POST request to the given URL with the specified headers and payload.
 
-def post_request(_url: str, _headers: dict[str, str], _payload: dict[str, str]) -> dict:
-    """Make a POST request to the given URL with the specified headers and payload.
+        Args:
+            _payload (dict): the query to be used
 
-    Args:
-        _url (str): URL to call
-        _headers (dict): headers to be used
-        _payload (dict): the query to be used
+        Returns:
+            dict: contains the query results
+        """
+        try:
+            response = requests.post(
+                self.api_url,
+                headers=self.headers_post,
+                json=_payload,
+                timeout=30.0,
+                verify=False,  # nosec B501
+            )
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            return dict(response.json())
+        except requests.exceptions.RequestException as her:
+            return {"error": f"An error occurred: {her}"}
 
-    Returns:
-        dict: contains the query results
-    """
-    try:
-        response = requests.post(
-            _url,
-            headers=_headers,
-            json=_payload,
-            timeout=30.0,
-            verify=False,  # nosec B501
-        )
-        response.raise_for_status()  # Raise an exception for HTTP errors
-        return dict(response.json())
-    except requests.exceptions.RequestException as her:
-        return {"error": f"An error occurred: {her}"}
+    @staticmethod
+    def unpeel(_data: dict[str, dict], _key: str) -> list[dict]:
+        """Unpeel the data from the given key."""
+        _lkey: list = []
+        try:
+            _ldata: dict = _data["data"]
+            _lviewer: dict = _ldata["viewer"]
+            _lhomes: list = _lviewer["homes"]
+            _lhome: dict = _lhomes[0]
+            _lcurSub: dict = _lhome["currentSubscription"]
+            _lpriceInfo: dict = _lcurSub["priceInfo"]
+            _lkey = _lpriceInfo[_key]
+        except KeyError:
+            pass
+        # fmt: off
+        # _lkey is a list of dicts with the following structure:
+        # [{'total': 0.277, 'energy': 0.1069, 'tax': 0.1701, 'startsAt': '2025-06-22T00:00:00.000+02:00'},
+        #  {'total': 0.27, 'energy': 0.1011, 'tax': 0.1689, 'startsAt': '2025-06-22T01:00:00.000+02:00'},
+        #  {'total': 0.2675, 'energy': 0.099, 'tax': 0.1685, 'startsAt': '2025-06-22T02:00:00.000+02:00'},
+        #  {'total': 0.2573, 'energy': 0.0906, 'tax': 0.1667, 'startsAt': '2025-06-22T03:00:00.000+02:00'},
+        # fmt: on
+        return _lkey
 
+    @staticmethod
+    def convert( _data: list[dict]) -> dict[str, float]:
+        _ret: dict[str, float] = {}
+        for item in _data:
+            sample_time = parser.isoparse(item["startsAt"]).strftime("%Y-%m-%d %H:%M:%S")
+            price = float(item["total"]) * 100  # float cEUR/kWh
+            _ret[sample_time] = price
 
-def unpeel(_data: dict[str, dict], _key: str) -> list[dict]:
-    """Unpeel the data from the given key."""
-    _lkey: list = []
-    try:
-        _ldata: dict = _data["data"]
-        _lviewer: dict = _ldata["viewer"]
-        _lhomes: list = _lviewer["homes"]
-        _lhome: dict = _lhomes[0]
-        _lcurSub: dict = _lhome["currentSubscription"]
-        _lpriceInfo: dict = _lcurSub["priceInfo"]
-        _lkey = _lpriceInfo[_key]
-    except KeyError:
-        pass
-    # fmt: off
-    # _lkey is a list of dicts with the following structure:
-    # [{'total': 0.277, 'energy': 0.1069, 'tax': 0.1701, 'startsAt': '2025-06-22T00:00:00.000+02:00'},
-    #  {'total': 0.27, 'energy': 0.1011, 'tax': 0.1689, 'startsAt': '2025-06-22T01:00:00.000+02:00'},
-    #  {'total': 0.2675, 'energy': 0.099, 'tax': 0.1685, 'startsAt': '2025-06-22T02:00:00.000+02:00'},
-    #  {'total': 0.2573, 'energy': 0.0906, 'tax': 0.1667, 'startsAt': '2025-06-22T03:00:00.000+02:00'},
-    # fmt: on
-    return _lkey
+        # fmt: off
+        # _ret is a dict with the following structure:
+        # {'2025-06-22 00:00:00': 27.700000000000003,
+        #  '2025-06-22 01:00:00': 27.0,
+        #  '2025-06-22 02:00:00': 26.75,
+        #  '2025-06-22 03:00:00': 25.729999999999997,
+        #  }
+        # fmt: on
+        return dict(sorted(_ret.items()))
 
+    def update_prices(self):
+        self.prices = self.fetch_pricedict()
+        self.pricelist = list(self.prices.values())
 
-def convert(_data: list[dict]) -> dict[str, float]:
-    _ret: dict[str, float] = {}
-    for item in _data:
-        sample_time = parser.isoparse(item["startsAt"]).strftime("%Y-%m-%d %H:%M:%S")
-        price = float(item["total"]) * 100  # float cEUR/kWh
-        _ret[sample_time] = price
-
-    # fmt: off
-    # _ret is a dict with the following structure:
-    # {'2025-06-22 00:00:00': 27.700000000000003,
-    #  '2025-06-22 01:00:00': 27.0,
-    #  '2025-06-22 02:00:00': 26.75,
-    #  '2025-06-22 03:00:00': 25.729999999999997,
-    #  }
-    # fmt: on
-    return dict(sorted(_ret.items()))
-
-
-def fetch_pricedict(token: str, url: str) -> dict[str, float]:
-    """Get the price list from the API."""
-    price_getter = Tibber(token, url)
-    _a = price_getter.fetch_pricedict()
-    return _a
-
-
-def get_price(price_dict: dict[str, float], hour: int, min: int) -> float:
-    """Return the price for a given hour and minute."""
-    _price: float = 0.0
-    # Round the minutes to the nearest 15 minutes to get the quarter
-    _qrtr: int = int(round(min / 15) * 15)
-    for _dt, _price in price_dict.items():
-        sample_time: dt.datetime = parser.isoparse(_dt)
-        if sample_time.hour == hour and sample_time.minute == _qrtr:
-            break
-    return _price
-
-
-def total_price(pricelist: dict[str, float]) -> list[float]:
-    """Convert a given list of raw Tibber prices.
-    Note: the output of the convert() method is expected as input
-          we expect the dict to be sorted by sample_time.
-    """
-    # Euro to cents conversion
-    _p: list[float] = list(pricelist.values())
-    return _p
-
+    def get_price(price_dict: dict[str, float], hour: int, min: int) -> float:
+        """Return the price for a given hour and minute."""
+        _price: float = 0.0
+        # Round the minutes to the nearest 15 minutes to get the quarter
+        _qrtr: int = int(round(min / 15) * 15)
+        for _dt, _price in price_dict.items():
+            sample_time: dt.datetime = parser.isoparse(_dt)
+            if sample_time.hour == hour and sample_time.minute == _qrtr:
+                break
+        return _price
 
 def price_statistics(prices: list[float]) -> dict:
     """Calculate and return price statistics."""
