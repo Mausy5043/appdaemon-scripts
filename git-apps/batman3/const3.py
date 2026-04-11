@@ -10,7 +10,7 @@ DEBUG: bool = True
 # --- datetime and timezone related settings
 AUTUMN_EQUINOX_OFFSET: int = -7  # [days] offset to the start of winter
 SPRING_EQUINOX_OFFSET: int = -7  # [days] offset to the start of summer
-TZ: str = "Europe/Amsterdam" # timezone used by the app (fixed for now)
+TZ: str = "Europe/Amsterdam"  # timezone used by the app (fixed for now)
 # ZOMWIN_OVERRIDE = "input_boolean.bat_winterstand"
 
 # ### PRICES SETTINGS ### #
@@ -29,21 +29,21 @@ PRICES: dict = {
 }
 
 # Watchdog entities
-BAT_MIN_SOC_WD: str = "input_boolean.bats_min_soc" # Detector if SoC is below minimum state of charge
-CTRL_BY_ME: str = "input_boolean.bat_ctrl_app" # Manual override of BatMan3 actions
-EV_REQ_PWR: str = "input_boolean.evneedspwr" #  becomes active when EV charger is using power
+BAT_MIN_SOC_WD: str = "input_boolean.bats_min_soc"  # Detector if SoC is below minimum state of charge
+CTRL_BY_ME: str = "input_boolean.bat_ctrl_app"  # Manual override of BatMan3 actions
+EV_REQ_PWR: str = "input_boolean.evneedspwr"  # becomes active when EV charger is using power
 #   PV-current watch dog
-PV_CURRENT_WD: str = "input_boolean.pvovercurrent" # becomes active when PV current > 23.5 A
+PV_CURRENT_WD: str = "input_boolean.pvovercurrent"  # becomes active when PV current > 23.5 A
 #   greediness is configurable in HA
 GREED_C: str = "input_number.greed_ll"  # setting for greed LL
 GREED_D: str = "input_number.greed_hh"  # setting for greed (diff)
 
 # HA automation sensors:
-BAT_MIN_SOC: str = "sensor.bats_minimum_soc" # SoC required to reach next 10AM base on avg baseload
-LOW_PV: str = "binary_sensor.lowpv" # detector for low PV export/import values
-PV_CURRENT: str = "sensor.pv_kwh_meter_current" # current reading HomeWizard meter on PV
-PV_POWER: str = "sensor.pv_kwh_meter_power" # power reading HomeWizard meter on PV
-PV_VOLTAGE: str = "sensor.pv_kwh_meter_voltage" # voltage reading HomeWizard meter on PV
+BAT_MIN_SOC: str = "sensor.bats_minimum_soc"  # SoC required to reach next 10AM base on avg baseload
+LOW_PV: str = "binary_sensor.lowpv"  # detector for low PV export/import values
+PV_CURRENT: str = "sensor.pv_kwh_meter_current"  # current reading HomeWizard meter on PV
+PV_POWER: str = "sensor.pv_kwh_meter_power"  # power reading HomeWizard meter on PV
+PV_VOLTAGE: str = "sensor.pv_kwh_meter_voltage"  # voltage reading HomeWizard meter on PV
 PV_CURRENT_MAX: float = 23.5  # [A(abs)] maximum current setting
 
 # # maximum rates per battery
