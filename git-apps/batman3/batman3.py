@@ -1,8 +1,10 @@
 import datetime as dt
 from typing import Any
+import json
 
 import appdaemon.plugins.hass.hassapi as hass
 import const3 as cs
+import prices3 as pr
 import utils3 as ut
 
 """BatMan3 App
@@ -28,6 +30,7 @@ class BatMan3(hass.Hass):
 
         # initialize Tibber connector
         self.tibber_sensor: str = self.secrets.get_tibber_sensor()  # type: ignore[attr-defined]
+        self.tibber_prices: dict = {}
 
         # initialize store for price related info
         self.price: dict = {
@@ -57,9 +60,7 @@ class BatMan3(hass.Hass):
         self.set_call_backs()
         # ... then get their actual state
         self.get_monitor_states()
-
-        # update monitors with actual data
-        # self.update_price_states()
+        self.update_tibber_prices()
 
         self.log("BatMan3 is running...", level="INFO")
         self.starting = False
@@ -72,6 +73,14 @@ class BatMan3(hass.Hass):
             self.cancel_listen_state(handle)
         self.callback_handles.clear()
         self.log("__...terminated BatMan3.")
+
+    def update_tibber_prices(self) -> None:
+        self.tibber_prices = pr.fetch_pricedict(
+            token=self.secrets.get_tibber_token(),  # type: ignore[attr-defined]
+            url=self.secrets.get_tibber_url(),  # type: ignore[attr-defined]
+        )
+        self.log("*** TIBBER prices updated ***")
+        self.log(f"{json.dumps(self.tibber_prices)}", level="INFO")
 
     def get_monitor_states(self):
         """Get the state of all monitored entities."""
