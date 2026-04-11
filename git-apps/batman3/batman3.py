@@ -79,8 +79,8 @@ class BatMan3(hass.Hass):
             token=self.secrets.get_tibber_token(),  # type: ignore[attr-defined]
             url=self.secrets.get_tibber_url(),  # type: ignore[attr-defined]
         )
-        self.log("*** TIBBER prices updated ***")
-        self.log(f"{json.dumps(self.tibber_prices)}", level="INFO")
+        self.log(f"*** {len(self.tibber_prices)} TIBBER prices updated ***")
+        # self.log(f"{json.dumps(self.tibber_prices)}", level="INFO")
 
     def get_monitor_states(self):
         """Get the state of all monitored entities."""
