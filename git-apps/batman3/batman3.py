@@ -80,10 +80,10 @@ class BatMan3(hass.Hass):
     def update_tibber_prices(self) -> None:
         self.tibber.update_prices()
         self.log(f"*** {len(self.tibber.prices)} TIBBER prices updated ***")
-        _f = ", ".join([round(i,2) for i in self.tibber.pricelist])
+        _f = ", ".join([f"{i:.2f}" for i in self.tibber.pricelist])
 
         # self.log(f"{json.dumps(self.tibber.pricelist)}", level="INFO")
-        self.log(f"{_f}", level="INFO")
+        self.log(_f, level="INFO")
         """
             2026-04-11 19:04:02.862808 INFO batman3: *** 96 TIBBER prices updated ***
             2026-04-11 20:58:20.429126 INFO batman3: {
