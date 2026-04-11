@@ -90,6 +90,9 @@ class BatMan3(hass.Hass):
         # check if PV/BAT is delivering electricity
         _lpv: Any = self.get_state(cs.LOW_PV)
         self.low_pv = str(_lpv) == "on"
+        # check if PV/BAT is delivering electricity
+        _swo: Any = self.get_state(cs.ZOMWIN_OVERRIDE)
+        self.sw_override = str(_swo) == "on"
 
         # get PV/BAT current and power values
         _pvc: Any = self.get_state(cs.PV_CURRENT)
@@ -185,11 +188,12 @@ class BatMan3(hass.Hass):
         _C = "C" if self.ctrl_by_me else "c"
         _E = "E" if self.ev_charging else "e"
         _L = "l" if self.low_pv else "L"
+        _O = "!" if self.sw_override else ""
         _override = False
         _S = "Z" if self.datum["sunny"] else "W"
         if _override:
             _S = _S.lower()
 
         _p = f"p={self.price["now"]:+7.3f} (__.___)"
-        self.status = " ".join([_C, _E, _L, _S, _p, f"<{callee}>"])
+        self.status = " ".join([_O, _C, _E, _L, _S, _p, f"<{callee}>"])
         self.log(self.status, level="INFO")
