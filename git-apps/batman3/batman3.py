@@ -80,7 +80,9 @@ class BatMan3(hass.Hass):
     def update_tibber_prices(self) -> None:
         self.tibber.update_prices()
         self.log(f"*** {len(self.tibber.prices)} TIBBER prices updated ***")
-        _f = ", ".join([f"{i:.2f}" for i in self.tibber.pricelist])
+        # convert to a list of formatted strings
+        _fstrl = [f"{i:.2f}" for i in self.tibber.prices]
+        _f = "\n".join([", ".join(_fstrl[i:i+12]) for i in range(0, len(_fstrl), 12)])
 
         # self.log(f"{json.dumps(self.tibber.pricelist)}", level="INFO")
         self.log(_f, level="INFO")
