@@ -98,6 +98,7 @@ class BatMan3(hass.Hass):
         self.pv_volt = int(float(_pvv))  # [V]
         _pvp: Any = self.get_state(cs.PV_POWER)
         self.pv_power = int(float(_pvp))  # [W]
+        self.status("get_monitor_states")
 
     def set_call_backs(self) -> None:
         """Set-up callbacks for price changes and watchdogs."""
@@ -186,5 +187,5 @@ class BatMan3(hass.Hass):
             _S = _S.lower()
 
         _p = f"p={self.price["now"]:+7.3f} (__.___)"
-        self.status = " ".join([_C, _E, _L, _S, _p])
+        self.status = " ".join([_C, _E, _L, _S, _p, f"<{callee}>"])
         self.log(self.status, level="INFO")
