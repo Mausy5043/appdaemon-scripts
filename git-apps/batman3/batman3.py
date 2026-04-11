@@ -161,13 +161,13 @@ class BatMan3(hass.Hass):
     def watchdog_runin_cb(self, entity, attribute, old, new, **kwargs):
         """Delayed callback for watchdogs."""
         self.get_monitor_states()
-        self.log_status(callee="WD_runin_cb")
+        self.log("WD_runin_cb")
         # self.log(f"Current stance              =  {self.new_stance}", level="DEBUG")
 
     def lowpv_runin_cb(self, entity, new, **kwargs):
         """Handle low PV condition changes."""
         self.get_monitor_states()
-        self.log_status(callee="lowpv_runin_cb")
+        self.log("lowpv_runin_cb")
 
     # CONTROL LOGIC
 
