@@ -81,7 +81,7 @@ class BatMan3(hass.Hass):
         self.tibber.update_prices()
         self.log(f"*** {len(self.tibber.prices)} TIBBER prices updated ***")
         # convert to a list of formatted strings
-        _fstrl = [f"{i:+5.2f}" for i in self.tibber.pricelist]
+        _fstrl = [f"{i:+06.2f}" for i in self.tibber.pricelist]
         _f = "\n".join([", ".join(_fstrl[i:i+12]) for i in range(0, len(_fstrl), 12)])
 
         # self.log(f"{json.dumps(self.tibber.pricelist)}", level="INFO")
