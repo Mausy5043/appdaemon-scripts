@@ -101,6 +101,7 @@ class BatMan3(hass.Hass):
         self.pv_volt = int(float(_pvv))  # [V]
         _pvp: Any = self.get_state(cs.PV_POWER)
         self.pv_power = int(float(_pvp))  # [W]
+
         self.log_status("get_monitor_states")
 
     def set_call_backs(self) -> None:
@@ -164,7 +165,7 @@ class BatMan3(hass.Hass):
     def watchdog_runin_cb(self, entity, attribute, old, new, **kwargs):
         """Delayed callback for watchdogs."""
         self.get_monitor_states()
-        self.log("WD_runin_cb")
+        # self.log("WD_runin_cb")
         # self.log(f"Current stance              =  {self.new_stance}", level="DEBUG")
 
     def lowpv_runin_cb(self, entity, new, **kwargs):
@@ -184,16 +185,18 @@ class BatMan3(hass.Hass):
         return _auth_dict
 
     def log_status(self, callee: str):
-
+        """Construct a status message and log it."""
         _C = "C" if self.ctrl_by_me else "c"
         _E = "E" if self.ev_charging else "e"
         _L = "l" if self.low_pv else "L"
-        _O = "!" if self.sw_override else ""
-        _override = False
+        _override = self.sw_override
+        _O = ""
         _S = "Z" if self.datum["sunny"] else "W"
         if _override:
+            _O = "!"
             _S = _S.lower()
 
         _p = f"p={self.price["now"]:+7.3f} (__.___)"
+
         self.status = " ".join([_O, _C, _E, _L, _S, _p, f"<{callee}>"])
         self.log(self.status, level="INFO")
