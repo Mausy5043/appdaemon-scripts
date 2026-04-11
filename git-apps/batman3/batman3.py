@@ -1,11 +1,11 @@
 import datetime as dt
+from logging import DEBUG
 from typing import Any
 
 import appdaemon.plugins.hass.hassapi as hass
-# import battalk as bt
-import const2 as cs
-# import prices3 as pr
-import utils2 as ut
+import const3 as cs
+import prices3 as pr
+import utils3 as ut
 
 """BatMan3 App
 Listen to changes in the battery state and control the charging/discharging based on energy prices and strategies.
@@ -23,6 +23,7 @@ class BatMan3(hass.Hass):
         # create internals
         self.debug: bool = cs.DEBUG
         self.secrets = self.get_app("scrts")
+        self.battalk = self.get_app("battalk")
 
         self.datum: dict = ut.get_these_days()
         self.tibber_sensor: str = self.secrets.get_tibber_sensor()  # type: ignore[attr-defined]
@@ -41,9 +42,9 @@ class BatMan3(hass.Hass):
         self.pv_current: float = 0.0  # A; used to monitor PV overcurrent
         self.pv_volt: float = 0.0  # V; used to control PV current
         self.pv_power: int = 0  # W
-        #self.low_pv = self.get_state(cs.LOW_PV) == "on"
+        self.low_pv = self.get_state(cs.LOW_PV) == "on"
 
-        #self.set_call_backs()
+        self.set_call_backs()
         # update monitors with actual data
         #self.update_price_states()
 
@@ -61,108 +62,44 @@ class BatMan3(hass.Hass):
 
     def set_call_backs(self) -> None:
         """Set-up callbacks for price changes and watchdogs."""
-        # Set-up callback for 10s after a price change
-        # self.callback_handles.append(
-        #     self.listen_state(
-        #         callback=self.price_current_cb,
-        #         entity_id=self.tibber_sensor,
-        #         attribute=cs.PRICES["attr"]["now"],
-        #         duration=10,
-        #     )
-        # )
-        # Callback at the top of the slot to catch slots that have the same price.
-        now = dt.datetime.now()
         quarter = 15
+
+        # Determine the time of the next callback for price updates.
+        now = dt.datetime.now()
         minutes = (now.minute // quarter + 1) * quarter
         next_quarter = now.replace(minute=0, second=0, microsecond=0) + dt.timedelta(
             minutes=minutes, seconds=20
         )
-        self.log(f"Next quarter callback       =  {next_quarter.strftime("%Y-%m-%d %H:%M:%S")}", level="INFO")
-        # run_every callbacks can't be cancelled
+        # run_every callbacks can't be cancelled !
+        # so this one is not added to calback_handles
         self.run_every(
-            callback=self.price_current_cb,
+            callback=self.quarter_started_cb,
             start=next_quarter,
             interval=cs.PRICES["update_interval"],
         )
+
         # Set-up callbacks for watchdog changes
-        # EV starts charging
-        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.EV_REQ_PWR))
-        # App control is allowed or prohibited
-        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.CTRL_BY_ME))
-        # Minimum SoC is reached
-        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.BAT_MIN_SOC_WD))
-        # PV overcurrent detected
-        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.PV_CURRENT_WD))
-        # minimum greed
-        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.GREED_LL))
-        # maximum greed
-        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.GREED_HH))
-        # low PV continuously for 60s
-        self.callback_handles.append(
-            self.listen_state(self.watchdog_cb, cs.LOW_PV, duration=dt.timedelta(seconds=60))
-        )
+        # #EV starts charging
+        # self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.EV_REQ_PWR))
+        # # App control is allowed or prohibited
+        # self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.CTRL_BY_ME))
+        # # Minimum SoC is reached
+        # self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.BAT_MIN_SOC_WD))
+        # # PV overcurrent detected
+        # self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.PV_CURRENT_WD))
+        # # charging greed level is changed
+        # self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.GREED_LL))
+        # # discharging greed difference is changed
+        # self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.GREED_HH))
+        # # low PV detected continuously for 60s
+        # _duur = dt.timedelta(seconds=60)
+        # self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.LOW_PV, duration=_duur))
 
     # CALLBACKS
 
-    def price_current_cb(self, **kwargs) -> None:
+    def quarter_started_cb(self, **kwargs) -> None:
         """Callback for current price change."""
-        # get current hour, quarter and slot
-        _hr: int = dt.datetime.now().hour
-        _qr: int = 0
-        _slot: int = self.get_slot()
-        if _slot == 0 or self.starting:
-            # update info at midnight or when the app is starting up
-            self.datum = ut.get_these_days()
-            # get the prices for today
-            self.update_tibber_prices()
-            # get a list of hourly (or quarterly) prices and do some basic statistics
-            _p: list[float] = pr.total_price(self.tibber_prices)
-            self.price["today"] = _p
-            self.price["stats"] = pr.price_statistics(prices=_p)
-            self.update_price_slots(prices=_p)
-
-        if self.tibber_quarters:
-            # callback will be either on the hour or on the quarter
-            _qr = dt.datetime.now().minute
-        # get the price for the current timeslot
-        _pn = self.price["today"][_slot]
-        # lookup Tibber price for the current hour and quarter
-        # _pt = pr.get_price(self.tibber_prices, _hr, _qr)
-        self.price["now"] = _pn
-
-        # every time the current prices are updated, we update other stuff too:
-        self.update_states()
-
-        # calculate the distance to the minimum price
-        self.price_diff = _pn - self.price["stats"]["q1"]
-        # log the current price
-        if self.debug:
-            self.log(
-                f"Current Tibber price        = {_pn:+.3f} ({self.price_diff:.3f})",
-                level="DEBUG",
-            )
-            self.log(
-                "Current time slot           =  ",
-                level="DEBUG",
-            )
-            self.log(
-                f"Current price @ slot          = {_pn:+.3f} ({self.price_diff:.3f}) @ {_slot:.0f} ({_slot / 4:.2f})",
-                level="INFO",
-            )
-        if self.debug and ((_qr == 0 and _hr == 0) or self.starting):
-            self.log(
-                f"Today's pricelist =  {[f'{n:.3f}' for n in self.price['today']]}\n  : cheap slots  = [{
-                    ', '.join(f'{v / 4:.2f}' for v in self.price['cheap_slot'])
-                }]\n  : expensive slots  = [{
-                    ', '.join(f'{v / 4:.2f}' for v in self.price['expen_slot'])
-                }]\n  : STATISTICS : {self.price['stats']['text']}",
-                level="INFO",
-            )
-
-        # determine the new stance ...
-        self.calc_stance()
-        # ... and set it
-        self.set_stance()
+        self.log("*** Quarter started.", level="INFO")
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
@@ -177,12 +114,13 @@ class BatMan3(hass.Hass):
 
     def watchdog_runin_cb(self, entity, attribute, old, new, **kwargs):
         # Update the current state of the system
-        self.update_states()
+        #self.update_states()
         # determine the new stance ...
-        self.calc_stance()
+        #self.calc_stance()
         # ... and set it
-        self.set_stance()
+        #self.set_stance()
         # Log the current stance
+        self.log("*** watchdog_runin_cb", level="INFO")
         self.log(f"Current stance              =  {self.new_stance}", level="DEBUG")
 
     def lowpv_runin_cb(self, entity, new, **kwargs):
