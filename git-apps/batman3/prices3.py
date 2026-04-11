@@ -26,7 +26,7 @@ class Tibber:
             "Authorization": f"Bearer {self.api_key}",
         }
 
-    def get_pricedict(self) -> dict[str, float]:
+    def fetch_pricedict(self) -> dict[str, float]:
         """Get the price list from the API."""
         now_data: dict = {}
         data: dict = {"error": "no data returned"}
@@ -103,14 +103,15 @@ def convert(_data: list[dict]) -> dict[str, float]:
     return dict(sorted(_ret.items()))
 
 
-def get_pricedict(token: str, url: str) -> dict[str, float]:
+def fetch_pricedict(token: str, url: str) -> dict[str, float]:
     """Get the price list from the API."""
     price_getter = Tibber(token, url)
-    _a = price_getter.get_pricedict()
+    _a = price_getter.fetch_pricedict()
     return _a
 
 
 def get_price(price_dict: dict[str, float], hour: int, min: int) -> float:
+    """Return the price for a given hour and minute."""
     _price: float = 0.0
     # Round the minutes to the nearest 15 minutes to get the quarter
     _qrtr: int = int(round(min / 15) * 15)
