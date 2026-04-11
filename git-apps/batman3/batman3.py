@@ -98,7 +98,7 @@ class BatMan3(hass.Hass):
         self.pv_volt = int(float(_pvv))  # [V]
         _pvp: Any = self.get_state(cs.PV_POWER)
         self.pv_power = int(float(_pvp))  # [W]
-        self.status("get_monitor_states")
+        self.log_status("get_monitor_states")
 
     def set_call_backs(self) -> None:
         """Set-up callbacks for price changes and watchdogs."""
@@ -127,6 +127,8 @@ class BatMan3(hass.Hass):
         self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.CTRL_BY_ME))
         # EV starts charging
         self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.EV_REQ_PWR))
+        # Summer/Winter override
+        self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.ZOMWIN_OVERRIDE))
         # low PV detected continuously for 60s
         _duur = dt.timedelta(seconds=60)
         self.callback_handles.append(self.listen_state(self.watchdog_cb, cs.LOW_PV, duration=_duur))
@@ -141,7 +143,7 @@ class BatMan3(hass.Hass):
 
     def quarter_started_cb(self, **kwargs) -> None:
         """Callback for current price change."""
-        self.status("qrtStart")
+        self.log_status("qrtStart")
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
@@ -158,12 +160,14 @@ class BatMan3(hass.Hass):
 
     def watchdog_runin_cb(self, entity, attribute, old, new, **kwargs):
         """Delayed callback for watchdogs."""
-        self.status("WD_runin_cb")
+        self.get_monitor_states()
+        self.log_status(callee="WD_runin_cb")
         # self.log(f"Current stance              =  {self.new_stance}", level="DEBUG")
 
     def lowpv_runin_cb(self, entity, new, **kwargs):
         """Handle low PV condition changes."""
-        self.status("lowpv_runin_cb")
+        self.get_monitor_states()
+        self.log_status(callee="lowpv_runin_cb")
 
     # CONTROL LOGIC
 
@@ -176,7 +180,7 @@ class BatMan3(hass.Hass):
             _auth_dict[_b] = self.secrets.get_sessy_secrets(_b)  # type: ignore[attr-defined]
         return _auth_dict
 
-    def status(self, callee):
+    def log_status(self, callee: str):
 
         _C = "C" if self.ctrl_by_me else "c"
         _E = "E" if self.ev_charging else "e"
