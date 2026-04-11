@@ -11,7 +11,6 @@ DEBUG: bool = True
 AUTUMN_EQUINOX_OFFSET: int = -7  # [days] offset to the start of winter
 SPRING_EQUINOX_OFFSET: int = -7  # [days] offset to the start of summer
 TZ: str = "Europe/Amsterdam"  # timezone used by the app (fixed for now)
-# ZOMWIN_OVERRIDE = "input_boolean.bat_winterstand"
 
 # ### PRICES SETTINGS ### #
 PRICES: dict = {
@@ -34,6 +33,7 @@ CTRL_BY_ME: str = "input_boolean.bat_ctrl_app"  # Manual override of BatMan3 act
 EV_REQ_PWR: str = "input_boolean.evneedspwr"  # becomes active when EV charger is using power
 #   PV-current watch dog
 PV_CURRENT_WD: str = "input_boolean.pvovercurrent"  # becomes active when PV current > 23.5 A
+ZOMWIN_OVERRIDE = "input_boolean.bat_winterstand"   # override current sunny/non-sunny
 #   greediness is configurable in HA
 GREED_C: str = "input_number.greed_ll"  # setting for greed LL
 GREED_D: str = "input_number.greed_hh"  # setting for greed (diff)
