@@ -94,7 +94,6 @@ class BatMan3(hass.Hass):
         # self.log(f"{self.tibber.stats["Q3"]}")
         # self.log(f"{self.tibber.stats["Q4"]}")
 
-
     def get_monitor_states(self, caller: str = ""):
         """Get the state of all monitored entities."""
         # update the calendar/season info
@@ -242,10 +241,10 @@ class BatMan3(hass.Hass):
             _O = "!"
             _S = _S.lower()
 
-        _pn = self.tibber.price_now     # current price
-        _pd = _pn - self.tibber.stats["q1"] # difference with price at Q1
+        _pn = self.tibber.price_now  # current price
+        _pd = _pn - self.tibber.stats["q1"]  # difference with price at Q1
         _p = f"p={_pn:+06.2f} ({_pd:+06.2f})"
-        _qn = self.tibber.quarter_now   # current quarter
+        _qn = self.tibber.quarter_now  # current quarter
         _q = f"{_p} @{_qn:02d} ({_qn / 4:05.2f})"
 
         self.status = " ".join([_O, _C, _E, _L, _S, _q, f"<{caller}>"])

@@ -32,6 +32,9 @@ class Tibber:
         self.quarter_now: int = 0
         self.stats: dict[str, Any] = {}
         self.statstext: str = "statistics unavailable"
+
+        # self.charge: list[int] = []
+        # self.discharge: list[int] = []
         self.update_prices()
 
     def fetch_pricedict(self) -> dict[str, float]:
@@ -112,6 +115,10 @@ class Tibber:
         self.pricelist = list(self.prices.values())  # convert the prices to a list
         self.price_statistics()
         # TODO: lists
+        # self.charge_greed = "indices of prices < LL or 0.0 (?)"
+        # self.charge_q1 = "indices of prices < q1"
+        # self.discharge_q3 = "indices of prices > q3"
+        # self.discharge_greed = "indices of prices > (Q1avg + HH) or (?)"
         self.update_current_price()
 
     def update_current_price(self) -> None:
@@ -137,7 +144,8 @@ class Tibber:
 
     def price_statistics(self) -> None:
         """Calculate price statistics."""
-        def sum_values_at_index(idx:list[int], val:list[float]) -> float:
+
+        def sum_values_at_index(idx: list[int], val: list[float]) -> float:
             return sum(val[i] for i in idx)
 
         Q = stqu(self.pricelist, n=4, method="inclusive")
@@ -166,7 +174,7 @@ class Tibber:
         sorted_indices = sorted_indices[len(Q1) :]
         self.stats["Q1"] = {
             "idx": Q1,
-            "avg": sum_values_at_index(Q1, self.pricelist)/len(Q1),
+            "avg": sum_values_at_index(Q1, self.pricelist) / len(Q1),
             "n": len(Q1),
         }
 
@@ -175,7 +183,7 @@ class Tibber:
         sorted_indices = sorted_indices[len(Q2) :]
         self.stats["Q2"] = {
             "idx": Q2,
-            "avg": sum_values_at_index(Q2, self.pricelist)/len(Q2),
+            "avg": sum_values_at_index(Q2, self.pricelist) / len(Q2),
             "n": len(Q2),
         }
 
@@ -184,14 +192,14 @@ class Tibber:
         sorted_indices = sorted_indices[len(Q3) :]
         self.stats["Q3"] = {
             "idx": Q3,
-            "avg": sum_values_at_index(Q3, self.pricelist)/len(Q3),
+            "avg": sum_values_at_index(Q3, self.pricelist) / len(Q3),
             "n": len(Q3),
         }
 
         Q4 = sorted_indices
         self.stats["Q4"] = {
             "idx": Q4,
-            "avg": sum_values_at_index(Q4, self.pricelist)/len(Q4),
+            "avg": sum_values_at_index(Q4, self.pricelist) / len(Q4),
             "n": len(Q4),
         }
 
