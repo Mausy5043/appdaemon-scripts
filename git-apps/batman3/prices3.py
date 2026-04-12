@@ -140,7 +140,7 @@ class Tibber:
         #     sample_time: dt.datetime = parser.isoparse(_dt)
         #     if sample_time.hour == hour and sample_time.minute == _qrtr:
         #         break
-        try:
+        try
             _price: float = self.pricelist[quarter]
         except:
             _price = 25.52
