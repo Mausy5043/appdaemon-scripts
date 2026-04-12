@@ -78,7 +78,7 @@ class BatMan3(hass.Hass):
     def update_tibber_prices(self) -> None:
         """Update the tibber price list a midnight otherwise just update the current price."""
         if ut.is_midnight(dt.datetime.now()):
-            self.tibber.update_prices([self.greed_c, self.greed_d]) # requires update_monitor_states() to have executed
+            self.tibber.update_prices()
             self.log_pricelist()
         else:
             self.tibber.update_current_price()
@@ -193,7 +193,6 @@ class BatMan3(hass.Hass):
     def quarter_started_cb(self, **kwargs) -> None:
         """Callback for current price change."""
         caller = "qrtStart"
-        self.update_monitor_states(caller=caller)
         self.update_tibber_prices()
         self.get_monitor_states(caller=caller)
 
