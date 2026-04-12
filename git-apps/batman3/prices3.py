@@ -30,6 +30,8 @@ class Tibber:
         # set a default price until we get the actual
         self.price_now: float = cs.PRICES["adjust"]["extra"] + cs.PRICES["adjust"]["taxes"]
         self.quarter_now: int = 0
+        self.stats: dict[str, Any] = {}
+        self.statstext: str = "statistics unavailable"
         self.update_prices()
 
     def fetch_pricedict(self) -> dict[str, float]:
@@ -108,7 +110,7 @@ class Tibber:
     def update_prices(self) -> None:
         self.prices = self.fetch_pricedict()  # get the prices from the API
         self.pricelist = list(self.prices.values())  # convert the prices to a list
-        # TODO: statistics
+        self.price_statistics()
         # TODO: lists
         self.update_current_price()
 
@@ -133,75 +135,70 @@ class Tibber:
         _price: float = self.pricelist[quarter]
         return _price
 
+    def price_statistics(self) -> None:
+        """Calculate price statistics."""
+        Q = stqu(self.pricelist, n=4, method="inclusive")
+        self.stats: dict[str, Any] = {
+            "min": round(min(self.pricelist), 3),
+            "q1": round(Q[0], 3),
+            "med": round(Q[1], 3),
+            "avg": round(sum(self.pricelist) / len(self.pricelist), 3),
+            "q3": round(Q[2], 3),
+            "max": round(max(self.pricelist), 3),
+            "rng": round(max(self.pricelist) - min(self.pricelist), 3),
+            "iqr": round(Q[2] - Q[0], 3),
+            "Q1": {},
+            "Q2": {},
+            "Q3": {},
+            "Q4": {},
+        }
 
-def price_statistics(prices: list[float]) -> dict:
-    """Calculate and return price statistics."""
-    Q = stqu(prices, n=4, method="inclusive")
-    price_stats: dict[str, Any] = {
-        "min": round(min(prices), 3),
-        "q1": round(Q[0], 3),
-        "med": round(Q[1], 3),
-        "avg": round(sum(prices) / len(prices), 3),
-        "q3": round(Q[2], 3),
-        "max": round(max(prices), 3),
-        "range": round(max(prices) - min(prices), 3),
-        "iqr": round(Q[2] - Q[0], 3),
-        "idx": {},
-        "text": "",
-    }
+        # build a list of indices; lowest to highest price
+        sorted_indices = ut.sort_index(self.pricelist, rev=False)
+        # __si = sorted_indices  # remember this list
 
-    # build a list of indices lowest to highest price
-    sorted_indices = ut.sort_index(prices, rev=False)
-    __si = sorted_indices  # remember this list
+        # build a list of the slots that are in Q1 (in the interval min...q1)
+        Q1 = [idx for idx in sorted_indices if self.pricelist[idx] < Q[0]]
+        # remove the indices in Q1 to avoid adding them to the next list
+        sorted_indices = sorted_indices[len(Q1) :]
+        self.stats["Q1"] = {
+            "idx": Q1,
+            "avg": sum(Q1) / len(Q1),
+        }
 
-    # build a list of the slots that are in Q1 (in the interval min...q1)
-    Q1 = [idx for idx in sorted_indices if prices[idx] < Q[0]]
-    # remove the indices in Q1
-    sorted_indices = sorted_indices[len(Q1) :]
+        # build a list of the slots that are in Q2 (in the interval q1...median)
+        Q2 = [idx for idx in sorted_indices if self.pricelist[idx] < Q[1]]
+        sorted_indices = sorted_indices[len(Q2) :]
+        self.stats["Q2"] = {
+            "idx": Q2,
+            "avg": sum(Q2) / len(Q2),
+        }
 
-    # build a list of the slots that are in Q2 (in the interval q1...median)
-    Q2 = [idx for idx in sorted_indices if prices[idx] < Q[1]]
-    sorted_indices = sorted_indices[len(Q2) :]
+        # build a list of the slots that are in Q3 (in the interval median...q3)
+        Q3 = [idx for idx in sorted_indices if self.pricelist[idx] < Q[2]]
+        sorted_indices = sorted_indices[len(Q3) :]
+        self.stats["Q3"] = {
+            "idx": Q3,
+            "avg": sum(Q3) / len(Q3),
+        }
 
-    # build a list of the slots that are in Q3 (in the interval median...q3)
-    Q3 = [idx for idx in sorted_indices if prices[idx] < Q[2]]
-    sorted_indices = sorted_indices[len(Q3) :]
+        Q4 = sorted_indices
+        self.stats["Q4"] = {
+            "idx": Q4,
+            "avg": sum(Q4) / len(Q4),
+        }
 
-    Q4 = sorted_indices
-
-    price_stats["idx"] = {
-        "Q1": Q1,
-        "Q2": Q2,
-        "Q3": Q3,
-        "Q4": Q4,
-        "ALL": __si,
-    }
-    # price_stats["Q1avg"] = sum(Q1) / len(Q1)
-    # price_stats["Q2avg"] = sum(Q2) / len(Q2)
-    # price_stats["Q3avg"] = sum(Q3) / len(Q3)
-    # price_stats["Q4avg"] = sum(Q4) / len(Q4)
-    """
-    Ik zie voor vannacht weer een dalletje van 25 cent en een piek in de middag oplopend
-    tot 37 cent. Dus, zou effe moeten rekenen of laden in het dal een goed idee is en
-    waar nou precies de grens ligt.
-
-    De BEP is volgens mij de <gemiddelde laadprijs> / <gemiddelde RTE van de batterijen>
-
-    Dus, in mijn geval de gemiddelde prijs om de batterijen te laden is 25 ct.
-    Mijn RTE is een schamele 79%. Dus de gemiddelde prijs over de rest van de
-    dag moet >= (25/0.79 =) 31.6 ct zijn. Dan concludeer ik dat de komende 24 uur
-    de batterijen even op NOM mogen.
-
-    TODO: Wat is de gemiddelde prijs van "de rest van de dag" ?
-    """
-    price_stats["text"] = (
-        f"min: {price_stats.get('min', 'N/A'):.3f}, "
-        f"q1 : {price_stats.get('q1', 'N/A'):.3f}, "
-        f"med: {price_stats.get('med', 'N/A'):.3f}, "
-        f"avg: {price_stats.get('avg', 'N/A'):.3f}, "
-        f"q3 : {price_stats.get('q3', 'N/A'):.3f}, "
-        f"max: {price_stats.get('max', 'N/A'):.3f}, "
-        f"range: {price_stats.get('range', 'N/A'):.3f}, "
-        f"iqr: {price_stats.get('iqr', 'N/A'):.3f}"
-    )
-    return price_stats
+        self.statstext = (
+            f"min: {self.stats['min']:.3f}, "
+            f"q1 : {self.stats['q1']:.3f}, "
+            f"med: {self.stats['med']:.3f}, "
+            f"avg: {self.stats['avg']:.3f}, "
+            f"q3 : {self.stats['q3']:.3f}, "
+            f"max: {self.stats['max']:.3f}, "
+            f"rng: {self.stats['rng']:.3f}, "
+            f"iqr: {self.stats['iqr']:.3f}\n"
+            f"Q1 avg: {self.stats['Q1']['avg']:.3f}, "
+            f"Q2 avg: {self.stats['Q1']['avg']:.3f}, "
+            f"Q3 avg: {self.stats['Q1']['avg']:.3f}, "
+            f"Q4 avg: {self.stats['Q1']['avg']:.3f} "
+        )

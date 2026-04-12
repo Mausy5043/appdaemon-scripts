@@ -88,7 +88,7 @@ class BatMan3(hass.Hass):
         # convert to a list of formatted strings
         _fstrl = [f"{i:+06.2f}" for i in self.tibber.pricelist]
         _f = "\n".join([", ".join(_fstrl[i : i + _len]) for i in range(0, len(_fstrl), _len)])
-        self.log(f"[ \n{_f} ]", level="INFO")
+        self.log(f"[ \n{_f} ]\n{self.tibber.statstext}", level="INFO")
 
     def get_monitor_states(self, caller: str = ""):
         """Get the state of all monitored entities."""
