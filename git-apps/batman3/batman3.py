@@ -81,7 +81,7 @@ class BatMan3(hass.Hass):
         self.tibber.update_prices()
         self.log_pricelist()
 
-    def log_pricelist(self, _len=16):
+    def log_pricelist(self, _len=10):
         self.log(f"*** {len(self.tibber.prices)} TIBBER prices available ***")
         # convert to a list of formatted strings
         _fstrl = [f"{i:+06.2f}" for i in self.tibber.pricelist]
