@@ -47,7 +47,7 @@ class BatMan3(hass.Hass):
         self.greed_d: float = 100.00
         # ... then get their actual state
         self.update_monitor_states()
-        self.update_tibber_prices([self.greed_c, self.greed_d])
+        self.update_tibber_prices()
         # ... and finally make sure we get updates when these change ...
         self.set_call_backs()
 
@@ -68,7 +68,7 @@ class BatMan3(hass.Hass):
     def update_tibber_prices(self) -> None:
         """Update the tibber price list a midnight otherwise just update the current price."""
         if ut.is_midnight(dt.datetime.now()):
-            self.tibber.update_prices([self.greed_c, self.greed_d]) # requires update_monitor_states() to have executed
+            self.tibber.update_prices(self.greed_c, self.greed_d) # requires update_monitor_states() to have executed
             self.log_pricelist()
         else:
             self.tibber.update_current_price()
