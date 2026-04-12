@@ -89,6 +89,11 @@ class BatMan3(hass.Hass):
         _fstrl = [f"{i:+06.2f}" for i in self.tibber.pricelist]
         _f = "\n".join([", ".join(_fstrl[i : i + _len]) for i in range(0, len(_fstrl), _len)])
         self.log(f"[ \n{_f} ]\n{self.tibber.statstext}", level="INFO")
+        self.log(f"{self.tibber.stats["Q1"]}")
+        self.log(f"{self.tibber.stats["Q2"]}")
+        self.log(f"{self.tibber.stats["Q3"]}")
+        self.log(f"{self.tibber.stats["Q4"]}")
+
 
     def get_monitor_states(self, caller: str = ""):
         """Get the state of all monitored entities."""
