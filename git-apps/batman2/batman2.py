@@ -460,7 +460,7 @@ class BatMan2(hass.Hass):
         _min_pwr: float = (self.soc - _min_soc) * 100
         if _min_pwr < cs.MIN_DISCHARGE:
             _min_pwr = 0
-        _q3 = self.price["stats"]["q3"]
+        # _q3 = self.price["stats"]["q3"]
         _slot = self.get_slot()
 
         if self.ev_charging:
