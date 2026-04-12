@@ -242,9 +242,9 @@ class BatMan3(hass.Hass):
             _S = _S.lower()
 
         _pn = self.tibber.price_now
-        _p = f"p={_pn:+7.3f} (__.___)"
+        _p = f"p={_pn:+06.2f} (__.___)"
         _qn = self.tibber.quarter_now
-        _q = f"{_p} @{_qn:02d} (__.__)"
+        _q = f"{_p} @{_qn:02d} ({_qn/12:05.2f})"
 
         self.status = " ".join([_O, _C, _E, _L, _S, _q, f"<{caller}>"])
         self.log(self.status, level="INFO")
