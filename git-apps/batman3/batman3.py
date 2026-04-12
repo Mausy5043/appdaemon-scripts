@@ -229,7 +229,7 @@ class BatMan3(hass.Hass):
         """Construct a status message and log it."""
         _C = "C" if self.ctrl_by_me else "c"
         _E = "E" if self.ev_charging else "e"
-        _L = "l" if self.low_pv else "L"
+        _L = "L" if self.low_pv else "l"
         _override = self.sw_override
         _O = ""
         _S = "Z" if self.datum["sunny"] else "W"
