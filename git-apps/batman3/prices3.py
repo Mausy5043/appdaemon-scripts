@@ -205,7 +205,7 @@ class Tibber:
             f"rng: {self.stats['rng']:.3f}, "
             f"iqr: {self.stats['iqr']:.3f}\n"
             f"Q1 avg: {self.stats['Q1']['avg']:.3f}, "
-            f"Q2 avg: {self.stats['Q1']['avg']:.3f}, "
-            f"Q3 avg: {self.stats['Q1']['avg']:.3f}, "
-            f"Q4 avg: {self.stats['Q1']['avg']:.3f} "
+            f"Q2 avg: {self.stats['Q2']['avg']:.3f}, "
+            f"Q3 avg: {self.stats['Q3']['avg']:.3f}, "
+            f"Q4 avg: {self.stats['Q4']['avg']:.3f} "
         )
