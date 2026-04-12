@@ -53,11 +53,6 @@ def hours_until_next_10am() -> int:
 
     return hours_until_10am
 
-
-def convert_datetime_to_quarter(datim: dt.datetime) -> int:
-    """Convert the given datetime object to the quarter of the day."""
-
-
 def is_sunny_day(datum: dt.date) -> bool:
     """Check if the given date is likely to be a sunny day.
     A sunny day is defined as a day between the spring and autumn approximate equinoxes.
