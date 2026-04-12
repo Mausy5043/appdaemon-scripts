@@ -78,8 +78,12 @@ class BatMan3(hass.Hass):
         self.log("__...terminated BatMan3.")
 
     def update_tibber_prices(self) -> None:
-        self.tibber.update_prices()
-        self.log_pricelist()
+        """Update the tibber price list a midnight otherwise just update the current price."""
+        if ut.is_midnight(dt.datetime.now()):
+            self.tibber.update_prices()
+            self.log_pricelist()
+        else:
+            self.tibber.update_current_price()
 
     def log_pricelist(self, _len=10):
         self.log(f"*** {len(self.tibber.prices)} TIBBER prices available ***")
@@ -89,7 +93,6 @@ class BatMan3(hass.Hass):
         self.log(f"[ \n{_f} ]", level="INFO")
 
         # self.log(f"{json.dumps(self.tibber.pricelist)}", level="INFO")
-
 
     def get_monitor_states(self, caller:str=""):
         """Get the state of all monitored entities."""
@@ -190,9 +193,7 @@ class BatMan3(hass.Hass):
     def quarter_started_cb(self, **kwargs) -> None:
         """Callback for current price change."""
         caller = "qrtStart"
-        self.log_status(caller=caller)
-        if ut.is_midnight(datim=dt.datetime.now()):
-            self.update_tibber_prices()
+        self.update_tibber_prices()
         self.get_monitor_states(caller=caller)
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
