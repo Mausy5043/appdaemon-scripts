@@ -53,7 +53,7 @@ class BatMan3(hass.Hass):
 
         self.log("BatMan3 is running...", level="INFO")
         self.log_pricelist()
-        self.log_status()
+        self.log_status("initialize")
         self.starting = False
 
     def terminate(self):
@@ -228,7 +228,7 @@ class BatMan3(hass.Hass):
             _auth_dict[_b] = self.secrets.get_sessy_secrets(_b)  # type: ignore[attr-defined]
         return _auth_dict
 
-    def log_status(self, caller: str):
+    def log_status(self, caller: str=""):
         """Construct a status message and log it."""
         _C = "C" if self.ctrl_by_me else "c"
         _E = "E" if self.ev_charging else "e"
