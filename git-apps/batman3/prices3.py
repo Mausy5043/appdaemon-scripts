@@ -35,7 +35,7 @@ class Tibber:
 
         # self.charge: list[int] = []
         # self.discharge: list[int] = []
-        self.update_prices()
+        #self.update_prices()
 
     def fetch_pricedict(self) -> dict[str, float]:
         """Get the price list from the API."""
@@ -110,15 +110,17 @@ class Tibber:
         # fmt: on
         return dict(sorted(_ret.items()))
 
-    def update_prices(self) -> None:
+    def update_prices(self, greed: list) -> None:
+        _lo_price = greed[0]
+        _hi_diff = greed[1]
         self.prices = self.fetch_pricedict()  # get the prices from the API
         self.pricelist = list(self.prices.values())  # convert the prices to a list
         self.price_statistics()
         # TODO: lists
-        # self.charge_greed = "indices of prices < LL or 0.0 (?)"
+        # self.charge_greed = "indices of prices < _lo_price"
         # self.charge_q1 = "indices of prices < q1"
         # self.discharge_q3 = "indices of prices > q3"
-        # self.discharge_greed = "indices of prices > (Q1avg + HH) or (?)"
+        # self.discharge_greed = "indices of prices > (Q1avg + _hi_diff)"
         self.update_current_price()
 
     def update_current_price(self) -> None:
