@@ -33,34 +33,23 @@ class BatMan3(hass.Hass):
             token=self.secrets.get_tibber_token(),  # type: ignore[attr-defined]
             url=self.secrets.get_tibber_url(),  # type: ignore[attr-defined]
         )
-
-        # initialize store for price related info
-        self.price: dict = {
-            "today": [],  # todays prices per quarter
-            "now": 0.0,  # current price
-            "slot": {
-                "charge": [],  # slots to be charging (greed)
-                "lo": [],  # slots with cheap prices
-                "norm": [],  # slots with normal prices
-                "hi": [],  # slots with high prices
-                "discharge": [],  # slots to be discharging (greed)
-            },
-            "stats": {},  # prices statistics
-        }
-
         # Initialize various monitors with safe defaults ...
         self.bats_min_soc: float = 0.0  # [%]
         self.ctrl_by_me: bool = False  # whether the app is allowed to control the batteries
         self.ev_charging: bool = True  # whether the EV is charging
         self.low_pv: bool = False  # wether solarpanels or batteries are supplying electricity
-        # These are for the overcurrent detection:
+        # these are for the overcurrent detection:
         self.pv_current: float = 0.0  # [A]; used to monitor PV overcurrent
         self.pv_power: int = 0  # [W]; used to control PV power
         self.pv_volt: float = 0.0  # [V]; used to control PV current
-        # ... and make sure we get updates when these change ...
-        self.set_call_backs()
+        # greed settings:
+        self.greed_c: float = 0.00
+        self.greed_d: float = 100.00
         # ... then get their actual state
-        self.get_monitor_states()
+        self.update_monitor_states()
+        self.update_tibber_prices([self.greed_c, self.greed_d])
+        # ... and finally make sure we get updates when these change ...
+        self.set_call_backs()
 
         self.log("BatMan3 is running...", level="INFO")
         self.log_pricelist()
@@ -94,7 +83,7 @@ class BatMan3(hass.Hass):
         # self.log(f"{self.tibber.stats["Q3"]}")
         # self.log(f"{self.tibber.stats["Q4"]}")
 
-    def get_monitor_states(self, caller: str = ""):
+    def update_monitor_states(self, caller: str = ""):
         """Get the state of all monitored entities."""
         # update the calendar/season info
         self.datum = ut.get_these_days()
@@ -143,6 +132,15 @@ class BatMan3(hass.Hass):
             self.pv_power = int(float(_pvp))  # [W]
         except BaseException:
             self.log("*** PV meter state update failed")
+
+        try:
+            # get the greed settings
+            _gc: Any = self.get_state(cs.GREED_C)
+            self.greed_c = float(_gc)
+            _gd: Any = self.get_state(cs.GREED_D)
+            self.greed_d = float(_gd)
+        except BaseException:
+            self.log("*** GREED_C/D state update failed")
 
         msg = "gms"
         if caller:
@@ -195,7 +193,6 @@ class BatMan3(hass.Hass):
         caller = "qrtStart"
         self.update_monitor_states(caller=caller)
         self.update_tibber_prices()
-        self.get_monitor_states(caller=caller)
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
@@ -212,12 +209,11 @@ class BatMan3(hass.Hass):
 
     def watchdog_runin_cb(self, entity, attribute, old, new, **kwargs):
         """Delayed callback for watchdogs."""
-        self.get_monitor_states(caller="WD_runin_cb")
-        # self.log(f"Current stance              =  {self.new_stance}", level="DEBUG")
+        self.update_monitor_states(caller="WD_runin_cb")
 
     def lowpv_runin_cb(self, entity, new, **kwargs):
         """Handle low PV condition changes."""
-        self.get_monitor_states(caller="lowpv_runin_cb")
+        self.update_monitor_states(caller="lowpv_runin_cb")
 
     # CONTROL LOGIC
 
