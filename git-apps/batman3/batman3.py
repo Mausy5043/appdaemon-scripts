@@ -140,7 +140,7 @@ class BatMan3(hass.Hass):
         except BaseException:
             self.log("*** PV meter state update failed")
 
-        msg = "get_monitor_states"
+        msg = "gms"
         if caller:
             msg = f"{msg} by {caller}"
         self.log_status(caller=msg)
