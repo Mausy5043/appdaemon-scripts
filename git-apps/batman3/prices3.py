@@ -196,7 +196,7 @@ class Tibber:
         }
 
         self.statstext = (
-            f"min: {self.stats['min']:.3f}, "
+            f" : min: {self.stats['min']:.3f}, "
             f"q1 : {self.stats['q1']:.3f}, "
             f"med: {self.stats['med']:.3f}, "
             f"avg: {self.stats['avg']:.3f}, "
@@ -204,7 +204,7 @@ class Tibber:
             f"max: {self.stats['max']:.3f}, "
             f"rng: {self.stats['rng']:.3f}, "
             f"iqr: {self.stats['iqr']:.3f}\n"
-            f"Q1 avg: {self.stats['Q1']['avg']:.3f}, "
+            f" :      Q1 avg: {self.stats['Q1']['avg']:.3f}, "
             f"Q2 avg: {self.stats['Q2']['avg']:.3f}, "
             f"Q3 avg: {self.stats['Q3']['avg']:.3f}, "
             f"Q4 avg: {self.stats['Q4']['avg']:.3f} "
