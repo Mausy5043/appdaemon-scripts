@@ -38,7 +38,7 @@ GREED_C: str = "input_number.greed_ll"  # setting for greed LL
 GREED_D: str = "input_number.greed_hh"  # setting for greed (diff)
 
 # HA automation sensors:
-BAT_MIN_SOC: str = "sensor.bats_minimum_soc"  # SoC required to reach next 10AM base on avg baseload
+BAT_MIN_SOC: str = "sensor.bats_minimum_soc"  # SoC required to reach next 10AM on avg baseload
 LOW_PV: str = "binary_sensor.lowpv"  # detector for low PV export/import values
 PV_CURRENT: str = "sensor.pv_kwh_meter_current"  # current reading HomeWizard meter on PV
 PV_POWER: str = "sensor.pv_kwh_meter_power"  # power reading HomeWizard meter on PV
