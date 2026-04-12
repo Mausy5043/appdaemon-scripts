@@ -53,6 +53,7 @@ class BatMan3(hass.Hass):
 
         self.log("BatMan3 is running...", level="INFO")
         self.log_pricelist()
+        self.log_status()
         self.starting = False
 
     def terminate(self):
@@ -145,7 +146,7 @@ class BatMan3(hass.Hass):
         msg = "gms"
         if caller:
             msg = f"{msg} by {caller}"
-        self.log_status(caller=msg)
+        # self.log_status(caller=msg)
 
     def set_call_backs(self) -> None:
         """Set-up callbacks for price changes and watchdogs."""
@@ -193,6 +194,7 @@ class BatMan3(hass.Hass):
         caller = "qrtStart"
         self.update_monitor_states(caller=caller)
         self.update_tibber_prices()
+        self.log_status(caller=caller)
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
