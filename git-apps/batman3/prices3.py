@@ -110,8 +110,9 @@ class Tibber:
         # fmt: on
         return dict(sorted(_ret.items()))
 
-    def update_prices(self, lo_price: float, hi_diff: float) -> None:
-
+    def update_prices(self, greed: list) -> None:
+        _lo_price = greed[0]
+        _hi_diff = greed[1]
         self.prices = self.fetch_pricedict()  # get the prices from the API
         self.pricelist = list(self.prices.values())  # convert the prices to a list
         self.price_statistics()
