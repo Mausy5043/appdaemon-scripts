@@ -137,6 +137,9 @@ class Tibber:
 
     def price_statistics(self) -> None:
         """Calculate price statistics."""
+        def sum_values_at_index(idx:list[int], val:list[float]) -> float:
+            return sum(val[i] for i in idx)
+
         Q = stqu(self.pricelist, n=4, method="inclusive")
         self.stats: dict[str, Any] = {
             "min": round(min(self.pricelist), 3),
@@ -163,7 +166,7 @@ class Tibber:
         sorted_indices = sorted_indices[len(Q1) :]
         self.stats["Q1"] = {
             "idx": Q1,
-            "avg": sum(Q1) / len(Q1),
+            "avg": sum_values_at_index(Q1, self.pricelist),
         }
 
         # build a list of the slots that are in Q2 (in the interval q1...median)
@@ -171,7 +174,7 @@ class Tibber:
         sorted_indices = sorted_indices[len(Q2) :]
         self.stats["Q2"] = {
             "idx": Q2,
-            "avg": sum(Q2) / len(Q2),
+            "avg": sum_values_at_index(Q2, self.pricelist),
         }
 
         # build a list of the slots that are in Q3 (in the interval median...q3)
@@ -179,13 +182,13 @@ class Tibber:
         sorted_indices = sorted_indices[len(Q3) :]
         self.stats["Q3"] = {
             "idx": Q3,
-            "avg": sum(Q3) / len(Q3),
+            "avg": sum_values_at_index(Q3, self.pricelist),
         }
 
         Q4 = sorted_indices
         self.stats["Q4"] = {
             "idx": Q4,
-            "avg": sum(Q4) / len(Q4),
+            "avg": sum_values_at_index(Q4, self.pricelist),
         }
 
         self.statstext = (
