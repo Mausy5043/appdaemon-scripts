@@ -9,8 +9,6 @@ import appdaemon.plugins.hass.hassapi as hass
 import const3 as cs
 import prices3 as pr
 import utils3 as ut
-import json
-
 
 
 class BatMan3(hass.Hass):
@@ -89,12 +87,10 @@ class BatMan3(hass.Hass):
         self.log(f"*** {len(self.tibber.prices)} TIBBER prices available ***")
         # convert to a list of formatted strings
         _fstrl = [f"{i:+06.2f}" for i in self.tibber.pricelist]
-        _f = "\n".join([", ".join(_fstrl[i:i+_len]) for i in range(0, len(_fstrl), _len)])
+        _f = "\n".join([", ".join(_fstrl[i : i + _len]) for i in range(0, len(_fstrl), _len)])
         self.log(f"[ \n{_f} ]", level="INFO")
 
-        # self.log(f"{json.dumps(self.tibber.pricelist)}", level="INFO")
-
-    def get_monitor_states(self, caller:str=""):
+    def get_monitor_states(self, caller: str = ""):
         """Get the state of all monitored entities."""
         # update the calendar/season info
         self.datum = ut.get_these_days()
@@ -144,7 +140,7 @@ class BatMan3(hass.Hass):
         except BaseException:
             self.log("*** PV meter state update failed")
 
-        msg="get_monitor_states"
+        msg = "get_monitor_states"
         if caller:
             msg = f"{msg} by {caller}"
         self.log_status(caller=msg)
@@ -244,7 +240,7 @@ class BatMan3(hass.Hass):
         _pn = self.tibber.price_now
         _p = f"p={_pn:+06.2f} (__.___)"
         _qn = self.tibber.quarter_now
-        _q = f"{_p} @{_qn:02d} ({_qn/4:05.2f})"
+        _q = f"{_p} @{_qn:02d} ({_qn / 4:05.2f})"
 
         self.status = " ".join([_O, _C, _E, _L, _S, _q, f"<{caller}>"])
         self.log(self.status, level="INFO")

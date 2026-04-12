@@ -9,7 +9,6 @@ import requests
 import utils3 as ut
 from dateutil import parser
 
-
 requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
 
 
@@ -89,7 +88,7 @@ class Tibber:
         return _lkey
 
     @staticmethod
-    def convert( _data: list[dict]) -> dict[str, float]:
+    def convert(_data: list[dict]) -> dict[str, float]:
         _ret: dict[str, float] = {}
         for item in _data:
             sample_time = parser.isoparse(item["startsAt"]).strftime("%Y-%m-%d %H:%M:%S")
@@ -114,7 +113,7 @@ class Tibber:
         self.update_current_price()
 
     def update_current_price(self) -> None:
-        self.update_current_quarter()   # make sure we are looking at the correct quarter
+        self.update_current_quarter()  # make sure we are looking at the correct quarter
         self.price_now = self.get_price_qrter(self.quarter_now)
 
     def update_current_quarter(self):
@@ -133,7 +132,6 @@ class Tibber:
         #         break
         _price: float = self.pricelist[quarter]
         return _price
-
 
 
 def price_statistics(prices: list[float]) -> dict:

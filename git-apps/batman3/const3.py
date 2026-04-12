@@ -4,7 +4,7 @@
 
 # ### GENERAL SETTINGS ### #
 VERSION: str = "3.0.1"
-DEBUG: bool = True # debugging mode
+DEBUG: bool = True  # debugging mode
 
 # --- datetime and timezone related settings
 AUTUMN_EQUINOX_OFFSET: int = -7  # [days] offset to the start of winter

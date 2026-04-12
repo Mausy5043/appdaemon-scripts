@@ -17,10 +17,12 @@ import pytz
 #         hass.log(f"____{entity_id} ({attribute}): {entity_state}", level=level)
 #
 
+
 def sort_index(lst: list, rev=True) -> list:
     """Return a list of indexes of the sorted list provided"""
     s: list = [i[0] for i in sorted(enumerate(lst), key=lambda x: x[1], reverse=rev)]
     return s
+
 
 #
 # def next_hour(stamp: dt.datetime) -> dt.datetime:
@@ -39,6 +41,7 @@ def sort_index(lst: list, rev=True) -> list:
 #     return next_time
 #
 
+
 def hours_until_next_10am() -> int:
     """Calculate the number of hours until the next 10 A.M."""
     cest = pytz.timezone(cs.TZ)
@@ -52,6 +55,7 @@ def hours_until_next_10am() -> int:
     hours_until_10am = math.ceil(time_diff.total_seconds() / 3600)
 
     return hours_until_10am
+
 
 def is_sunny_day(datum: dt.date) -> bool:
     """Check if the given date is likely to be a sunny day.
@@ -72,16 +76,19 @@ def is_sunny_day(datum: dt.date) -> bool:
     )
     return spring_equinox <= datum <= autumn_equinox
 
+
 def is_midnight(datim: dt.datetime) -> bool:
     """Check if the given datetime is at midnight."""
     if datim.hour == 0 and datim.minute == 0:
         return True
     return False
 
+
 def calculate_quarter(datim: dt.datetime) -> int:
     """Return the serial index of the 15-minute interval (quarter) in the day for the given datetime object."""
     _quarter = (datim.hour * 4) + (datim.minute // 15)
     return _quarter
+
 
 def get_these_days() -> dict:
     """Get today's date, tomorrow's date, and whether today is a sunny day.
@@ -94,6 +101,8 @@ def get_these_days() -> dict:
         "tomor": dt.date.today() + dt.timedelta(days=1),
         "sunny": is_sunny_day(dt.date.today()),
     }
+
+
 #
 #
 # def get_greedy(price: float, diff: float, lo_price: float, hi_diff: float, sunny: bool) -> int:
