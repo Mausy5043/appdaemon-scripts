@@ -9,6 +9,7 @@ import requests
 import utils3 as ut
 from dateutil import parser
 
+
 requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
 
 
@@ -27,6 +28,9 @@ class Tibber:
         }
         self.prices: dict[str, float] = {}
         self.pricelist: list[float] = []
+        # set a default price until we get the actual
+        self.price_now: float = cs.PRICES["adjust"]["extra"] + cs.PRICES["adjust"]["taxes"]
+        self.quarter_now: int = 0
         self.update_prices()
 
     def fetch_pricedict(self) -> dict[str, float]:
@@ -105,17 +109,26 @@ class Tibber:
     def update_prices(self):
         self.prices = self.fetch_pricedict()
         self.pricelist = list(self.prices.values())
+        self.quarter_now =ut.calculate_quarter(dt.datetime.now())
+        self.price_now = self.get_price_qrter(self.quarter_now)
+        # TODO: statistics
+        # TODO: lists
 
-    def get_price(price_dict: dict[str, float], hour: int, min: int) -> float:
+    def get_price_hm(self, hour: int, min: int) -> float:
         """Return the price for a given hour and minute."""
-        _price: float = 0.0
         # Round the minutes to the nearest 15 minutes to get the quarter
         _qrtr: int = int(round(min / 15) * 15)
-        for _dt, _price in price_dict.items():
-            sample_time: dt.datetime = parser.isoparse(_dt)
-            if sample_time.hour == hour and sample_time.minute == _qrtr:
-                break
+        return self.get_price_qrter(_qrtr)
+
+    def get_price_qrter(self, quarter: int) -> float:
+        # for _dt, _price in self.prices.items():
+        #     sample_time: dt.datetime = parser.isoparse(_dt)
+        #     if sample_time.hour == hour and sample_time.minute == _qrtr:
+        #         break
+        _price: float = self.pricelist[quarter]
         return _price
+
+
 
 def price_statistics(prices: list[float]) -> dict:
     """Calculate and return price statistics."""
