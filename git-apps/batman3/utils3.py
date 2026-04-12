@@ -1,43 +1,43 @@
+"""Utility functions for the Batman apps."""
+
 import datetime as dt
 import math
 
 import const3 as cs
 import pytz
 
-"""Utility functions for the Batman apps."""
-
-
-def log_entity_attr(hass, entity_id, attribute="all", level="DEBUG") -> None:
-    """Log everything we can known about an entity."""
-    entity_state = hass.get_state(entity_id, attribute=attribute)
-    if isinstance(entity_state, dict):
-        for key, value in entity_state.items():
-            hass.log(f"____{key}: {value}", level=level)
-    else:
-        hass.log(f"____{entity_id} ({attribute}): {entity_state}", level=level)
-
+#
+# def log_entity_attr(hass, entity_id, attribute="all", level="DEBUG") -> None:
+#     """Log everything we can known about an entity."""
+#     entity_state = hass.get_state(entity_id, attribute=attribute)
+#     if isinstance(entity_state, dict):
+#         for key, value in entity_state.items():
+#             hass.log(f"____{key}: {value}", level=level)
+#     else:
+#         hass.log(f"____{entity_id} ({attribute}): {entity_state}", level=level)
+#
 
 def sort_index(lst: list, rev=True) -> list:
     """Return a list of indexes of the sorted list provided"""
     s: list = [i[0] for i in sorted(enumerate(lst), key=lambda x: x[1], reverse=rev)]
     return s
 
-
-def next_hour(stamp: dt.datetime) -> dt.datetime:
-    """Return timestamp of the next whole hour."""
-    return stamp.replace(minute=0, second=0, microsecond=0) + dt.timedelta(hours=1)
-
-
-def next_half_hour(stamp: dt.datetime) -> dt.datetime:
-    """Return timestamp of the next full half-hour."""
-    minutes = 30 if stamp.minute < 30 else 0
-    next_time = stamp.replace(minute=minutes, second=0, microsecond=0)
-
-    if next_time <= stamp:
-        next_time += dt.timedelta(hours=1)
-
-    return next_time
-
+#
+# def next_hour(stamp: dt.datetime) -> dt.datetime:
+#     """Return timestamp of the next whole hour."""
+#     return stamp.replace(minute=0, second=0, microsecond=0) + dt.timedelta(hours=1)
+#
+#
+# def next_half_hour(stamp: dt.datetime) -> dt.datetime:
+#     """Return timestamp of the next full half-hour."""
+#     minutes = 30 if stamp.minute < 30 else 0
+#     next_time = stamp.replace(minute=minutes, second=0, microsecond=0)
+#
+#     if next_time <= stamp:
+#         next_time += dt.timedelta(hours=1)
+#
+#     return next_time
+#
 
 def hours_until_next_10am() -> int:
     """Calculate the number of hours until the next 10 A.M."""
@@ -52,6 +52,10 @@ def hours_until_next_10am() -> int:
     hours_until_10am = math.ceil(time_diff.total_seconds() / 3600)
 
     return hours_until_10am
+
+
+def convert_datetime_to_quarter(datim: dt.datetime) -> int:
+    """Convert the given datetime object to the quarter of the day."""
 
 
 def is_sunny_day(datum: dt.date) -> bool:
@@ -73,6 +77,16 @@ def is_sunny_day(datum: dt.date) -> bool:
     )
     return spring_equinox <= datum <= autumn_equinox
 
+def is_midnight(datim: dt.datetime) -> bool:
+    """Check if the given datetime is at midnight."""
+    if datim.hour == 0 and datim.minute == 0:
+        return True
+    return False
+
+def calculate_quarter(datim: dt.datetime) -> int:
+    """Return the serial index of the 15-minute interval (quarter) in the day for the given datetime object."""
+    _quarter = (datim.hour * 4) + (datim.minute // 15)
+    return _quarter
 
 def get_these_days() -> dict:
     """Get today's date, tomorrow's date, and whether today is a sunny day.
@@ -85,40 +99,40 @@ def get_these_days() -> dict:
         "tomor": dt.date.today() + dt.timedelta(days=1),
         "sunny": is_sunny_day(dt.date.today()),
     }
-
-
-def get_greedy(price: float, diff: float, lo_price: float, hi_diff: float, sunny: bool) -> int:
-    """Determine if the price is low, high, or neutral.
-
-    Greediness is determined based on predefined price thresholds:
-    - Neutral price: Default (not greedy).
-    - Low price: less than the 'nul' price threshold (greedy for low).
-    - High diff: greater than the 'top' price difference threshold (greedy for high).
-      This means: the price difference from the q1 price.
-
-    Args:
-        price (float): The price to evaluate.
-        diff (float): The price difference from the minimum price.
-        lo_price (float): The low price threshold.
-        hi_diff (float): The high price threshold.
-        sunny (bool): Indicates if the day is sunny (affects greediness).
-
-    Returns:
-        -1 for low price (greedy for low),
-         0 for neutral price (not greedy),
-         1 for high price (greedy for high).
-    """
-    if not sunny:
-        hi_diff *= 2  # be less greedy on non-sunny days
-    _g = 0  # not greedy
-    if price <= lo_price:
-        _g = -1  # greedy for low price
-    if diff >= hi_diff:
-        _g = 1  # greedy for high price
-
-    return _g
-
-
-def get_steps(stepsize: float, deadband: float = 0.1):
-    """Calculate the number of steps required to get from 0 to 100% given a stepsize."""
-    return math.ceil(math.log(deadband) / math.log(1 - stepsize))
+#
+#
+# def get_greedy(price: float, diff: float, lo_price: float, hi_diff: float, sunny: bool) -> int:
+#     """Determine if the price is low, high, or neutral.
+#
+#     Greediness is determined based on predefined price thresholds:
+#     - Neutral price: Default (not greedy).
+#     - Low price: less than the 'nul' price threshold (greedy for low).
+#     - High diff: greater than the 'top' price difference threshold (greedy for high).
+#       This means: the price difference from the q1 price.
+#
+#     Args:
+#         price (float): The price to evaluate.
+#         diff (float): The price difference from the minimum price.
+#         lo_price (float): The low price threshold.
+#         hi_diff (float): The high price threshold.
+#         sunny (bool): Indicates if the day is sunny (affects greediness).
+#
+#     Returns:
+#         -1 for low price (greedy for low),
+#          0 for neutral price (not greedy),
+#          1 for high price (greedy for high).
+#     """
+#     if not sunny:
+#         hi_diff *= 2  # be less greedy on non-sunny days
+#     _g = 0  # not greedy
+#     if price <= lo_price:
+#         _g = -1  # greedy for low price
+#     if diff >= hi_diff:
+#         _g = 1  # greedy for high price
+#
+#     return _g
+#
+#
+# def get_steps(stepsize: float, deadband: float = 0.1):
+#     """Calculate the number of steps required to get from 0 to 100% given a stepsize."""
+#     return math.ceil(math.log(deadband) / math.log(1 - stepsize))
