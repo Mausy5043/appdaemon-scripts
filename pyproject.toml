@@ -111,7 +111,9 @@ quote-style = "preserve"
 select = ["B", "E", "F", "I", "SIM", "UP", "W"]
 ignore = [
     # line too long: formatter is leading
-    "E501"
+    "E501",
+    # Return the condition `bool(___)` directly: prefer to use intermediate results
+    "SIM103"
     ]
 # Allow autofix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]

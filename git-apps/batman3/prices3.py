@@ -149,7 +149,7 @@ class Tibber:
             return sum(val[i] for i in idx)
 
         Q = stqu(self.pricelist, n=4, method="inclusive")
-        self.stats: dict[str, Any] = {
+        self.stats = {
             "min": round(min(self.pricelist), 3),
             "q1": round(Q[0], 3),
             "med": round(Q[1], 3),
