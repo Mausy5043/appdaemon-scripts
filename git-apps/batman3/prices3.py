@@ -166,7 +166,8 @@ class Tibber:
         sorted_indices = sorted_indices[len(Q1) :]
         self.stats["Q1"] = {
             "idx": Q1,
-            "avg": sum_values_at_index(Q1, self.pricelist),
+            "avg": sum_values_at_index(Q1, self.pricelist)/len(Q1),
+            "n": len(Q1),
         }
 
         # build a list of the slots that are in Q2 (in the interval q1...median)
@@ -174,7 +175,8 @@ class Tibber:
         sorted_indices = sorted_indices[len(Q2) :]
         self.stats["Q2"] = {
             "idx": Q2,
-            "avg": sum_values_at_index(Q2, self.pricelist),
+            "avg": sum_values_at_index(Q2, self.pricelist)/len(Q2),
+            "n": len(Q2),
         }
 
         # build a list of the slots that are in Q3 (in the interval median...q3)
@@ -182,13 +184,15 @@ class Tibber:
         sorted_indices = sorted_indices[len(Q3) :]
         self.stats["Q3"] = {
             "idx": Q3,
-            "avg": sum_values_at_index(Q3, self.pricelist),
+            "avg": sum_values_at_index(Q3, self.pricelist)/len(Q3),
+            "n": len(Q3),
         }
 
         Q4 = sorted_indices
         self.stats["Q4"] = {
             "idx": Q4,
-            "avg": sum_values_at_index(Q4, self.pricelist),
+            "avg": sum_values_at_index(Q4, self.pricelist)/len(Q4),
+            "n": len(Q4),
         }
 
         self.statstext = (
