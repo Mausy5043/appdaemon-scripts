@@ -1,3 +1,7 @@
+"""BatMan3 App
+Listen to changes in the battery state and control the charging/discharging based on energy prices and strategies.
+"""
+
 import datetime as dt
 from typing import Any
 
@@ -7,9 +11,6 @@ import prices3 as pr
 import utils3 as ut
 import json
 
-"""BatMan3 App
-Listen to changes in the battery state and control the charging/discharging based on energy prices and strategies.
-"""
 
 
 class BatMan3(hass.Hass):
@@ -38,7 +39,6 @@ class BatMan3(hass.Hass):
         # initialize store for price related info
         self.price: dict = {
             "today": [],  # todays prices per quarter
-            "tomor": [],  # tomorrows prices per quarter
             "now": 0.0,  # current price
             "slot": {
                 "charge": [],  # slots to be charging (greed)
@@ -81,18 +81,17 @@ class BatMan3(hass.Hass):
         self.tibber.update_prices()
         self.log_pricelist()
 
-    def log_pricelist(self):
+    def log_pricelist(self, _len=16):
         self.log(f"*** {len(self.tibber.prices)} TIBBER prices available ***")
         # convert to a list of formatted strings
         _fstrl = [f"{i:+06.2f}" for i in self.tibber.pricelist]
-        _len =16
         _f = "\n".join([", ".join(_fstrl[i:i+_len]) for i in range(0, len(_fstrl), _len)])
         self.log(f"[ \n{_f} ]", level="INFO")
 
         # self.log(f"{json.dumps(self.tibber.pricelist)}", level="INFO")
 
 
-    def get_monitor_states(self):
+    def get_monitor_states(self, caller:str=""):
         """Get the state of all monitored entities."""
         # update the calendar/season info
         self.datum = ut.get_these_days()
@@ -142,7 +141,10 @@ class BatMan3(hass.Hass):
         except BaseException:
             self.log("*** PV meter state update failed")
 
-        self.log_status("get_monitor_states")
+        msg="get_monitor_states"
+        if caller:
+            msg = f"{msg} by {caller}"
+        self.log_status(caller=msg)
 
     def set_call_backs(self) -> None:
         """Set-up callbacks for price changes and watchdogs."""
@@ -187,7 +189,11 @@ class BatMan3(hass.Hass):
 
     def quarter_started_cb(self, **kwargs) -> None:
         """Callback for current price change."""
-        self.log_status("qrtStart")
+        caller = "qrtStart"
+        self.log_status(caller=caller)
+        if ut.is_midnight(datim=dt.datetime.now()):
+            self.update_tibber_prices()
+        self.get_monitor_states(caller=caller)
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
@@ -204,14 +210,12 @@ class BatMan3(hass.Hass):
 
     def watchdog_runin_cb(self, entity, attribute, old, new, **kwargs):
         """Delayed callback for watchdogs."""
-        self.get_monitor_states()
-        # self.log("WD_runin_cb")
+        self.get_monitor_states(caller="WD_runin_cb")
         # self.log(f"Current stance              =  {self.new_stance}", level="DEBUG")
 
     def lowpv_runin_cb(self, entity, new, **kwargs):
         """Handle low PV condition changes."""
-        self.get_monitor_states()
-        self.log("lowpv_runin_cb")
+        self.get_monitor_states(caller="lowpv_runin_cb")
 
     # CONTROL LOGIC
 
@@ -224,7 +228,7 @@ class BatMan3(hass.Hass):
             _auth_dict[_b] = self.secrets.get_sessy_secrets(_b)  # type: ignore[attr-defined]
         return _auth_dict
 
-    def log_status(self, callee: str):
+    def log_status(self, caller: str):
         """Construct a status message and log it."""
         _C = "C" if self.ctrl_by_me else "c"
         _E = "E" if self.ev_charging else "e"
@@ -236,7 +240,10 @@ class BatMan3(hass.Hass):
             _O = "!"
             _S = _S.lower()
 
-        _p = f"p={self.price["now"]:+7.3f} (__.___)"
+        _pn = self.tibber.price_now
+        _p = f"p={_pn:+7.3f} (__.___)"
+        _qn = self.tibber.quarter_now
+        _q = f"{_p} @{_qn:02d} (__.__)"
 
-        self.status = " ".join([_O, _C, _E, _L, _S, _p, f"<{callee}>"])
+        self.status = " ".join([_O, _C, _E, _L, _S, _q, f"<{caller}>"])
         self.log(self.status, level="INFO")
