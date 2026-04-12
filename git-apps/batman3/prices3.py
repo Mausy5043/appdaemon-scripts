@@ -106,13 +106,19 @@ class Tibber:
         # fmt: on
         return dict(sorted(_ret.items()))
 
-    def update_prices(self):
-        self.prices = self.fetch_pricedict()
-        self.pricelist = list(self.prices.values())
-        self.quarter_now =ut.calculate_quarter(dt.datetime.now())
-        self.price_now = self.get_price_qrter(self.quarter_now)
+    def update_prices(self) -> None:
+        self.prices = self.fetch_pricedict()  # get the prices from the API
+        self.pricelist = list(self.prices.values())  # convert the prices to a list
         # TODO: statistics
         # TODO: lists
+        self.update_current_price()
+
+    def update_current_price(self) -> None:
+        self.update_current_quarter()   # make sure we are looking at the correct quarter
+        self.price_now = self.get_price_qrter(self.quarter_now)
+
+    def update_current_quarter(self):
+        self.quarter_now = ut.calculate_quarter(dt.datetime.now())
 
     def get_price_hm(self, hour: int, min: int) -> float:
         """Return the price for a given hour and minute."""
