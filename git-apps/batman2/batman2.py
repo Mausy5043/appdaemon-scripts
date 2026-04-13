@@ -383,7 +383,7 @@ class BatMan2(hass.Hass):
             )
             self.log(
                 f"Current price @ slot          = {_pn:+.3f} ({self.price_diff:.3f}) @ {_slot:.0f} ({_slot / 4:.2f})",
-                level="INFO",
+                level="DEBUG",
             )
         if self.debug and ((_qr == 0 and _hr == 0) or self.starting):
             self.log(
