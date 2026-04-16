@@ -7,6 +7,7 @@ import datetime as dt
 from typing import Any
 
 import appdaemon.plugins.hass.hassapi as hass
+import battalk3 as bt3
 import const3 as cs
 import prices3 as pr
 import utils3 as ut
@@ -50,6 +51,26 @@ class BatMan3(hass.Hass):
             "stats": {},  # prices statistics
         }
 
+        # initialize the battery API
+        self.bats: list = cs.BATTALK["bats"]
+        self.bat_ctrl: dict[str, Any] = self.get_bats(devices=self.bats)
+        for _b in self.bat_ctrl:
+            self.bat_ctrl[_b]["api"] = bt3.Sessy(
+                url=self.bat_ctrl[_b]["url"],
+                username=self.bat_ctrl[_b]["username"],
+                password=self.bat_ctrl[_b]["password"],
+            )
+        # initialize the P1 API
+        # self.p1s: list = ["p1"]
+        # self.p1_ctrl: dict = self.get_bats(devices=self.p1s)
+        # for _b in self.p1_ctrl:
+        #     self.p1_ctrl[_b]["api"] = bt3.Sessy(
+        #         url=self.p1_ctrl[_b]["url"],
+        #         username=self.p1_ctrl[_b]["username"],
+        #         password=self.p1_ctrl[_b]["password"],
+        #     )
+        self.get_bats_status()
+
         # Initialize various monitors with safe defaults ...
         self.bats_min_soc: float = 0.0  # [%]
         self.ctrl_by_me: bool = False  # whether the app is allowed to control the batteries
@@ -64,7 +85,7 @@ class BatMan3(hass.Hass):
         # ... then get their actual state
         self.get_monitor_states()
 
-        self.log(f"BatMan3 is running...", level="INFO")
+        self.log("BatMan3 is running...", level="INFO")
         self.log_pricelist()
         self.log_status(caller="INIT")
         self.starting = False
@@ -225,12 +246,48 @@ class BatMan3(hass.Hass):
 
     # SECRETS
 
-    def get_bats(self):
+    def get_bats(self, devices) -> dict:
         """Get the battery credentials from the secrets."""
         _auth_dict = {}
-        for _b in ["bat1", "bat2", "p1"]:
+        for _b in devices:
             _auth_dict[_b] = self.secrets.get_sessy_secrets(_b)  # type: ignore[attr-defined]
         return _auth_dict
+
+    def get_bats_status(self) -> None:
+        """Get the battery status."""
+        for _b in self.bat_ctrl:
+            self.bat_ctrl[_b]["state"] = self.bat_ctrl[_b]["api"].get_status()
+        """example: >
+        {
+          "status": "ok",
+          "sessy": {
+            "state_of_charge": 0.8899999856948853,
+            "power": -2037,
+            "external_power": 0,
+            "pack_voltage": 55300,
+            "power_setpoint": -2061,
+            "system_state": "SYSTEM_STATE_RUNNING_SAFE",
+            "system_state_details": "",
+            "frequency": 49975,
+            "inverter_current_ma": -8725,
+            "strategy_overridden": false
+          },
+          "renewable_energy_phase1": {
+            "voltage_rms": 231276,
+            "current_rms": 8952,
+            "power": 2078
+          },
+          "renewable_energy_phase2": {
+            "voltage_rms": 0,
+            "current_rms": 0,
+            "power": 0
+          },
+          "renewable_energy_phase3": {
+            "voltage_rms": 0,
+            "current_rms": 0,
+            "power": 0
+          }
+        }        """
 
     def log_status(self, caller: str):
         """Construct a status message and log it."""
@@ -250,6 +307,15 @@ class BatMan3(hass.Hass):
         _qn = self.tibber.quarter_now  # current quarter
         _q = f"{_p}@{_qn:02d}/{_qn / 4:05.2f}"
 
+        _bp: list[int] = []
+        _bst: list[str] = []
+        for _b in self.bat_ctrl:
+            _bp.append(int(round(self.bat_ctrl[_b]["state"]["sessy"]["state_of_charge"] * 100, 0)))
+            prefix = "SYSTEM_STATE_"
+            _bs = self.bat_ctrl[_b]["state"]["sessy"]["system_state"]
+            _bst.append(_bs.removeprefix(prefix))
+        _bts = f"1[{_p[0]}]{_bst[0]}|2[{_p[1]}]{_bst[1]}"
+
         _time = (dt.datetime.now() - self.callback_time).total_seconds()
-        self.status = "".join([_O, _C, _E, _L, _S, _q, f" <{caller}@{_time:.3f}"])
+        self.status = "".join([_O, _C, _E, _L, _S, _q, _bts, f" <{caller}@{_time:.3f}"])
         self.log(self.status, level="INFO")
