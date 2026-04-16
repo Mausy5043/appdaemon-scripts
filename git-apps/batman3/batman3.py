@@ -313,7 +313,7 @@ class BatMan3(hass.Hass):
             _bp.append(int(round(self.bat_ctrl[_b]["state"]["sessy"]["state_of_charge"] * 100, 0)))
             _bs = self.bat_ctrl[_b]["state"]["sessy"]["system_state"]
             _bst.append(_bs.removeprefix("SYSTEM_STATE_"))
-        _bts = f"1[{_bp[0]}]{_bst[0]}|2[{_bp[1]}]{_bst[1]}"
+        _bts = f" | 1[{_bp[0]}]{_bst[0]}|2[{_bp[1]}]{_bst[1]}"
 
         _time = (dt.datetime.now() - self.callback_time).total_seconds()
         self.status = "".join([_O, _C, _E, _L, _S, _q, _bts, f" <{caller}@{_time:.3f}"])
