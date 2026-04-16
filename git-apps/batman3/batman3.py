@@ -198,7 +198,7 @@ class BatMan3(hass.Hass):
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
-        self.log(f"*** Watchdog triggered by {entity} ({attribute}) changed: {old} -> {new}", level="INFO")
+        # self.log(f"*** Watchdog triggered by {entity} ({attribute}) changed: {old} -> {new}", level="INFO")
         # watchdog changes are not immediate, so we callback watchdog_runin_cb() after:
         _cb_delay = 2  # [s]  to allow the system to stabilize
         # low PV is a special case, because it needs different actions
