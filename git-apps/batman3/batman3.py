@@ -167,6 +167,7 @@ class BatMan3(hass.Hass):
             self.pv_power = int(float(_pvp))  # [W]
         except BaseException:
             self.log("*** PV meter state update failed")
+        self.get_bats_status()
 
     def set_call_backs(self) -> None:
         """Set-up callbacks for price changes and watchdogs."""
