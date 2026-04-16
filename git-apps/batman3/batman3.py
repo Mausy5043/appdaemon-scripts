@@ -310,6 +310,7 @@ class BatMan3(hass.Hass):
 
         _bp: int = 0
         #_bst: str = ""
+        _str: list = []
         _bsp: int = 0
         for _b in self.bat_ctrl:
             _bp = int(round(self.bat_ctrl[_b]["state"]["sessy"]["state_of_charge"] * 100, 0))
@@ -317,7 +318,6 @@ class BatMan3(hass.Hass):
             #_bst = _bs.removeprefix("SYSTEM_STATE_")
             _bsp = int(self.bat_ctrl[_b]["state"]["sessy"]["power_setpoint"])
             _strl = [f"[{_bp:03d}]"]
-            _str: list = []
             if _bsp >= 0:
                 _strl.append(f"{_bsp:4d}")
             else:
