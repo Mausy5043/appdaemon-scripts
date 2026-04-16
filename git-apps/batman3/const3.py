@@ -1,6 +1,6 @@
 """Provides constants for the Batman3 app."""
 
-# from typing import Any
+from typing import Any
 
 # ### GENERAL SETTINGS ### #
 VERSION: str = "3.0.1"
@@ -79,28 +79,28 @@ PV_CURRENT_MAX: float = 23.5  # [A(abs)] maximum current setting
 #
 
 #
-# # create translation table between battery strategies and battalk stances
-# __short2long_strategy: dict[str, str] = {
-#     "idle": "POWER_STRATEGY_IDLE",
-#     "api": "POWER_STRATEGY_API",
-#     "nom": "POWER_STRATEGY_NOM",
-# }
-# __long2short_strategy: dict[str, str] = {}
-# for _k, _v in __short2long_strategy.items():
-#     __long2short_strategy[_v] = _k
-#
-# # ### Talking to the batteries directly because HA/AP doesn't ###
-# BATTALK: dict[str, Any] = {
-#     "bats": ["bat1", "bat2"],
-#     "api_calls": {
-#         "strategy": "api/v1/power/active_strategy",
-#         "status": "api/v1/power/status",
-#         "setpoint": "api/v1/power/setpoint",
-#         "grid_target": "api/v1/meter/grid_target",
-#     },
-#     "api_strats": __short2long_strategy,
-#     "bat_stances": __long2short_strategy,
-# }
+# create translation table between battery strategies and battalk stances
+__short2long_strategy: dict[str, str] = {
+    "idle": "POWER_STRATEGY_IDLE",
+    "api": "POWER_STRATEGY_API",
+    "nom": "POWER_STRATEGY_NOM",
+}
+__long2short_strategy: dict[str, str] = {}
+for _k, _v in __short2long_strategy.items():
+    __long2short_strategy[_v] = _k
+
+# ### Talking to the batteries directly because HA/AP doesn't ###
+BATTALK: dict[str, Any] = {
+    "bats": ["bat1", "bat2"],
+    "api_calls": {
+        "strategy": "api/v1/power/active_strategy",
+        "status": "api/v1/power/status",
+        "setpoint": "api/v1/power/setpoint",
+        "grid_target": "api/v1/meter/grid_target",
+    },
+    "api_strats": __short2long_strategy,
+    "bat_stances": __long2short_strategy,
+}
 #
 # # Due to some hardware configuration issues the sign of various sensors
 # # may be confusing.
