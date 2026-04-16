@@ -20,6 +20,7 @@ class Sessy:
         self.api_call: dict[str, str] = cs.BATTALK["api_calls"]
         self.strat: dict[str, str] = cs.BATTALK["api_strats"]
         self.headers: dict[str, str] = {"accept": "application/json"}
+        self.status: dict[str, Any] = self.get_status()
 
     def set_strategy(self, stance: str) -> dict:
         """Set strategy on battery"""
