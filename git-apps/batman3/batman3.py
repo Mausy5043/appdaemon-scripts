@@ -250,6 +250,6 @@ class BatMan3(hass.Hass):
         _qn = self.tibber.quarter_now  # current quarter
         _q = f"{_p} @{_qn:02d} ({_qn / 4:05.2f})"
 
-        _time = (self.callback_time - dt.datetime.now()).total_seconds()
+        _time = (dt.datetime.now() - self.callback_time).total_seconds()
         self.status = " ".join([_O, _C, _E, _L, _S, _q, f"<{caller}> {_time:.3f}"])
         self.log(self.status, level="INFO")
