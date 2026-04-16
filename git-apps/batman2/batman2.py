@@ -402,7 +402,7 @@ class BatMan2(hass.Hass):
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
-        self.log(f"*** Watchdog triggered by {entity} ({attribute}) change: {old} -> {new}", level="INFO")
+        #self.log(f"*** Watchdog triggered by {entity} ({attribute}) change: {old} -> {new}", level="INFO")
         # watchdog changes are not immediate, so we callback watchdog_runin_cb() after N seconds
         # to allow the system to stabilize
         # low PV is a special case, because it needs different actions
@@ -428,7 +428,7 @@ class BatMan2(hass.Hass):
                 # Only update if state actually changes
                 new_state = new == "on"
                 if new_state != self.low_pv:
-                    self.log(f"*** Activity triggered by {entity} -> {new}", level="INFO")
+                    #self.log(f"*** Activity triggered by {entity} -> {new}", level="INFO")
                     self.low_pv = new_state
                     if self.ctrl_by_me:
                         # Set power based on state: 100W each when low PV, 0W when normal
