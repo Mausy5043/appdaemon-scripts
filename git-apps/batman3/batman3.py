@@ -321,7 +321,7 @@ class BatMan3(hass.Hass):
             if _bsp >= 0:
                 _strl.append(f"{_bsp:4d}")
             else:
-                _strl.insert(0, f"[{_bsp:4d}]")
+                _strl.insert(0, f"{abs(_bsp):4d}")
             _str.append( ">".join(_strl))
             #_str+=_bst
 
