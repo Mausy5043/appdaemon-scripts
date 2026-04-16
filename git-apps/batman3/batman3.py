@@ -64,8 +64,9 @@ class BatMan3(hass.Hass):
         # ... then get their actual state
         self.get_monitor_states()
 
-        self.log(f"BatMan3 is running... (__s)", level="INFO")
+        self.log(f"BatMan3 is running...", level="INFO")
         self.log_pricelist()
+        self.log_status(caller="INIT")
         self.starting = False
 
     def terminate(self):
@@ -146,11 +147,6 @@ class BatMan3(hass.Hass):
         except BaseException:
             self.log("*** PV meter state update failed")
 
-        msg = "gms"
-        if caller:
-            msg = f"{msg} by {caller}"
-        self.log_status(caller=msg)
-
     def set_call_backs(self) -> None:
         """Set-up callbacks for price changes and watchdogs."""
         quarter = 15  # [minutes]
@@ -195,9 +191,9 @@ class BatMan3(hass.Hass):
     def quarter_started_cb(self, **kwargs) -> None:
         """Callback for current price change."""
         self.callback_time = dt.datetime.now()
-        caller = "qrtStart"
         self.update_tibber_prices()
-        self.get_monitor_states(caller=caller)
+        self.get_monitor_states()
+        self.log_status(caller="qrtStart")
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
@@ -216,12 +212,14 @@ class BatMan3(hass.Hass):
     def watchdog_runin_cb(self, entity, attribute, old, new, **kwargs):
         """Delayed callback for watchdogs."""
         self.callback_time = dt.datetime.now()
-        self.get_monitor_states(caller="WD_runin_cb")
+        self.get_monitor_states()
+        self.log_status(caller="WD_runin_cb")
 
     def lowpv_runin_cb(self, entity, new, **kwargs):
         """Handle low PV condition changes."""
         self.callback_time = dt.datetime.now()
-        self.get_monitor_states(caller="lowpv_runin_cb")
+        self.get_monitor_states()
+        self.log_status(caller="lowpv_runin_cb")
 
     # CONTROL LOGIC
 
@@ -252,5 +250,6 @@ class BatMan3(hass.Hass):
         _qn = self.tibber.quarter_now  # current quarter
         _q = f"{_p} @{_qn:02d} ({_qn / 4:05.2f})"
 
-        self.status = " ".join([_O, _C, _E, _L, _S, _q, f"<{caller}>"])
+        _time = (self.callback_time - dt.datetime.now()).total_seconds()
+        self.status = " ".join([_O, _C, _E, _L, _S, _q, f"<{caller}> {_time:.3f}"])
         self.log(self.status, level="INFO")
