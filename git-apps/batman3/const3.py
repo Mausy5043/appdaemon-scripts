@@ -3,7 +3,7 @@
 from typing import Any
 
 # ### GENERAL SETTINGS ### #
-VERSION: str = "3.0.1"
+VERSION: str = "3.0.3"
 DEBUG: bool = True  # debugging mode
 
 # --- datetime and timezone related settings
@@ -13,8 +13,8 @@ TZ: str = "Europe/Amsterdam"  # timezone used by the app (fixed for now)
 
 # ### PRICES SETTINGS ### #
 PRICES: dict = {
-    # "nul": 0.0,  # below this, electricity is considered for free
-    # "top": 12.5,  # greater difference between lowest and current price than this number is considered very expensive
+    "nul": 0.0,  # below this, electricity is considered for free
+    "top": 20.0,  # greater difference between q1 avg and current price than this number is considered very expensive
     "entity": "sensor.bat1_energy_price",
     "attr": {
         "now": "state",
@@ -26,7 +26,7 @@ PRICES: dict = {
     "qry_nxt": "{viewer {homes {currentSubscription { priceInfo(resolution: QUARTER_HOURLY) {tomorrow   { total energy tax startsAt } } } } } }",
 }
 
-# Watchdog entities
+# ### HA WATCHDOG ENTITIES ### #
 BAT_MIN_SOC_WD: str = "input_boolean.bats_min_soc"  # Detector if SoC is below minimum state of charge
 CTRL_BY_ME: str = "input_boolean.bat_ctrl_app"  # Manual override of BatMan3 actions
 EV_REQ_PWR: str = "input_boolean.evneedspwr"  # becomes active when EV charger is using power
@@ -37,13 +37,37 @@ ZOMWIN_OVERRIDE: str = "input_boolean.bat_winterstand"  # override current sunny
 GREED_C: str = "input_number.greed_ll"  # setting for greed LL
 GREED_D: str = "input_number.greed_hh"  # setting for greed (diff)
 
-# HA automation sensors:
+# HA AUTOMATION SENSORS ### #
 BAT_MIN_SOC: str = "sensor.bats_minimum_soc"  # SoC required to reach next 10AM on avg baseload
 LOW_PV: str = "binary_sensor.lowpv"  # detector for low PV export/import values
 PV_CURRENT: str = "sensor.pv_kwh_meter_current"  # current reading HomeWizard meter on PV
 PV_POWER: str = "sensor.pv_kwh_meter_power"  # power reading HomeWizard meter on PV
 PV_VOLTAGE: str = "sensor.pv_kwh_meter_voltage"  # voltage reading HomeWizard meter on PV
 PV_CURRENT_MAX: float = 23.5  # [A(abs)] maximum current setting
+
+# ### BATTERIES SETTINGS ### #
+# create translation table between battery strategies and battalk stances
+__short2long_strategy: dict[str, str] = {
+    "idle": "POWER_STRATEGY_IDLE",
+    "api": "POWER_STRATEGY_API",
+    "nom": "POWER_STRATEGY_NOM",
+}
+__long2short_strategy: dict[str, str] = {}
+for _k, _v in __short2long_strategy.items():
+    __long2short_strategy[_v] = _k
+
+# ### Talking to the batteries directly because HA/AP doesn't ###
+BATTALK: dict[str, Any] = {
+    "bats": ["bat1", "bat2"],
+    "api_calls": {
+        "strategy": "api/v1/power/active_strategy",
+        "status": "api/v1/power/status",
+        "setpoint": "api/v1/power/setpoint",
+        "grid_target": "api/v1/meter/grid_target",
+    },
+    "api_strats": __short2long_strategy,
+    "bat_stances": __long2short_strategy,
+}
 
 # # maximum rates per battery
 # MAX_CHARGE = -2200
@@ -78,29 +102,7 @@ PV_CURRENT_MAX: float = 23.5  # [A(abs)] maximum current setting
 # RAMP_RATE = [0.4, 23]  # [growthrate, time between steps]
 #
 
-#
-# create translation table between battery strategies and battalk stances
-__short2long_strategy: dict[str, str] = {
-    "idle": "POWER_STRATEGY_IDLE",
-    "api": "POWER_STRATEGY_API",
-    "nom": "POWER_STRATEGY_NOM",
-}
-__long2short_strategy: dict[str, str] = {}
-for _k, _v in __short2long_strategy.items():
-    __long2short_strategy[_v] = _k
 
-# ### Talking to the batteries directly because HA/AP doesn't ###
-BATTALK: dict[str, Any] = {
-    "bats": ["bat1", "bat2"],
-    "api_calls": {
-        "strategy": "api/v1/power/active_strategy",
-        "status": "api/v1/power/status",
-        "setpoint": "api/v1/power/setpoint",
-        "grid_target": "api/v1/meter/grid_target",
-    },
-    "api_strats": __short2long_strategy,
-    "bat_stances": __long2short_strategy,
-}
 #
 # # Due to some hardware configuration issues the sign of various sensors
 # # may be confusing.
