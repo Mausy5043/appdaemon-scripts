@@ -246,10 +246,10 @@ class BatMan3(hass.Hass):
 
         _pn = self.tibber.price_now  # current price
         _pd = _pn - self.tibber.stats["q1"]  # difference with price at Q1
-        _p = f"p={_pn:+06.2f} ({_pd:+06.2f})"
+        _p = f" p={_pn:+06.2f}/{_pd:+06.2f}"
         _qn = self.tibber.quarter_now  # current quarter
-        _q = f"{_p} @{_qn:02d} ({_qn / 4:05.2f})"
+        _q = f"{_p}@{_qn:02d}/{_qn / 4:05.2f}"
 
         _time = (dt.datetime.now() - self.callback_time).total_seconds()
-        self.status = " ".join([_O, _C, _E, _L, _S, _q, f"<{caller}> {_time:.3f}"])
+        self.status = "".join([_O, _C, _E, _L, _S, _q, f" <{caller}@{_time:.3f}"])
         self.log(self.status, level="INFO")
