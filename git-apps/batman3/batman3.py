@@ -308,13 +308,24 @@ class BatMan3(hass.Hass):
         _qn = self.tibber.quarter_now  # current quarter
         _q = f"{_p}@{_qn:02d}/{_qn / 4:05.2f}"
 
-        _bp: list[int] = []
-        _bst: list[str] = []
+        _bp: int = 0
+        #_bst: str = ""
+        _bsp: int = 0
         for _b in self.bat_ctrl:
-            _bp.append(int(round(self.bat_ctrl[_b]["state"]["sessy"]["state_of_charge"] * 100, 0)))
-            _bs = self.bat_ctrl[_b]["state"]["sessy"]["system_state"]
-            _bst.append(_bs.removeprefix("SYSTEM_STATE_"))
-        _bts = f" | 1[{_bp[0]}]{_bst[0]}|2[{_bp[1]}]{_bst[1]}"
+            _bp = int(round(self.bat_ctrl[_b]["state"]["sessy"]["state_of_charge"] * 100, 0))
+            #_bs = self.bat_ctrl[_b]["state"]["sessy"]["system_state"]
+            #_bst = _bs.removeprefix("SYSTEM_STATE_")
+            _bsp = int(self.bat_ctrl[_b]["state"]["sessy"]["power_setpoint"])
+            _strl = [f"[{_bp:03d}]"]
+            _str: list = []
+            if _bsp >= 0:
+                _strl.append(f"{_bsp:4d}")
+            else:
+                _strl.insert(0, f"[{_bsp:4d}]")
+            _str.append( ">".join(_strl))
+            #_str+=_bst
+
+        _bts = f" | 1:{_str[0]} |2:{_str[1]}"
 
         _time = (dt.datetime.now() - self.callback_time).total_seconds()
         self.status = "".join([_O, _C, _E, _L, _S, _q, _bts, f" <{caller}@{_time:.3f}"])
