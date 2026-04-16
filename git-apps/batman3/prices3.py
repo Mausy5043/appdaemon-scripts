@@ -114,11 +114,7 @@ class Tibber:
         self.prices = self._fetch_pricedict()  # get the prices from the API
         self.pricelist = list(self.prices.values())  # convert the prices to a list
         self.price_statistics()
-        # TODO: lists
-        # self.charge_greed = "indices of prices < LL or 0.0 (?)"
-        # self.charge_q1 = "indices of prices < q1"
-        # self.discharge_q3 = "indices of prices > q3"
-        # self.discharge_greed = "indices of prices > (Q1avg + HH) or (?)"
+        self.create_lists()
         self.update_current_price()
 
     def update_current_price(self) -> None:
@@ -217,3 +213,19 @@ class Tibber:
             f"Q3 avg: {self.stats['Q3']['avg']:.3f}, "
             f"Q4 avg: {self.stats['Q4']['avg']:.3f} "
         )
+
+    def create_lists(self):
+        """Create some lists"""
+        _q1ll = cs.PRICES["nul"]
+        _q1 = self.stats["q1"]
+        _q3 = self.stats["q3"]
+        _q3hh = self.stats['Q1']['avg'] + cs.PRICES["top"]
+        # self.charge_greed = "indices of prices < LL or 0.0 (?)"
+        self.greed_d = [i for i,_ in enumerate(self.pricelist) if self.pricelist[i] < _q1ll]
+        # self.charge_q1 = "indices of prices < q1"
+        self.cheap = [i for i,_ in enumerate(self.pricelist) if self.pricelist[i] < _q1]
+        # self.discharge_q3 = "indices of prices > q3"
+        self.expen = [i for i,_ in enumerate(self.pricelist) if self.pricelist[i] > _q3]
+        # self.discharge_greed = "indices of prices > (Q1avg + HH) or (?)"
+        self.greed_c = [i for i,_ in enumerate(self.pricelist) if self.pricelist[i] > _q3hh]
+        pass
