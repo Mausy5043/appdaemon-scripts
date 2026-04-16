@@ -325,7 +325,7 @@ class BatMan3(hass.Hass):
             _str.append( ">".join(_strl))
             #_str+=_bst
 
-        _bts = f" | 1:{_str[0]} |2:{_str[1]}"
+        _bts = f" | 1:{_str[0]} | 2:{_str[1]}"
 
         _time = (dt.datetime.now() - self.callback_time).total_seconds()
         self.status = "".join([_O, _C, _E, _L, _S, _q, _bts, f" <{caller}@{_time:.3f}"])
