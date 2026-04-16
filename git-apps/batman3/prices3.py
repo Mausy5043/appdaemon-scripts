@@ -37,17 +37,17 @@ class Tibber:
         # self.discharge: list[int] = []
         self.update_prices()
 
-    def fetch_pricedict(self) -> dict[str, float]:
+    def _fetch_pricedict(self) -> dict[str, float]:
         """Get the price list from the API."""
         now_data: dict = {}
         data: dict = {"error": "no data returned"}
         payload: dict = {"query": self.qry_now}
-        now_data = self.post_request(payload)
-        resp_data: list[dict] = self.unpeel(_data=now_data, _key="today")
-        data = self.convert(resp_data)
+        now_data = self._post_request(payload)
+        resp_data: list[dict] = self._unpeel(_data=now_data, _key="today")
+        data = self._convert(resp_data)
         return data
 
-    def post_request(self, _payload: dict[str, str]) -> dict:
+    def _post_request(self, _payload: dict[str, str]) -> dict:
         """Make a POST request to the given URL with the specified headers and payload.
 
         Args:
@@ -70,7 +70,7 @@ class Tibber:
             return {"error": f"An error occurred: {her}"}
 
     @staticmethod
-    def unpeel(_data: dict[str, dict], _key: str) -> list[dict]:
+    def _unpeel(_data: dict[str, dict], _key: str) -> list[dict]:
         """Unpeel the data from the given key."""
         _lkey: list = []
         try:
@@ -93,7 +93,7 @@ class Tibber:
         return _lkey
 
     @staticmethod
-    def convert(_data: list[dict]) -> dict[str, float]:
+    def _convert(_data: list[dict]) -> dict[str, float]:
         _ret: dict[str, float] = {}
         for item in _data:
             sample_time = parser.isoparse(item["startsAt"]).strftime("%Y-%m-%d %H:%M:%S")
@@ -111,7 +111,7 @@ class Tibber:
         return dict(sorted(_ret.items()))
 
     def update_prices(self) -> None:
-        self.prices = self.fetch_pricedict()  # get the prices from the API
+        self.prices = self._fetch_pricedict()  # get the prices from the API
         self.pricelist = list(self.prices.values())  # convert the prices to a list
         self.price_statistics()
         # TODO: lists
