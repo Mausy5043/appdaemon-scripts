@@ -1,5 +1,6 @@
-"""BatMan3 App
-Listen to changes in the battery state and control the charging/discharging based on energy prices and strategies.
+"""BatMan3
+
+High-level Home Electricity Monitoring & Management System.
 """
 
 import datetime as dt
@@ -19,6 +20,7 @@ class BatMan3(hass.Hass):
         # Keep track of active callbacks
         self.starting = True
         self.callback_handles: list[Any] = []
+        self.callback_time = dt.datetime.now()
 
         # create internal references
         self.secrets = self.get_app("scrts")
@@ -62,7 +64,7 @@ class BatMan3(hass.Hass):
         # ... then get their actual state
         self.get_monitor_states()
 
-        self.log("BatMan3 is running...", level="INFO")
+        self.log(f"BatMan3 is running... (__s)", level="INFO")
         self.log_pricelist()
         self.starting = False
 
@@ -192,12 +194,14 @@ class BatMan3(hass.Hass):
 
     def quarter_started_cb(self, **kwargs) -> None:
         """Callback for current price change."""
+        self.callback_time = dt.datetime.now()
         caller = "qrtStart"
         self.update_tibber_prices()
         self.get_monitor_states(caller=caller)
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
+        self.callback_time = dt.datetime.now()
         # self.log(f"*** Watchdog triggered by {entity} ({attribute}) changed: {old} -> {new}", level="INFO")
         # watchdog changes are not immediate, so we callback watchdog_runin_cb() after:
         _cb_delay = 2  # [s]  to allow the system to stabilize
@@ -211,11 +215,12 @@ class BatMan3(hass.Hass):
 
     def watchdog_runin_cb(self, entity, attribute, old, new, **kwargs):
         """Delayed callback for watchdogs."""
+        self.callback_time = dt.datetime.now()
         self.get_monitor_states(caller="WD_runin_cb")
-        # self.log(f"Current stance              =  {self.new_stance}", level="DEBUG")
 
     def lowpv_runin_cb(self, entity, new, **kwargs):
         """Handle low PV condition changes."""
+        self.callback_time = dt.datetime.now()
         self.get_monitor_states(caller="lowpv_runin_cb")
 
     # CONTROL LOGIC
