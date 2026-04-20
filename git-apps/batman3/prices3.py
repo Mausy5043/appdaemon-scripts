@@ -148,6 +148,7 @@ class Tibber:
 
     def set_greed_d_limit(self, limit: float) -> None:
         self.greed_d_limit = self.stats["Q1"]["avg"] + limit
+        return self.greed_d_limit
 
     def price_statistics(self) -> None:
         """Calculate price statistics."""
