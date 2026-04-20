@@ -15,7 +15,7 @@ requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
 class Tibber:
     """Class to interact with the Tibber API."""
 
-    def __init__(self, token: str, url: str) -> None:
+    def __init__(self, token: str, url: str, charge_limit: float, discharge_limit: float) -> None:
         """Initialize the Tibber class with the API token and URL."""
         self.api_key = token
         self.api_url = url
@@ -32,14 +32,15 @@ class Tibber:
         self.quarter_now: int = 0
         self.stats: dict[str, Any] = {}
         self.statstext: str = "statistics unavailable"
-        self.greed_c_limit: float = cs.PRICES["nul"]
         self.greed_c: list[int] = []
         self.cheap: list[int] = []
-        self.greed_d_limit: float = cs.PRICES["top"]
         self.greed_d: list[int] = []
         self.expen: list[int] = []
 
         self.update_prices()
+        self.set_greed_c_limit(charge_limit)
+        self.set_greed_d_limit(discharge_limit)
+        self.create_lists()
 
     def _fetch_pricedict(self) -> dict[str, float]:
         """Get the price list from the API."""

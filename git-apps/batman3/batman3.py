@@ -35,6 +35,8 @@ class BatMan3(hass.Hass):
         self.tibber = pr.Tibber(
             token=self.secrets.get_tibber_token(),  # type: ignore[attr-defined]
             url=self.secrets.get_tibber_url(),  # type: ignore[attr-defined]
+            greed_c = self.get_state(cs.GREED_C),
+            greed_d = self.get_state(cs.GREED_D),
         )
         #
         # # initialize store for price related info
