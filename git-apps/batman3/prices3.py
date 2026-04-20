@@ -39,8 +39,9 @@ class Tibber:
 
         self.update_prices()
         self.greed_c_limit: float = charge_limit
+        self.greed_d_limit: float = cs.PRICES["top"] # set a default value to initialize
         self.set_greed_d_limit(discharge_limit)
-        self.create_lists()
+        # self.create_lists()
 
     def _fetch_pricedict(self) -> dict[str, float]:
         """Get the price list from the API."""
@@ -119,13 +120,11 @@ class Tibber:
         self.prices = self._fetch_pricedict()  # get the prices from the API
         self.pricelist = list(self.prices.values())  # convert the dict to a list
         self.price_statistics()
-        # self.create_lists()
         self.update_current_price()
 
     def update_current_price(self) -> None:
         self.update_current_quarter()  # make sure we are looking at the correct quarter
         self.price_now = self.get_price_qrter(self.quarter_now)
-        # self.create_lists()
 
     def update_current_quarter(self):
         self.quarter_now = ut.calculate_quarter(dt.datetime.now())
