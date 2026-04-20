@@ -37,8 +37,8 @@ class BatMan3(hass.Hass):
         self.tibber = pr.Tibber(
             token=self.secrets.get_tibber_token(),  # type: ignore[attr-defined]
             url=self.secrets.get_tibber_url(),  # type: ignore[attr-defined]
-            charge_limit = float(_limC),
-            discharge_limit = float(_limD),
+            charge_limit=float(_limC),
+            discharge_limit=float(_limD),
         )
         #
         # # initialize store for price related info
@@ -109,12 +109,12 @@ class BatMan3(hass.Hass):
         _lim: Any = self.get_state(cs.GREED_C)
         self.tibber.set_greed_c_limit(float(_lim))
         _lim = self.get_state(cs.GREED_D)
-        self.tibber.set_greed_d_limit(float(_lim))
         if ut.is_midnight(dt.datetime.now()):
-            self.tibber.update_prices() # call the API for new prices
+            self.tibber.update_prices()  # call the API for new prices
             self.tibber.set_greed_d_limit(float(_lim))
             self.log_pricelist()
         else:
+            self.tibber.set_greed_d_limit(float(_lim))
             self.tibber.update_current_price()  # lookup the price for the new quarter
 
     def log_pricelist(self, _len=10):

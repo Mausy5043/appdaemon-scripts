@@ -39,7 +39,7 @@ class Tibber:
 
         self.update_prices()
         self.greed_c_limit: float = charge_limit
-        self.greed_d_limit: float = cs.PRICES["top"] # set a default value to initialize
+        self.greed_d_limit: float = cs.PRICES["top"]  # set a default value to initialize
         self.set_greed_d_limit(discharge_limit)
         # self.create_lists()
 
@@ -143,13 +143,13 @@ class Tibber:
         _price: float = self.pricelist[quarter]
         return _price
 
-    def set_greed_c_limit(self, limit:float) -> None:
+    def set_greed_c_limit(self, limit: float) -> None:
         self.greed_c_limit = limit
-        self.create_lists()
+        self.create_lists()  # recreate lists bc limit has changed
 
     def set_greed_d_limit(self, limit: float) -> None:
         self.greed_d_limit = self.stats["Q1"]["avg"] + limit
-        self.create_lists()
+        self.create_lists()  # recreate lists bc limit has changed
 
     def price_statistics(self) -> None:
         """Calculate price statistics."""
@@ -229,10 +229,10 @@ class Tibber:
 
     def create_lists(self):
         """Create some lists"""
-        _q1ll = self.greed_c_limit      # charge
+        _q1ll = self.greed_c_limit  # charge
         _q1 = self.stats["q1"]
         _q3 = self.stats["q3"]
-        _q3hh = self.greed_d_limit      # discharge
+        _q3hh = self.greed_d_limit  # discharge
         # self.charge_greed = "indices of prices < LL or 0.0 (?)"
         self.greed_c = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] < _q1ll]
         # self.charge_q1 = "indices of prices < q1"
