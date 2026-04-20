@@ -231,6 +231,7 @@ class Tibber:
         _q1 = self.stats["q1"]
         _q3 = self.stats["q3"]
         _q3hh = self.greed_d_limit
+        print(_q1ll)
         # self.charge_greed = "indices of prices < LL or 0.0 (?)"
         self.greed_d = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] < _q1ll]
         # self.charge_q1 = "indices of prices < q1"
