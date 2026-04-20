@@ -36,20 +36,20 @@ class BatMan3(hass.Hass):
             token=self.secrets.get_tibber_token(),  # type: ignore[attr-defined]
             url=self.secrets.get_tibber_url(),  # type: ignore[attr-defined]
         )
-
-        # initialize store for price related info
-        self.price: dict = {
-            "today": [],  # todays prices per quarter
-            "now": 0.0,  # current price
-            "slot": {
-                "charge": [],  # slots to be charging (greed)
-                "lo": [],  # slots with cheap prices
-                "norm": [],  # slots with normal prices
-                "hi": [],  # slots with high prices
-                "discharge": [],  # slots to be discharging (greed)
-            },
-            "stats": {},  # prices statistics
-        }
+        #
+        # # initialize store for price related info
+        # self.price: dict = {
+        #     "today": [],  # todays prices per quarter
+        #     "now": 0.0,  # current price
+        #     "slot": {
+        #         "charge": [],  # slots to be charging (greed)
+        #         "lo": [],  # slots with cheap prices
+        #         "norm": [],  # slots with normal prices
+        #         "hi": [],  # slots with high prices
+        #         "discharge": [],  # slots to be discharging (greed)
+        #     },
+        #     "stats": {},  # prices statistics
+        # }
 
         # initialize the battery API
         self.bats: list = cs.BATTALK["bats"]
@@ -88,6 +88,7 @@ class BatMan3(hass.Hass):
         self.log("BatMan3 is running...", level="INFO")
         self.log_pricelist()
         self.log_status(caller="INIT")
+
         self.starting = False
 
     def terminate(self):
@@ -101,6 +102,10 @@ class BatMan3(hass.Hass):
 
     def update_tibber_prices(self) -> None:
         """Update the tibber price list a midnight otherwise just update the current price."""
+        _lim: Any = self.get_state(cs.GREED_C)
+        self.tibber.greed_c_limit = float(_lim)
+        _lim = self.get_state(cs.GREED_D)
+        self.tibber.greed_d_limit = float(_lim)
         if ut.is_midnight(dt.datetime.now()):
             self.tibber.update_prices()
             self.log_pricelist()
@@ -113,10 +118,10 @@ class BatMan3(hass.Hass):
         _fstrl = [f"{i:+06.2f}" for i in self.tibber.pricelist]
         _f = "\n".join([", ".join(_fstrl[i : i + _len]) for i in range(0, len(_fstrl), _len)])
         self.log(f"[ \n{_f} ]\n{self.tibber.statstext}", level="INFO")
-        self.log(f"{self.tibber.greed_c}", level="INFO")
-        self.log(f"{self.tibber.cheap}", level="INFO")
-        self.log(f"{self.tibber.expen}", level="INFO")
-        self.log(f"{self.tibber.greed_d}", level="INFO")
+        self.log(f"<{self.tibber.greed_c_limit:+6.2f} : {self.tibber.greed_c}", level="INFO")
+        self.log(f"< q1    : {self.tibber.cheap}", level="INFO")
+        self.log(f"> q3    : {self.tibber.expen}", level="INFO")
+        self.log(f">{self.tibber.greed_d_limit:+6.2f} : {self.tibber.greed_d}", level="INFO")
 
     def get_monitor_states(self, caller: str = ""):
         """Get the state of all monitored entities."""
@@ -309,21 +314,21 @@ class BatMan3(hass.Hass):
         _q = f"{_p}@{_qn:02d}/{_qn / 4:05.2f}"
 
         _bp: int = 0
-        #_bst: str = ""
+        # _bst: str = ""
         _str: list = []
         _bsp: int = 0
         for _b in self.bat_ctrl:
             _bp = int(round(self.bat_ctrl[_b]["state"]["sessy"]["state_of_charge"] * 100, 0))
-            #_bs = self.bat_ctrl[_b]["state"]["sessy"]["system_state"]
-            #_bst = _bs.removeprefix("SYSTEM_STATE_")
+            # _bs = self.bat_ctrl[_b]["state"]["sessy"]["system_state"]
+            # _bst = _bs.removeprefix("SYSTEM_STATE_")
             _bsp = int(self.bat_ctrl[_b]["state"]["sessy"]["power_setpoint"])
             _strl = [f"[{_bp:03d}]"]
             if _bsp >= 0:
                 _strl.append(f"{_bsp:4d}")
             else:
                 _strl.insert(0, f"{abs(_bsp):4d}")
-            _str.append( ">".join(_strl))
-            #_str+=_bst
+            _str.append(">".join(_strl))
+            # _str+=_bst
 
         _bts = f" | 1:{_str[0]} | 2:{_str[1]}"
 
