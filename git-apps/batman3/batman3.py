@@ -103,9 +103,9 @@ class BatMan3(hass.Hass):
     def update_tibber_prices(self) -> None:
         """Update the tibber price list a midnight otherwise just update the current price."""
         _lim: Any = self.get_state(cs.GREED_C)
-        self.tibber.greed_c_limit = float(_lim)
+        self.tibber.set_greed_c_limit(float(_lim))
         _lim = self.get_state(cs.GREED_D)
-        self.tibber.greed_d_limit = float(_lim)
+        self.tibber.set_greed_d_limit(float(_lim))
         if ut.is_midnight(dt.datetime.now()):
             self.tibber.update_prices()
             self.log_pricelist()

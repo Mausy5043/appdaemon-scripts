@@ -116,14 +116,15 @@ class Tibber:
 
     def update_prices(self) -> None:
         self.prices = self._fetch_pricedict()  # get the prices from the API
-        self.pricelist = list(self.prices.values())  # convert the prices to a list
+        self.pricelist = list(self.prices.values())  # convert the dict to a list
         self.price_statistics()
-        self.create_lists()
+        # self.create_lists()
         self.update_current_price()
 
     def update_current_price(self) -> None:
         self.update_current_quarter()  # make sure we are looking at the correct quarter
         self.price_now = self.get_price_qrter(self.quarter_now)
+        self.create_lists()
 
     def update_current_quarter(self):
         self.quarter_now = ut.calculate_quarter(dt.datetime.now())
@@ -141,6 +142,12 @@ class Tibber:
         #         break
         _price: float = self.pricelist[quarter]
         return _price
+
+    def set_greed_c_limit(self, limit:float) -> None:
+        self.greed_c_limit = limit
+
+    def set_greed_d_limit(self, limit: float) -> None:
+        self.greed_d_limit = self.stats["Q1"]["avg"] + limit
 
     def price_statistics(self) -> None:
         """Calculate price statistics."""
@@ -223,7 +230,7 @@ class Tibber:
         _q1ll = self.greed_c_limit
         _q1 = self.stats["q1"]
         _q3 = self.stats["q3"]
-        _q3hh = self.stats["Q1"]["avg"] + self.greed_d_limit
+        _q3hh = self.greed_d_limit
         # self.charge_greed = "indices of prices < LL or 0.0 (?)"
         self.greed_d = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] < _q1ll]
         # self.charge_q1 = "indices of prices < q1"
