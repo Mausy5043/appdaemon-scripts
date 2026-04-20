@@ -108,6 +108,7 @@ class BatMan3(hass.Hass):
         self.tibber.set_greed_d_limit(float(_lim))
         if ut.is_midnight(dt.datetime.now()):
             self.tibber.update_prices()
+            self.tibber.set_greed_d_limit(float(_lim))
             self.log_pricelist()
         else:
             self.tibber.update_current_price()
