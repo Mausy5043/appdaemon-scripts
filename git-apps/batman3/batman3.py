@@ -40,20 +40,6 @@ class BatMan3(hass.Hass):
             charge_limit=float(_limC),
             discharge_limit=float(_limD),
         )
-        #
-        # # initialize store for price related info
-        # self.price: dict = {
-        #     "today": [],  # todays prices per quarter
-        #     "now": 0.0,  # current price
-        #     "slot": {
-        #         "charge": [],  # slots to be charging (greed)
-        #         "lo": [],  # slots with cheap prices
-        #         "norm": [],  # slots with normal prices
-        #         "hi": [],  # slots with high prices
-        #         "discharge": [],  # slots to be discharging (greed)
-        #     },
-        #     "stats": {},  # prices statistics
-        # }
 
         # initialize the battery API
         self.bats: list = cs.BATTALK["bats"]
@@ -64,6 +50,7 @@ class BatMan3(hass.Hass):
                 username=self.bat_ctrl[_b]["username"],
                 password=self.bat_ctrl[_b]["password"],
             )
+
         # initialize the P1 API
         # self.p1s: list = ["p1"]
         # self.p1_ctrl: dict = self.get_bats(devices=self.p1s)
@@ -73,6 +60,7 @@ class BatMan3(hass.Hass):
         #         username=self.p1_ctrl[_b]["username"],
         #         password=self.p1_ctrl[_b]["password"],
         #     )
+
         self.get_bats_status()
 
         # Initialize various monitors with safe defaults ...
@@ -166,6 +154,15 @@ class BatMan3(hass.Hass):
             self.sw_override = str(_swo) == "on"
         except BaseException:
             self.log("*** ZOMWIN_OVERRIDE state update failed")
+
+        try:
+            # set price limits for forced charging/discharging behaviour
+            _gc: Any = self.get_state(cs.GREED_C)
+            self.tibber.set_greed_c_limit(float(_gc))
+            _gd: Any = self.get_state(cs.GREED_D)
+            self.tibber.set_greed_d_limit(float(_gd))
+        except BaseException:
+            self.log("*** GREED_LL/_HH state update failed")
 
         try:
             # get PV/BAT current and power values
