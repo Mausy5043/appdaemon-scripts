@@ -144,10 +144,10 @@ class Tibber:
         return _price
 
     def set_greed_c_limit(self, limit:float) -> None:
-        self.greed_c_limit = limit
+        self.greed_d_limit = self.stats["Q1"]["avg"] + limit
 
     def set_greed_d_limit(self, limit: float) -> None:
-        self.greed_d_limit = self.stats["Q1"]["avg"] + limit
+        self.greed_c_limit = limit
 
     def price_statistics(self) -> None:
         """Calculate price statistics."""
@@ -232,11 +232,11 @@ class Tibber:
         _q3 = self.stats["q3"]
         _q3hh = self.greed_d_limit
         # self.charge_greed = "indices of prices < LL or 0.0 (?)"
-        self.greed_d = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] < _q1ll]
+        self.greed_c = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] < _q1ll]
         # self.charge_q1 = "indices of prices < q1"
         self.cheap = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] < _q1]
         # self.discharge_q3 = "indices of prices > q3"
         self.expen = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] > _q3]  # TODO: >BEP iso >q3
         # self.discharge_greed = "indices of prices > (Q1avg + HH) or (?)"
-        self.greed_c = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] > _q3hh]
+        self.greed_d = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] > _q3hh]
         pass
