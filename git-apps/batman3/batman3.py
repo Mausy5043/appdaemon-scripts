@@ -111,11 +111,11 @@ class BatMan3(hass.Hass):
         _lim = self.get_state(cs.GREED_D)
         self.tibber.set_greed_d_limit(float(_lim))
         if ut.is_midnight(dt.datetime.now()):
-            self.tibber.update_prices()
+            self.tibber.update_prices() # call the API for new prices
             self.tibber.set_greed_d_limit(float(_lim))
             self.log_pricelist()
         else:
-            self.tibber.update_current_price()
+            self.tibber.update_current_price()  # lookup the price for the new quarter
 
     def log_pricelist(self, _len=10):
         self.log(f"*** {len(self.tibber.prices)} TIBBER prices available ***")
