@@ -32,11 +32,13 @@ class BatMan3(hass.Hass):
 
         # initialize Tibber API
         self.tibber_sensor: str = self.secrets.get_tibber_sensor()  # type: ignore[attr-defined]
+        _limC: Any = self.get_state(cs.GREED_C)
+        _limD: Any = self.get_state(cs.GREED_D)
         self.tibber = pr.Tibber(
             token=self.secrets.get_tibber_token(),  # type: ignore[attr-defined]
             url=self.secrets.get_tibber_url(),  # type: ignore[attr-defined]
-            charge_limit = self.get_state(cs.GREED_C),
-            discharge_limit = self.get_state(cs.GREED_D),
+            charge_limit = float(_limC),
+            discharge_limit = float(_limD),
         )
         #
         # # initialize store for price related info
