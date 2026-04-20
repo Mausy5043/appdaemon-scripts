@@ -32,9 +32,13 @@ class Tibber:
         self.quarter_now: int = 0
         self.stats: dict[str, Any] = {}
         self.statstext: str = "statistics unavailable"
+        self.greed_c_limit: float = cs.PRICES["nul"]
+        self.greed_c: list[int] = []
+        self.cheap: list[int] = []
+        self.greed_d_limit: float = cs.PRICES["top"]
+        self.greed_d: list[int] = []
+        self.expen: list[int] = []
 
-        # self.charge: list[int] = []
-        # self.discharge: list[int] = []
         self.update_prices()
 
     def _fetch_pricedict(self) -> dict[str, float]:
@@ -216,16 +220,16 @@ class Tibber:
 
     def create_lists(self):
         """Create some lists"""
-        _q1ll = cs.PRICES["nul"]
+        _q1ll = self.greed_c_limit
         _q1 = self.stats["q1"]
         _q3 = self.stats["q3"]
-        _q3hh = self.stats['Q1']['avg'] + cs.PRICES["top"]
+        _q3hh = self.stats["Q1"]["avg"] + self.greed_d_limit
         # self.charge_greed = "indices of prices < LL or 0.0 (?)"
-        self.greed_d = [i for i,_ in enumerate(self.pricelist) if self.pricelist[i] < _q1ll]
+        self.greed_d = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] < _q1ll]
         # self.charge_q1 = "indices of prices < q1"
-        self.cheap = [i for i,_ in enumerate(self.pricelist) if self.pricelist[i] < _q1]
+        self.cheap = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] < _q1]
         # self.discharge_q3 = "indices of prices > q3"
-        self.expen = [i for i,_ in enumerate(self.pricelist) if self.pricelist[i] > _q3]
+        self.expen = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] > _q3]  # TODO: >BEP iso >q3
         # self.discharge_greed = "indices of prices > (Q1avg + HH) or (?)"
-        self.greed_c = [i for i,_ in enumerate(self.pricelist) if self.pricelist[i] > _q3hh]
+        self.greed_c = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] > _q3hh]
         pass
