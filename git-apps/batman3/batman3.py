@@ -181,11 +181,11 @@ class BatMan3(hass.Hass):
         quarter = 15  # [minutes]
 
         # Determine the time of the next callback for price updates.
-        # (every quarter, 20 seconds in)
+        # (every quarter and a couple of seconds in)
         now = dt.datetime.now()
         minutes = (now.minute // quarter + 1) * quarter
         next_quarter = now.replace(minute=0, second=0, microsecond=0) + dt.timedelta(
-            minutes=minutes, seconds=20
+            minutes=minutes, seconds=cs.CB_DELAY
         )
 
         # `run_every` callbacks can't be cancelled !

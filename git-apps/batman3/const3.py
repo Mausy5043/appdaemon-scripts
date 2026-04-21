@@ -7,6 +7,7 @@ VERSION: str = "3.0.3"
 DEBUG: bool = True  # debugging mode
 
 # --- datetime and timezone related settings
+CB_DELAY: float = 12.21  # [sec] delay for quarterly callbacks; this allows remote APIs to update
 AUTUMN_EQUINOX_OFFSET: int = -7  # [days] offset to the start of winter
 SPRING_EQUINOX_OFFSET: int = -7  # [days] offset to the start of summer
 TZ: str = "Europe/Amsterdam"  # timezone used by the app (fixed for now)
