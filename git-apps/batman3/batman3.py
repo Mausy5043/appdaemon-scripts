@@ -227,18 +227,18 @@ class BatMan3(hass.Hass):
 
     # CALLBACKS
 
-    def quarter_started_cb(self, entity, attribute, old, new, **kwargs) -> None:
+    def quarter_started_cb(self, **kwargs) -> None:
         """Callback for current price change."""
         self.callback_time = dt.datetime.now()
         self.update_tibber_prices()
         self.get_monitor_states()
         self.log_status(caller="QRTR")
         if self.tibber_fail:
-            self.run_in(self.exception_cb, delay=self.tibber_exc_cb, entity=entity, new=new)
+            self.run_in(self.exception_cb, delay=self.tibber_exc_cb)
             self.tibber_exc_cb *= 1.4
 
 
-    def exception_cb(self, entity, attribute, old, new, **kwargs) -> None:
+    def exception_cb(self, **kwargs) -> None:
         """Callback for current price change."""
         self.callback_time = dt.datetime.now()
         if self.tibber_fail:
@@ -246,7 +246,7 @@ class BatMan3(hass.Hass):
         self.get_monitor_states()
         self.log_status(caller="EXCEPTION")
         if self.tibber_fail:
-            self.run_in(self.exception_cb, delay=self.tibber_exc_cb, entity=entity, new=new)
+            self.run_in(self.exception_cb, delay=self.tibber_exc_cb)
             self.tibber_exc_cb *= 1.4
 
 
