@@ -31,6 +31,8 @@ class BatMan3(hass.Hass):
         self.datum: dict = ut.get_these_days()
 
         # initialize Tibber API
+        self.tibber_exc_cb = cs.CB_DELAY
+        self.tibber_fail = False
         self.tibber_sensor: str = self.secrets.get_tibber_sensor()  # type: ignore[attr-defined]
         _limC: Any = self.get_state(cs.GREED_C)
         _limD: Any = self.get_state(cs.GREED_D)
@@ -94,13 +96,21 @@ class BatMan3(hass.Hass):
 
     def update_tibber_prices(self) -> None:
         """Update the tibber price list a midnight otherwise just update the current price."""
+        # make sure we have the current limit value for greedy dis-/charging
         _lim: Any = self.get_state(cs.GREED_C)
         self.tibber.set_greed_c_limit(float(_lim))
         _lim = self.get_state(cs.GREED_D)
-        if ut.is_midnight(dt.datetime.now()):
-            self.tibber.update_prices()  # call the API for new prices
+
+        if ut.is_midnight(dt.datetime.now()) or self.tibber_fail:
+            try:
+                self.tibber.update_prices()  # call the API for new prices
+                self.log_pricelist()
+            except Exception:
+                self.tibber_fail = True
+            else:
+                self.tibber_fail = False
+                self.tibber_exc_cb = cs.CB_DELAY
             self.tibber.set_greed_d_limit(float(_lim))
-            self.log_pricelist()
         else:
             self.tibber.set_greed_d_limit(float(_lim))
             self.tibber.update_current_price()  # lookup the price for the new quarter
@@ -217,12 +227,28 @@ class BatMan3(hass.Hass):
 
     # CALLBACKS
 
-    def quarter_started_cb(self, **kwargs) -> None:
+    def quarter_started_cb(self, entity, attribute, old, new, **kwargs) -> None:
         """Callback for current price change."""
         self.callback_time = dt.datetime.now()
         self.update_tibber_prices()
         self.get_monitor_states()
-        self.log_status(caller="qrtStart")
+        self.log_status(caller="QRTR")
+        if self.tibber_fail:
+            self.run_in(self.exception_cb, delay=self.tibber_exc_cb, entity=entity, new=new)
+            self.tibber_exc_cb *= 1.4
+
+
+    def exception_cb(self, entity, attribute, old, new, **kwargs) -> None:
+        """Callback for current price change."""
+        self.callback_time = dt.datetime.now()
+        if self.tibber_fail:
+            self.update_tibber_prices()
+        self.get_monitor_states()
+        self.log_status(caller="EXCEPTION")
+        if self.tibber_fail:
+            self.run_in(self.exception_cb, delay=self.tibber_exc_cb, entity=entity, new=new)
+            self.tibber_exc_cb *= 1.4
+
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
