@@ -561,10 +561,11 @@ class BatMan2(hass.Hass):
                 self.pwr_sp_list = [_chrgpwr, _chrgpwr]
                 if self.ev_charging:
                     # EV charges at 5200 W
-                    # SP on P1 (grid target) = 5200 + 4400 = 9876 W
+                    # SP on P1 (grid target) = 5200 + 4400 = 9600 W
+                    # allow for overcurrent during sudden changes in demand;
                     # batteries will ramp down when house requires additional power.
-                    # SP on each battery = (9876 / -2) -4938 W
-                    self.pwr_sp_list = [-4938, -4938]
+                    # SP on each battery = (8888 / -2) -4444 W
+                    self.pwr_sp_list = [-4444, -4444]
                     self.log("SP: Reduced power setpoints because EV is charging. ", level="INFO")
                 # self.step_cnt = self.steps
                 self.log(
