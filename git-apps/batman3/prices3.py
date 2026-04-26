@@ -26,7 +26,8 @@ class Tibber:
             "Authorization": f"Bearer {self.api_key}",
         }
         self.prices: dict[str, float] = {}
-        self.pricelist: list[float] = []
+        self.pricelist: list[float] = []    # price per quarter ordered by time
+        self.sorted_pricelist_idx: list[int] = []   # indices into self.pricelist ordered by value lo->hi.
         # set a default price until we get the actual
         self.price_now: float = cs.PRICES["adjust"]["extra"] + cs.PRICES["adjust"]["taxes"]
         self.quarter_now: int = 0
@@ -157,7 +158,7 @@ class Tibber:
         def sum_values_at_index(idx: list[int], val: list[float]) -> float:
             return sum(val[i] for i in idx)
 
-        Q = stqu(self.pricelist, n=4, method="inclusive")
+        Q = stqu(self.pricelist, n=4, method="inclusive")   # quartiles
         self.stats = {
             "min": round(min(self.pricelist), 3),
             "q1": round(Q[0], 3),
@@ -173,14 +174,14 @@ class Tibber:
             "Q4": {},
         }
 
-        # build a list of indices; lowest to highest price
-        sorted_indices = ut.sort_index(self.pricelist, rev=False)
-        # __si = sorted_indices  # remember this list
+        # build the list of indices; lowest to highest price
+        self.sorted_pricelist_idx = ut.sort_index(self.pricelist, rev=False)
+        __si = self.sorted_pricelist_idx
 
         # build a list of the slots that are in Q1 (in the interval min...q1)
-        Q1 = [idx for idx in sorted_indices if self.pricelist[idx] < Q[0]]
+        Q1 = [idx for idx in __si if self.pricelist[idx] < Q[0]]
         # remove the indices in Q1 to avoid adding them to the next list
-        sorted_indices = sorted_indices[len(Q1) :]
+        __si = __si[len(Q1) :]
         self.stats["Q1"] = {
             "idx": Q1,
             "avg": sum_values_at_index(Q1, self.pricelist) / len(Q1),
@@ -188,8 +189,8 @@ class Tibber:
         }
 
         # build a list of the slots that are in Q2 (in the interval q1...median)
-        Q2 = [idx for idx in sorted_indices if self.pricelist[idx] < Q[1]]
-        sorted_indices = sorted_indices[len(Q2) :]
+        Q2 = [idx for idx in __si if self.pricelist[idx] < Q[1]]
+        __si = __si[len(Q2) :]
         self.stats["Q2"] = {
             "idx": Q2,
             "avg": sum_values_at_index(Q2, self.pricelist) / len(Q2),
@@ -197,15 +198,15 @@ class Tibber:
         }
 
         # build a list of the slots that are in Q3 (in the interval median...q3)
-        Q3 = [idx for idx in sorted_indices if self.pricelist[idx] < Q[2]]
-        sorted_indices = sorted_indices[len(Q3) :]
+        Q3 = [idx for idx in __si if self.pricelist[idx] < Q[2]]
+        __si = __si[len(Q3) :]
         self.stats["Q3"] = {
             "idx": Q3,
             "avg": sum_values_at_index(Q3, self.pricelist) / len(Q3),
             "n": len(Q3),
         }
 
-        Q4 = sorted_indices
+        Q4 = __si
         self.stats["Q4"] = {
             "idx": Q4,
             "avg": sum_values_at_index(Q4, self.pricelist) / len(Q4),
@@ -233,12 +234,12 @@ class Tibber:
         _q1 = self.stats["q1"]
         _q3 = self.stats["q3"]
         _q3hh = self.greed_d_limit  # discharge
-        # self.charge_greed = "indices of prices < LL or 0.0 (?)"
-        self.greed_c = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] < _q1ll]
-        # self.charge_q1 = "indices of prices < q1"
-        self.cheap = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] < _q1]
-        # self.discharge_q3 = "indices of prices > q3"
-        self.expen = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] > _q3]  # TODO: >BEP iso >q3
+        # indices of prices < LL; always charge regardless of EV state.
+        self.charge_greed = [i for i in self.sorted_pricelist_idx if self.pricelist[i] < _q1ll]
+        # indices of prices < q1; for charging in winter; we only need the N cheapest slots
+        self.charge_cheap = [i for i in self.sorted_pricelist_idx if self.pricelist[i] < _q1][:cs.CHARGE_SLOTS]
+        # indices of prices > q3;
+        self.disch_expen = [i for i in self.sorted_pricelist_idx if self.pricelist[i] > _q3]  # TODO: >BEP iso >q3
         # self.discharge_greed = "indices of prices > (Q1avg + HH) or (?)"
-        self.greed_d = [i for i, _ in enumerate(self.pricelist) if self.pricelist[i] > _q3hh]
+        self.greed_d = [i for i in self.sorted_pricelist_idx if self.pricelist[i] > _q3hh]
         pass
