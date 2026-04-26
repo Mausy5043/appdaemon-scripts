@@ -237,7 +237,6 @@ class BatMan3(hass.Hass):
             self.run_in(self.exception_cb, delay=self.tibber_exc_cb)
             self.tibber_exc_cb *= 1.4
 
-
     def exception_cb(self, **kwargs) -> None:
         """Callback for current price change."""
         self.callback_time = dt.datetime.now()
@@ -247,7 +246,6 @@ class BatMan3(hass.Hass):
         if self.tibber_fail:
             self.run_in(self.exception_cb, delay=self.tibber_exc_cb)
             self.tibber_exc_cb *= 1.4
-
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
