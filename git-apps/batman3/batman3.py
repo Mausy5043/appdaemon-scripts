@@ -101,7 +101,7 @@ class BatMan3(hass.Hass):
         self.tibber.set_greed_c_limit(float(_lim))
         _lim = self.get_state(cs.GREED_D)
 
-        if ut.is_midnight(dt.datetime.now()) or self.tibber_fail:
+        if ut.is_midnight(dt.datetime.now()):  # or self.tibber_fail:
             try:
                 self.tibber.update_prices()  # call the API for new prices
                 self.log_pricelist()
@@ -241,8 +241,7 @@ class BatMan3(hass.Hass):
     def exception_cb(self, **kwargs) -> None:
         """Callback for current price change."""
         self.callback_time = dt.datetime.now()
-        if self.tibber_fail:
-            self.update_tibber_prices()
+        self.update_tibber_prices()
         self.get_monitor_states()
         self.log_status(caller="EXCEPTION")
         if self.tibber_fail:
