@@ -72,14 +72,14 @@ BATTALK: dict[str, Any] = {
 
 # maximum/minimum rates per battery
 MAX_CHARGE = -2200  # W
-MIN_CHARGE = -160   # W
-MAX_DISCHARGE = 1700    # W
-MIN_DISCHARGE = 160 # W
-BAT_CAPACITY = 5000 # Wh
+MIN_CHARGE = -160  # W
+MAX_DISCHARGE = 1700  # W
+MIN_DISCHARGE = 160  # W
+BAT_CAPACITY = 5000  # Wh
 # Average round-trip efficiency is not read from HA because is hardly changes:
 AVG_RTE = 0.8
 # Number of quarters needed to fully charge a battery
-CHARGE_TIME = BAT_CAPACITY / MAX_CHARGE # hours
+CHARGE_TIME = BAT_CAPACITY / MAX_CHARGE  # hours
 CHARGE_SLOTS = CHARGE_TIME * 4  # quarters needed to fully charge the batteries
 DISCHG_TIME = BAT_CAPACITY / MAX_DISCHARGE * AVG_RTE
 DISCHG_SLOTS = DISCHG_TIME * 4  # quarters needed to fully discharge the batteries
