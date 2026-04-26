@@ -232,7 +232,7 @@ class BatMan3(hass.Hass):
         self.callback_time = dt.datetime.now()
         self.update_tibber_prices()
         self.get_monitor_states()
-        self.log_status(caller="QRTR")
+        self.log_status(caller="qrtr")
         if self.tibber_fail:
             self.run_in(self.exception_cb, delay=self.tibber_exc_cb)
             self.tibber_exc_cb *= 1.4
