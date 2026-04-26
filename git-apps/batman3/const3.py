@@ -80,9 +80,9 @@ BAT_CAPACITY = 5000  # Wh
 AVG_RTE = 0.8
 # Number of quarters needed to fully charge a battery
 CHARGE_TIME = BAT_CAPACITY / MAX_CHARGE  # hours
-CHARGE_SLOTS = CHARGE_TIME * 4  # quarters needed to fully charge the batteries
+CHARGE_SLOTS = int(CHARGE_TIME * 4)  # quarters needed to fully charge the batteries
 DISCHG_TIME = BAT_CAPACITY / MAX_DISCHARGE * AVG_RTE
-DISCHG_SLOTS = DISCHG_TIME * 4  # quarters needed to fully discharge the batteries
+DISCHG_SLOTS = int(DISCHG_TIME * 4)  # quarters needed to fully discharge the batteries
 
 # # set to True to enable more aggressive (dis)charging when prices are favourable
 # TRADING = False
