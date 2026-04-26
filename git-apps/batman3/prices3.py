@@ -241,5 +241,5 @@ class Tibber:
         # indices of prices > q3;
         self.disch_expen = [i for i in self.sorted_pricelist_idx if self.pricelist[i] > _q3]  # TODO: >BEP iso >q3
         # self.discharge_greed = "indices of prices > (Q1avg + HH) or (?)"
-        self.greed_d = [i for i in self.sorted_pricelist_idx if self.pricelist[i] > _q3hh]
+        self.disch_greed = [i for i in self.sorted_pricelist_idx if self.pricelist[i] > _q3hh]
         pass
