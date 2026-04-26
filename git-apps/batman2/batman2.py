@@ -87,7 +87,7 @@ class BatMan2(hass.Hass):
         quarter = 15
         minutes = (now.minute // quarter + 1) * quarter
         next_quarter = now.replace(minute=0, second=0, microsecond=0) + dt.timedelta(
-            minutes=minutes, seconds=21.12
+            minutes=minutes, seconds=41.14
         )
         self.log(f"Next quarter callback       =  {next_quarter.strftime("%Y-%m-%d %H:%M:%S")}", level="INFO")
         # run_every callbacks can't be cancelled
