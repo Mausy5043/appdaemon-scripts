@@ -33,10 +33,10 @@ class Tibber:
         self.quarter_now: int = 0
         self.stats: dict[str, Any] = {}
         self.statstext: str = "statistics unavailable"
-        self.greed_c: list[int] = []
-        self.cheap: list[int] = []
-        self.greed_d: list[int] = []
-        self.expen: list[int] = []
+        self.charge_greed: list[int] = []
+        self.charge_cheap: list[int] = []
+        self.disch_greed: list[int] = []
+        self.disch_expen: list[int] = []
 
         self.update_prices()
         self.greed_c_limit: float = charge_limit

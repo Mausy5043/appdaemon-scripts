@@ -121,10 +121,10 @@ class BatMan3(hass.Hass):
         _fstrl = [f"{i:+06.2f}" for i in self.tibber.pricelist]
         _f = "\n".join([", ".join(_fstrl[i : i + _len]) for i in range(0, len(_fstrl), _len)])
         self.log(f"[ \n{_f} ]\n{self.tibber.statstext}", level="INFO")
-        self.log(f"<{self.tibber.greed_c_limit:+6.2f} : {self.tibber.greed_c}", level="INFO")
-        self.log(f"< q1    : {self.tibber.cheap}", level="INFO")
-        self.log(f"> q3    : {self.tibber.expen}", level="INFO")
-        self.log(f">{self.tibber.greed_d_limit:+6.2f} : {self.tibber.greed_d}", level="INFO")
+        self.log(f"<{self.tibber.greed_c_limit:+6.2f} : {self.tibber.charge_greed}", level="INFO")
+        self.log(f"< q1    : {self.tibber.charge_cheap}", level="INFO")
+        self.log(f"> q3    : {self.tibber.disch_expen}", level="INFO")
+        self.log(f">{self.tibber.greed_d_limit:+6.2f} : {self.tibber.disch_greed}", level="INFO")
 
     def get_monitor_states(self, caller: str = ""):
         """Get the state of all monitored entities."""
