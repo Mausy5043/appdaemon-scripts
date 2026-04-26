@@ -149,7 +149,7 @@ class Tibber:
         self.create_lists()  # recreate lists bc limit has changed
 
     def set_greed_d_limit(self, limit: float) -> None:
-        self.greed_d_limit = self.stats["Q1"]["avg"] + limit
+        self.greed_d_limit = limit + self.stats["q1"] # self.stats["Q1"]["avg"]
         self.create_lists()  # recreate lists bc limit has changed
 
     def price_statistics(self) -> None:
