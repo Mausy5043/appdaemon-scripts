@@ -104,6 +104,7 @@ class BatMan3(hass.Hass):
         if ut.is_midnight(dt.datetime.now()):  # or self.tibber_fail:
             try:
                 self.tibber.update_prices()  # call the API for new prices
+                self.tibber.create_lists()
                 self.log_pricelist()
             except Exception:
                 self.tibber_fail = True
@@ -119,7 +120,7 @@ class BatMan3(hass.Hass):
         self.log(f"*** {len(self.tibber.prices)} TIBBER prices available ***")
         # convert to a list of formatted strings
         _fstrl = [f"{i:+06.2f}" for i in self.tibber.pricelist]
-        _f = "\n".join([", ".join(_fstrl[i : i + _len]) for i in range(0, len(_fstrl), _len)])
+        _f = "\n  :  ".join([", ".join(_fstrl[i : i + _len]) for i in range(0, len(_fstrl), _len)])
         self.log(f"[ \n{_f} ]\n{self.tibber.statstext}", level="INFO")
         self.log(f"<{self.tibber.greed_c_limit:+6.2f} : {self.tibber.charge_greed}", level="INFO")
         self.log(f"< q1    : {self.tibber.charge_cheap}", level="INFO")
