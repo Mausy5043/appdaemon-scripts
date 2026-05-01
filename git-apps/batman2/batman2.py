@@ -88,6 +88,7 @@ class BatMan2(hass.Hass):
         minutes = (now.minute // quarter + 1) * quarter
         next_quarter = now.replace(minute=0, second=0, microsecond=0) + dt.timedelta(
             minutes=minutes, seconds=41.14
+
         )
         self.log(f"Next quarter callback       =  {next_quarter.strftime("%Y-%m-%d %H:%M:%S")}", level="INFO")
         # run_every callbacks can't be cancelled
@@ -521,7 +522,7 @@ class BatMan2(hass.Hass):
         match self.greedy:
             case -1:
                 _l = f"Greedy for CHARGE. But too high SoC ({self.soc:.1f} %)."
-                c_greed: bool = (self.prv_stance == cs.CHARGE and self.soc < 99.9) or (self.soc < _min_soc)
+                c_greed: bool = (self.prv_stance == cs.CHARGE and self.soc < 99.9)
                 if c_greed:
                     _l = "Greedy for CHARGE. Requesting CHARGE stance."
                     stance = cs.CHARGE
