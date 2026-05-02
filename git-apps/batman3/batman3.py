@@ -338,8 +338,7 @@ class BatMan3(hass.Hass):
                 _strl.append(f"{_bsp:4d}")
             else:
                 _strl.insert(0, f"{abs(_bsp):4d}")
-            _str.append(">".join(_strl))\
-
+            _str.append(">".join(_strl))
         _bts = f" | 1:{_str[0]}:{_bs}| 2:{_str[1]}:{_bs}"
 
         _time = (dt.datetime.now() - self.callback_time).total_seconds()
@@ -351,7 +350,7 @@ class BatMan3(hass.Hass):
         # convert to a list of formatted strings
         _fstrl = [f"{i:+06.2f}" for i in self.tibber.pricelist]
         _f = "\n  :  ".join([", ".join(_fstrl[i : i + _len]) for i in range(0, len(_fstrl), _len)])
-        self.log(f"[ \n{_f} ]\n{self.tibber.statstext}", level="INFO")
+        self.log(f"[\n  :  {_f} ]\n{self.tibber.statstext}", level="INFO")
         self.log(f"<{self.tibber.greed_c_limit:+6.2f} : {self.tibber.charge_greed}", level="INFO")
         self.log(f"< q1    : {self.tibber.charge_cheap}", level="INFO")
         self.log(f"> q3    : {self.tibber.disch_expen}", level="INFO")

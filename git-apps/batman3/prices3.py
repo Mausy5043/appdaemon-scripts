@@ -26,8 +26,8 @@ class Tibber:
             "Authorization": f"Bearer {self.api_key}",
         }
         self.prices: dict[str, float] = {}
-        self.pricelist: list[float] = []    # price per quarter ordered by time
-        self.sorted_pricelist_idx: list[int] = []   # indices into self.pricelist ordered by value lo->hi.
+        self.pricelist: list[float] = []  # price per quarter ordered by time
+        self.sorted_pricelist_idx: list[int] = []  # indices into self.pricelist ordered by value lo->hi.
         # set a default price until we get the actual
         self.price_now: float = cs.PRICES["adjust"]["extra"] + cs.PRICES["adjust"]["taxes"]
         self.quarter_now: int = 0
@@ -149,7 +149,7 @@ class Tibber:
         self.create_lists()  # recreate lists bc limit has changed
 
     def set_greed_d_limit(self, limit: float) -> None:
-        self.greed_d_limit = limit + self.stats["q1"] # self.stats["Q1"]["avg"]
+        self.greed_d_limit = limit + self.stats["q1"]  # self.stats["Q1"]["avg"]
         self.create_lists()  # recreate lists bc limit has changed
 
     def price_statistics(self) -> None:
@@ -158,7 +158,7 @@ class Tibber:
         def sum_values_at_index(idx: list[int], val: list[float]) -> float:
             return sum(val[i] for i in idx)
 
-        Q = stqu(self.pricelist, n=4, method="inclusive")   # quartiles
+        Q = stqu(self.pricelist, n=4, method="inclusive")  # quartiles
         self.stats = {
             "min": round(min(self.pricelist), 3),
             "q1": round(Q[0], 3),
@@ -214,7 +214,7 @@ class Tibber:
         }
 
         self.statstext = (
-            f" : min: {self.stats['min']:.3f}, "
+            f"  : min: {self.stats['min']:.3f}, "
             f"q1 : {self.stats['q1']:.3f}, "
             f"med: {self.stats['med']:.3f}, "
             f"avg: {self.stats['avg']:.3f}, "
@@ -222,7 +222,7 @@ class Tibber:
             f"max: {self.stats['max']:.3f}, "
             f"rng: {self.stats['rng']:.3f}, "
             f"iqr: {self.stats['iqr']:.3f}\n"
-            f" :      Q1 avg: {self.stats['Q1']['avg']:.3f}, "
+            f"  :      Q1 avg: {self.stats['Q1']['avg']:.3f}, "
             f"Q2 avg: {self.stats['Q2']['avg']:.3f}, "
             f"Q3 avg: {self.stats['Q3']['avg']:.3f}, "
             f"Q4 avg: {self.stats['Q4']['avg']:.3f} "
@@ -237,9 +237,13 @@ class Tibber:
         # indices of prices < LL; always charge regardless of EV state.
         self.charge_greed = [i for i in self.sorted_pricelist_idx if self.pricelist[i] < _q1ll]
         # indices of prices < q1; for charging in winter; we only need the N cheapest slots
-        self.charge_cheap = [i for i in self.sorted_pricelist_idx if self.pricelist[i] < _q1][:cs.CHARGE_SLOTS]
+        self.charge_cheap = [i for i in self.sorted_pricelist_idx if self.pricelist[i] < _q1][: cs.CHARGE_SLOTS]
         # indices of prices > q3;
-        self.disch_expen = [i for i in self.sorted_pricelist_idx if self.pricelist[i] > _q3]  # TODO: >BEP iso >q3
+        self.disch_expen = [
+            i for i in self.sorted_pricelist_idx if self.pricelist[i] > _q3
+        ]  # TODO: >BEP iso >q3
         # self.discharge_greed = "indices of prices > (Q1avg + HH) or (?)"
-        self.disch_greed = [i for i in self.sorted_pricelist_idx if self.pricelist[i] > _q3hh][-cs.DISCHG_SLOTS:]
+        self.disch_greed = [i for i in self.sorted_pricelist_idx if self.pricelist[i] > _q3hh][
+            -cs.DISCHG_SLOTS :
+        ]
         pass
