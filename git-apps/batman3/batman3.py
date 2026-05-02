@@ -299,13 +299,13 @@ class BatMan3(hass.Hass):
               }
             }
             """
-            _batid: str = f"select.{_b}_power_strategy"
-            _strat: Any | None = self.get_state(entity_id=_batid, attribute="state")
-            if _strat is not None:
-                self.bat_ctrl[_b]["strategy"] = str(_strat)
-            else:
-                self.bat_ctrl[_b]["strategy"] = "NOM"
-
+            # _batid: str = f"select.{_b}_power_strategy"
+            # _strat: Any | None = self.get_state(entity_id=_batid, attribute="state")
+            # if _strat is not None:
+            #     self.bat_ctrl[_b]["strategy"] = str(_strat)
+            # else:
+            #     self.bat_ctrl[_b]["strategy"] = "NOM"
+            self.bat_ctrl[_b]["strategy"] = self.bat_ctrl[_b]["api"].get_strategy()
 
     def log_status(self, caller: str):
         """Construct a status message and log it."""
@@ -339,8 +339,7 @@ class BatMan3(hass.Hass):
                 _strl.append(f"{_bsp:4d}")
             else:
                 _strl.insert(0, f"{abs(_bsp):4d}")
-            _str.append(">".join(_strl))
-            # _str+=_bst
+            _str.append(">".join(_strl))\
 
         _bts = f" | 1:{_str[0]}:{_bs}| 2:{_str[1]}:{_bs}"
 
