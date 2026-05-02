@@ -44,25 +44,13 @@ class BatMan3(hass.Hass):
         )
 
         # initialize the battery API
-        self.bats: list = cs.BATTALK["bats"]
-        self.bat_ctrl: dict[str, Any] = self.get_bats(devices=self.bats)
+        self.bat_ctrl: dict[str, Any] = self.get_bats(devices=cs.BATTALK["bats"])
         for _b in self.bat_ctrl:
             self.bat_ctrl[_b]["api"] = bt3.Sessy(
                 url=self.bat_ctrl[_b]["url"],
                 username=self.bat_ctrl[_b]["username"],
                 password=self.bat_ctrl[_b]["password"],
             )
-
-        # initialize the P1 API
-        # self.p1s: list = ["p1"]
-        # self.p1_ctrl: dict = self.get_bats(devices=self.p1s)
-        # for _b in self.p1_ctrl:
-        #     self.p1_ctrl[_b]["api"] = bt3.Sessy(
-        #         url=self.p1_ctrl[_b]["url"],
-        #         username=self.p1_ctrl[_b]["username"],
-        #         password=self.p1_ctrl[_b]["password"],
-        #     )
-
         self.get_bats_status()
 
         # Initialize various monitors with safe defaults ...
@@ -115,17 +103,6 @@ class BatMan3(hass.Hass):
         else:
             self.tibber.set_greed_d_limit(float(_lim))
             self.tibber.update_current_price()  # lookup the price for the new quarter
-
-    def log_pricelist(self, _len=10):
-        self.log(f"*** {len(self.tibber.prices)} TIBBER prices available ***")
-        # convert to a list of formatted strings
-        _fstrl = [f"{i:+06.2f}" for i in self.tibber.pricelist]
-        _f = "\n  :  ".join([", ".join(_fstrl[i : i + _len]) for i in range(0, len(_fstrl), _len)])
-        self.log(f"[ \n{_f} ]\n{self.tibber.statstext}", level="INFO")
-        self.log(f"<{self.tibber.greed_c_limit:+6.2f} : {self.tibber.charge_greed}", level="INFO")
-        self.log(f"< q1    : {self.tibber.charge_cheap}", level="INFO")
-        self.log(f"> q3    : {self.tibber.disch_expen}", level="INFO")
-        self.log(f">{self.tibber.greed_d_limit:+6.2f} : {self.tibber.disch_greed}", level="INFO")
 
     def get_monitor_states(self, caller: str = ""):
         """Get the state of all monitored entities."""
@@ -185,6 +162,7 @@ class BatMan3(hass.Hass):
             self.pv_power = int(float(_pvp))  # [W]
         except BaseException:
             self.log("*** PV meter state update failed")
+
         self.get_bats_status()
 
     def set_call_backs(self) -> None:
@@ -289,37 +267,45 @@ class BatMan3(hass.Hass):
         """Get the battery status."""
         for _b in self.bat_ctrl:
             self.bat_ctrl[_b]["state"] = self.bat_ctrl[_b]["api"].get_status()
-        """example: >
-        {
-          "status": "ok",
-          "sessy": {
-            "state_of_charge": 0.8899999856948853,
-            "power": -2037,
-            "external_power": 0,
-            "pack_voltage": 55300,
-            "power_setpoint": -2061,
-            "system_state": "SYSTEM_STATE_RUNNING_SAFE",
-            "system_state_details": "",
-            "frequency": 49975,
-            "inverter_current_ma": -8725,
-            "strategy_overridden": false
-          },
-          "renewable_energy_phase1": {
-            "voltage_rms": 231276,
-            "current_rms": 8952,
-            "power": 2078
-          },
-          "renewable_energy_phase2": {
-            "voltage_rms": 0,
-            "current_rms": 0,
-            "power": 0
-          },
-          "renewable_energy_phase3": {
-            "voltage_rms": 0,
-            "current_rms": 0,
-            "power": 0
-          }
-        }        """
+            """example: >
+            {
+              "status": "ok",
+              "sessy": {
+                "state_of_charge": 0.8899999856948853,
+                "power": -2037,
+                "external_power": 0,
+                "pack_voltage": 55300,
+                "power_setpoint": -2061,
+                "system_state": "SYSTEM_STATE_RUNNING_SAFE",
+                "system_state_details": "",
+                "frequency": 49975,
+                "inverter_current_ma": -8725,
+                "strategy_overridden": false
+              },
+              "renewable_energy_phase1": {
+                "voltage_rms": 231276,
+                "current_rms": 8952,
+                "power": 2078
+              },
+              "renewable_energy_phase2": {
+                "voltage_rms": 0,
+                "current_rms": 0,
+                "power": 0
+              },
+              "renewable_energy_phase3": {
+                "voltage_rms": 0,
+                "current_rms": 0,
+                "power": 0
+              }
+            }
+            """
+            _batid: str = f"select.{_b}_power_strategy"
+            _strat: Any | None = self.get_state(entity_id=_batid, attribute="state")
+            if _strat is not None:
+                self.bat_ctrl[_b]["strategy"] = str(_strat)
+            else:
+                self.bat_ctrl[_b]["strategy"] = "NOM"
+
 
     def log_status(self, caller: str):
         """Construct a status message and log it."""
@@ -337,15 +323,15 @@ class BatMan3(hass.Hass):
         _pd = _pn - self.tibber.stats["q1"]  # difference with price at Q1
         _p = f" p={_pn:+06.2f}/{_pd:+06.2f}"
         _qn = self.tibber.quarter_now  # current quarter
-        _q = f"{_p}@{_qn:02d}/{_qn / 4:05.2f}"
+        _q = f"{_p} @{_qn:02d}/{_qn / 4:05.2f}"
 
         _bp: int = 0
-        # _bst: str = ""
+        _bs: str = ""
         _str: list = []
         _bsp: int = 0
         for _b in self.bat_ctrl:
             _bp = int(round(self.bat_ctrl[_b]["state"]["sessy"]["state_of_charge"] * 100, 0))
-            # _bs = self.bat_ctrl[_b]["state"]["sessy"]["system_state"]
+            _bs = self.bat_ctrl[_b]["strategy"]
             # _bst = _bs.removeprefix("SYSTEM_STATE_")
             _bsp = int(self.bat_ctrl[_b]["state"]["sessy"]["power_setpoint"])
             _strl = [f"[{_bp:03d}]"]
@@ -353,11 +339,23 @@ class BatMan3(hass.Hass):
                 _strl.append(f"{_bsp:4d}")
             else:
                 _strl.insert(0, f"{abs(_bsp):4d}")
+            _strl.append(f":{_bs}")
             _str.append(">".join(_strl))
             # _str+=_bst
 
-        _bts = f" | 1:{_str[0]} | 2:{_str[1]}"
+        _bts = f" | 1:{_str[0]}| 2:{_str[1]}"
 
         _time = (dt.datetime.now() - self.callback_time).total_seconds()
         self.status = "".join([_O, _C, _E, _L, _S, _q, _bts, f" <{caller}@{_time:.3f}"])
         self.log(self.status, level="INFO")
+
+    def log_pricelist(self, _len=10):
+        self.log(f"*** {len(self.tibber.prices)} TIBBER prices available ***")
+        # convert to a list of formatted strings
+        _fstrl = [f"{i:+06.2f}" for i in self.tibber.pricelist]
+        _f = "\n  :  ".join([", ".join(_fstrl[i : i + _len]) for i in range(0, len(_fstrl), _len)])
+        self.log(f"[ \n{_f} ]\n{self.tibber.statstext}", level="INFO")
+        self.log(f"<{self.tibber.greed_c_limit:+6.2f} : {self.tibber.charge_greed}", level="INFO")
+        self.log(f"< q1    : {self.tibber.charge_cheap}", level="INFO")
+        self.log(f"> q3    : {self.tibber.disch_expen}", level="INFO")
+        self.log(f">{self.tibber.greed_d_limit:+6.2f} : {self.tibber.disch_greed}", level="INFO")
