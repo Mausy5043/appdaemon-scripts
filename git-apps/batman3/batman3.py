@@ -299,12 +299,6 @@ class BatMan3(hass.Hass):
               }
             }
             """
-            # _batid: str = f"select.{_b}_power_strategy"
-            # _strat: Any | None = self.get_state(entity_id=_batid, attribute="state")
-            # if _strat is not None:
-            #     self.bat_ctrl[_b]["strategy"] = str(_strat)
-            # else:
-            #     self.bat_ctrl[_b]["strategy"] = "NOM"
             _strat: str = self.bat_ctrl[_b]["api"].get_strategy()
             # translate strategy
             try:
