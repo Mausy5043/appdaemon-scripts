@@ -307,7 +307,10 @@ class BatMan3(hass.Hass):
             #     self.bat_ctrl[_b]["strategy"] = "NOM"
             _strat: str = self.bat_ctrl[_b]["api"].get_strategy()
             # translate strategy
-            self.bat_ctrl[_b]["strategy"] = cs.BATTALK["bat_stances"][_strat]
+            try:
+                self.bat_ctrl[_b]["strategy"] = cs.BATTALK["bat_stances"][_strat]
+            except KeyError:
+                self.bat_ctrl[_b]["strategy"] = "UNK"
 
     def log_status(self, caller: str):
         """Construct a status message and log it."""
