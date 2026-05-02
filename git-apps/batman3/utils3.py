@@ -78,7 +78,9 @@ def is_sunny_day(datum: dt.date) -> bool:
 
 
 def is_midnight(datim: dt.datetime) -> bool:
-    """Check if the given datetime is at midnight."""
+    """Check if the given datetime is at midnight.
+    When hour == 0 AND minute == 0.
+    """
     if datim.hour == 0 and datim.minute == 0:
         return True
     return False
