@@ -81,9 +81,9 @@ AVG_RTE = 0.8
 # Number of quarters needed to fully charge a battery
 _F = 1.4  # compensation factor to allow for variations in actual wattages used.
 CHARGE_TIME = BAT_CAPACITY / MAX_CHARGE  # hours
-CHARGE_SLOTS = int(CHARGE_TIME * 4) * _F  # quarters needed to fully charge the batteries (must be (-)-ve!)
+CHARGE_SLOTS = int(CHARGE_TIME * 4 * _F)  # quarters needed to fully charge the batteries (must be (-)-ve!)
 DISCHG_TIME = BAT_CAPACITY / MAX_DISCHARGE * AVG_RTE
-DISCHG_SLOTS = int(DISCHG_TIME * 4) * _F  # quarters needed to fully discharge the batteries (must be (+)-ve!)
+DISCHG_SLOTS = int(DISCHG_TIME * 4 * _F)  # quarters needed to fully discharge the batteries (must be (+)-ve!)
 
 # # set to True to enable more aggressive (dis)charging when prices are favourable
 # TRADING = False
