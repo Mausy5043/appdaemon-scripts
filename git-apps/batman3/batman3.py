@@ -89,7 +89,7 @@ class BatMan3(hass.Hass):
         self.tibber.set_greed_c_limit(float(_lim))
         _lim = self.get_state(cs.GREED_D)
 
-        if ut.is_midnight(dt.datetime.now()):  # or self.tibber_fail:
+        if ut.is_midnight(dt.datetime.now()) or self.tibber_fail:
             try:
                 self.tibber.update_prices()  # call the API for new prices
                 self.tibber.create_lists()
@@ -98,7 +98,7 @@ class BatMan3(hass.Hass):
                 self.tibber_fail = True
             else:
                 self.tibber_fail = False
-                self.tibber_exc_cb = cs.CB_DELAY
+                self.tibber_exc_cb = cs.CB_DELAY  # reset callback timer on success
             self.tibber.set_greed_d_limit(float(_lim))
         else:
             self.tibber.set_greed_d_limit(float(_lim))
@@ -210,49 +210,62 @@ class BatMan3(hass.Hass):
         """Callback for current price change."""
         self.callback_time = dt.datetime.now()
         self.update_tibber_prices()
-        self.get_monitor_states()
-        self.log_status(caller="qrtr")
         if self.tibber_fail:
             self.run_in(self.exception_cb, delay=self.tibber_exc_cb)
             self.tibber_exc_cb *= 1.4
+        else:
+            self.get_monitor_states()
+            self.run_in(self.controller_cb, delay=1, caller="qrtr")
 
     def exception_cb(self, **kwargs) -> None:
         """Callback for current price change."""
-        self.callback_time = dt.datetime.now()
+        # self.callback_time = dt.datetime.now()
         self.update_tibber_prices()
-        self.get_monitor_states()
-        self.log_status(caller="EXCEPTION")
         if self.tibber_fail:
             self.run_in(self.exception_cb, delay=self.tibber_exc_cb)
             self.tibber_exc_cb *= 1.4
+        else:
+            self.get_monitor_states()
+            self.run_in(self.controller_cb, delay=1, caller="EXCEPTION")
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
         self.callback_time = dt.datetime.now()
-        # self.log(f"*** Watchdog triggered by {entity} ({attribute}) changed: {old} -> {new}", level="INFO")
         # watchdog changes are not immediate, so we callback watchdog_runin_cb() after:
         _cb_delay = 2  # [s]  to allow the system to stabilize
         # low PV is a special case, because it needs different actions
         if entity == cs.LOW_PV:
-            self.run_in(self.lowpv_runin_cb, delay=_cb_delay, entity=entity, new=new)
+            self.run_in(self.lowpv_runin_cb, delay=_cb_delay) #, entity=entity, new=new)
         else:
             self.run_in(
-                self.watchdog_runin_cb, delay=_cb_delay, entity=entity, attribute=attribute, old=old, new=new
+                self.watchdog_runin_cb,
+                delay=_cb_delay,
+                entity=entity,
+                attribute=attribute,
+                old=old,
+                new=new,
             )
 
     def watchdog_runin_cb(self, entity, attribute, old, new, **kwargs):
         """Delayed callback for watchdogs."""
-        self.callback_time = dt.datetime.now()
+        # self.callback_time = dt.datetime.now()
         self.get_monitor_states()
-        self.log_status(caller="WD_runin_cb")
+        self.run_in(self.controller_cb, delay=1, caller="watchdog")
 
-    def lowpv_runin_cb(self, entity, new, **kwargs):
+    def lowpv_runin_cb(self, **kwargs): # entity, new, **kwargs):
         """Handle low PV condition changes."""
-        self.callback_time = dt.datetime.now()
+        # self.callback_time = dt.datetime.now()
         self.get_monitor_states()
-        self.log_status(caller="lowpv_runin_cb")
+        self.run_in(self.controller_cb, delay=1, caller="lowpv")
 
     # CONTROL LOGIC
+
+    def controller_cb(self, caller, **kwargs):
+        """Controller callback."""
+        self.log_status(caller=f"govnr/{caller}")
+
+    def set_mode(self):
+        pass
 
     # SECRETS
 
