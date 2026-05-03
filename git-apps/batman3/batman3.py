@@ -248,7 +248,7 @@ class BatMan3(hass.Hass):
         # low PV may need different actions
         if entity == cs.LOW_PV:
             self.lowpv_handler(state=str(new))
-        self.run_in(self.controller_cb, delay=1, caller="watchdog")
+        self.run_in(self.controller_cb, delay=1, caller="wdog")
 
     def lowpv_handler(self, state: str):
         """Handle low PV condition changes."""
