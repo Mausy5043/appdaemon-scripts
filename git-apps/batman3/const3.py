@@ -50,7 +50,6 @@ PV_CURRENT_MAX: float = 23.5  # [A(abs)] maximum current setting
 # create translation table between battery strategies and battalk stances
 __short2long_strategy: dict[str, str] = {
     "idl": "POWER_STRATEGY_IDLE",
-    "api": "POWER_STRATEGY_API",
     "nom": "POWER_STRATEGY_NOM",
 }
 __long2short_strategy: dict[str, str] = {}
@@ -85,19 +84,12 @@ CHARGE_SLOTS = int(CHARGE_TIME * 4 * _F)  # quarters needed to fully charge the 
 DISCHG_TIME = BAT_CAPACITY / MAX_DISCHARGE * AVG_RTE
 DISCHG_SLOTS = int(DISCHG_TIME * 4 * _F)  # quarters needed to fully discharge the batteries (must be (+)-ve!)
 
-# # set to True to enable more aggressive (dis)charging when prices are favourable
-# TRADING = False
-# # number of hours that we want to (dis)charge the batteries when prices are favourable
-# # index 0 is for charging, index 1 is for discharging
-# SLOTS = [18, 12]
-# # stances  (Sessy calls this 'strategy')
-# NOM: str = "NOM"
-# DISCHARGE: str = "API+"  # (+)-ve power setting
-# DISCHARGE_PWR: int = 1700  # W
-# CHARGE: str = "API-"  # (-)-ve power setting
-# CHARGE_PWR: int = -2200  # W
-# IDLE: str = "IDLE"  # no power setting
-# DEFAULT_STANCE: str = NOM
+# stances  (Sessy calls this 'strategy')
+NOM: str = "NOM"
+IDLE: str = "IDLE"  # no power setting
+DEFAULT_STANCE: str = NOM
+DEFAULT_SETPOINT: int = 0
+
 # # EV assist
 # # when True, the app will assist the EV charging, notably when prices are high (>Q3)
 # # when False, the app will not assist the EV charging
