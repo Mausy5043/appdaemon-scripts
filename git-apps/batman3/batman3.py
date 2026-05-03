@@ -329,49 +329,11 @@ class BatMan3(hass.Hass):
                 strategy=_strategy,
                 setpoint=_setpoint,
             )
-        """
-        2026-05-03 18:49:37.120142 INFO batman3: C.LZ p=+29.34/+10.25 @75/18.75 | 1:[040]>   0:nom| 2:[042]>   0:nom <--wdog(012 nom 0)@3.515
-        2026-05-03 18:50:04.556735 ERROR batman3: =====  BatMan3.switcheroo_cb for batman3  =================================
-        2026-05-03 18:50:04.557151 ERROR batman3: SchedulerCallbackFail: Scheduled callback failed for app 'batman3'
-        2026-05-03 18:50:04.557355 ERROR batman3:   args: ({'__thread_id': 'thread-5', 'strategy': {'bat1': 'POWER_STRATEGY_NOM', 'bat2': 'POWER_STRATEGY_NOM'}, 'setpoint': {'bat1': 369, 'bat2': 0}},)
-        2026-05-03 18:50:04.557525 ERROR batman3:   Callback has signature: BatMan3.switcheroo_cb(strategy: dict, setpoint: dict)
-        2026-05-03 18:50:04.557672 ERROR batman3:   BatMan3.switcheroo_cb() missing 1 required positional argument: 'setpoint'
-        2026-05-03 18:50:04.558296 ERROR batman3:   TypeError: BatMan3.switcheroo_cb() missing 1 required positional argument: 'setpoint'
-        2026-05-03 18:50:04.558749 ERROR batman3:     File "/usr/lib/python3.12/site-packages/appdaemon/threads.py", line 1095, in safe_callback
-        2026-05-03 18:50:04.558914 ERROR batman3:       funcref()
-        2026-05-03 18:50:04.559052 ERROR batman3: ===========================================================================
-        2026-05-03 18:50:14.010665 ERROR batman3: =====  BatMan3.switcheroo_cb for batman3  =================================
-        2026-05-03 18:50:14.011056 ERROR batman3: SchedulerCallbackFail: Scheduled callback failed for app 'batman3'
-        2026-05-03 18:50:14.011237 ERROR batman3:   args: ({'__thread_id': 'thread-5', 'strategy': {'bat1': 'POWER_STRATEGY_NOM', 'bat2': 'POWER_STRATEGY_NOM'}, 'setpoint': {'bat1': 366, 'bat2': 0}},)
-        2026-05-03 18:50:14.011384 ERROR batman3:   Callback has signature: BatMan3.switcheroo_cb(strategy: dict, setpoint: dict)
-        2026-05-03 18:50:14.011519 ERROR batman3:   BatMan3.switcheroo_cb() missing 1 required positional argument: 'setpoint'
-        2026-05-03 18:50:14.014446 ERROR batman3:   TypeError: BatMan3.switcheroo_cb() missing 1 required positional argument: 'setpoint'
-        2026-05-03 18:50:14.014930 ERROR batman3:     File "/usr/lib/python3.12/site-packages/appdaemon/threads.py", line 1095, in safe_callback
-        2026-05-03 18:50:14.015108 ERROR batman3:       funcref()
-        2026-05-03 18:50:14.015264 ERROR batman3: ===========================================================================
-        2026-05-03 18:50:27.007174 ERROR batman3: =====  BatMan3.switcheroo_cb for batman3  =================================
-        2026-05-03 18:50:27.007571 ERROR batman3: SchedulerCallbackFail: Scheduled callback failed for app 'batman3'
-        2026-05-03 18:50:27.007767 ERROR batman3:   args: ({'__thread_id': 'thread-5', 'strategy': {'bat1': 'POWER_STRATEGY_IDLE', 'bat2': 'POWER_STRATEGY_IDLE'}, 'setpoint': {'bat1': 363, 'bat2': 0}},)
-        2026-05-03 18:50:27.007933 ERROR batman3:   Callback has signature: BatMan3.switcheroo_cb(strategy: dict, setpoint: dict)
-        2026-05-03 18:50:27.008101 ERROR batman3:   BatMan3.switcheroo_cb() missing 1 required positional argument: 'setpoint'
-        2026-05-03 18:50:27.008751 ERROR batman3:   TypeError: BatMan3.switcheroo_cb() missing 1 required positional argument: 'setpoint'
-        2026-05-03 18:50:27.009229 ERROR batman3:     File "/usr/lib/python3.12/site-packages/appdaemon/threads.py", line 1095, in safe_callback
-        2026-05-03 18:50:27.009413 ERROR batman3:       funcref()
-        2026-05-03 18:50:27.009570 ERROR batman3: ===========================================================================
-        2026-05-03 18:50:37.121510 ERROR batman3: =====  BatMan3.switcheroo_cb for batman3  =================================
-        2026-05-03 18:50:37.121999 ERROR batman3: SchedulerCallbackFail: Scheduled callback failed for app 'batman3'
-        2026-05-03 18:50:37.122312 ERROR batman3:   args: ({'__thread_id': 'thread-5', 'strategy': {'bat1': 'POWER_STRATEGY_NOM', 'bat2': 'POWER_STRATEGY_NOM'}, 'setpoint': {'bat1': 0, 'bat2': 0}},)
-        2026-05-03 18:50:37.122524 ERROR batman3:   Callback has signature: BatMan3.switcheroo_cb(strategy: dict, setpoint: dict)
-        2026-05-03 18:50:37.122796 ERROR batman3:   BatMan3.switcheroo_cb() missing 1 required positional argument: 'setpoint'
-        2026-05-03 18:50:37.123480 ERROR batman3:   TypeError: BatMan3.switcheroo_cb() missing 1 required positional argument: 'setpoint'
-        2026-05-03 18:50:37.124000 ERROR batman3:     File "/usr/lib/python3.12/site-packages/appdaemon/threads.py", line 1095, in safe_callback
-        2026-05-03 18:50:37.124231 ERROR batman3:       funcref()
-        2026-05-03 18:50:37.124505 ERROR batman3: ===========================================================================
-        2026-05-03 18:50:48.742694 INFO batman3: C..Z p=+29.34/+10.25 @75/18.75 | 1:[040]> 495:nom| 2:[042]>   0:nom <--wdog(012 nom 0)@3.475
-        """
 
-    def switcheroo_cb(self, strategy: dict, setpoint: dict):
+    def switcheroo_cb(self, kwargs: dict):
         """Return to previous state before self.switcheroo was called"""
+        strategy = kwargs.get("strategy")
+        setpoint = kwargs.get("setpoint")
         for _bat in self.bat_ctrl:
             # self.bat_ctrl[_bat]["api"].set_strategy(strategy[_bat])
             # self.bat_ctrl[_bat]["api"].set_setpoint(setpoint[_bat])
