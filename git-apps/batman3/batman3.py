@@ -340,7 +340,6 @@ class BatMan3(hass.Hass):
             # self.bat_ctrl[_bat]["api"].set_setpoint(setpoint[_bat])
             pass
 
-
     # SECRETS
 
     def get_bats(self, devices) -> dict:
