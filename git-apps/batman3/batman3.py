@@ -301,8 +301,12 @@ class BatMan3(hass.Hass):
         self.switcheroo() # check battery SoC before we leave
         self.log_status(caller=f"--{caller}({_reason} {_strategy} {_setpoint})")
 
-    def calc_setpoint(self):
-        return 0
+    def calc_setpoint(self) -> int:
+        """Calculate the setpoint for the grid target based on
+        the current system state and assuming we want to discharge.
+        """
+        _setpoint = cs.MAX_P1_ABS
+        return _setpoint
 
     def set_mode(self, strategy: str, grid_target: int) -> None:
         """Set the strategy for each battery and the gridtarget."""
