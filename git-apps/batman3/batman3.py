@@ -265,15 +265,20 @@ class BatMan3(hass.Hass):
 
     def controller_cb(self, caller, **kwargs):
         """Controller callback."""
-        _reason: int = -1
+        _reason: int = -1   # no action
         if self.ctrl_by_me:
             _reason = 0 # control by me, no action
             #     # price is below 0
             if not self.ev_charging:
-                _reason = 100 # EV not charging, no action
-                # IDLE unless price < 0
+                _reason = 100 # EV not charging, XOM = 0
                 if self.low_pv:
                     _reason = 101 # Low PV, XOM = -200
+                if self.tibber.quarter_now in self.tibber.disch_greed:
+                    _reason = 102 # High price, request discharge
+                    # XOM = calculate discharge speed
+            if self.tibber.quarter_now in self.tibber.charge_greed:
+                _reason = 200 # Low price, charge always, ignore EV state
+                # XOM = 8888
 
         self.log_status(caller=f"--{caller} {_reason}")
 
