@@ -39,22 +39,22 @@ class Sessy:
         ret: str = response.json()["strategy"]
         return ret
 
-    def set_setpoint(self, setpoint: int) -> dict:
-        """Set setpoint on the battery"""
-        _url = f"{self.bat_ip}/{self.api_call['setpoint']}"
-        _cmd = {"setpoint": setpoint}
-        response = self.session.post(_url, headers=self.headers, json=_cmd, auth=self.session.auth)
-        response.raise_for_status()
-        ret: dict = response.json()
-        return ret
-
-    def get_setpoint(self) -> str:
-        """Get current battery setpoint"""
-        _url = f"{self.bat_ip}/{self.api_call['status']}"
-        response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
-        response.raise_for_status()
-        ret: str = response.json()["sessy"]["power_setpoint"]
-        return ret
+    # def set_setpoint(self, setpoint: int) -> dict:
+    #     """Set API setpoint on the battery"""
+    #     _url = f"{self.bat_ip}/{self.api_call['setpoint']}"
+    #     _cmd = {"setpoint": setpoint}
+    #     response = self.session.post(_url, headers=self.headers, json=_cmd, auth=self.session.auth)
+    #     response.raise_for_status()
+    #     ret: dict = response.json()
+    #     return ret
+    #
+    # def get_setpoint(self) -> str:
+    #     """Get current battery setpoint"""
+    #     _url = f"{self.bat_ip}/{self.api_call['status']}"
+    #     response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
+    #     response.raise_for_status()
+    #     ret: str = response.json()["sessy"]["power_setpoint"]
+    #     return ret
 
     def set_xom_setpoint(self, setpoint: int) -> dict:
         """Set XOM setpoint on the P1 meter"""
@@ -63,6 +63,14 @@ class Sessy:
         response = self.session.post(_url, headers=self.headers, json=_cmd, auth=self.session.auth)
         response.raise_for_status()
         ret: dict = response.json()
+        return ret
+
+    def get_xom_setpoint(self) -> str:
+        """Set XOM setpoint on the P1 meter"""
+        _url = f"{self.bat_ip}/{self.api_call['grid_target']}"
+        response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
+        response.raise_for_status()
+        ret: str = response.json()["grid_target"]
         return ret
 
     def get_status(self) -> dict[str, Any]:
