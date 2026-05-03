@@ -334,9 +334,9 @@ class BatMan3(hass.Hass):
 
     def log_status(self, caller: str):
         """Construct a status message and log it."""
-        _C = "C" if self.ctrl_by_me else "c"
-        _E = "E" if self.ev_charging else "e"
-        _L = "L" if self.low_pv else "l"
+        _C = "C" if self.ctrl_by_me else "."
+        _E = "E" if self.ev_charging else "."
+        _L = "L" if self.low_pv else "."
         _override = self.sw_override
         _O = ""
         _S = "Z" if self.datum["sunny"] else "W"
