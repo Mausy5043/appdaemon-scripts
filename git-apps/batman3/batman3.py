@@ -275,7 +275,7 @@ class BatMan3(hass.Hass):
                 if self.low_pv:
                     _reason = "111" # Low PV
                     # XOM=-200
-                if self.tibber.quarter_now in self.tibber.disch_cheap:
+                if self.tibber.quarter_now in self.tibber.charge_cheap:
                     _reason = "011" # Low price (<q1),
                     # XOM=0
                 elif self.tibber.quarter_now in self.tibber.disch_greed:
