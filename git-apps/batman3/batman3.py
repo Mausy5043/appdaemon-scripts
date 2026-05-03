@@ -291,6 +291,7 @@ class BatMan3(hass.Hass):
                     _strategy = cs.NOM
                     _setpoint = cs.DEFAULT_SETPOINT
             else:
+                _reason = "020" # EV charging, IDLE
                 _strategy = cs.IDLE
             if self.tibber.quarter_now in self.tibber.charge_greed:
                 _reason = "200" # Low price (< LL), charge always, ignore EV state
