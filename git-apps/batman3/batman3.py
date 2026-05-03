@@ -265,7 +265,17 @@ class BatMan3(hass.Hass):
 
     def controller_cb(self, caller, **kwargs):
         """Controller callback."""
-        self.log_status(caller=f"govnr/{caller}")
+        _reason: int = -1
+        if self.ctrl_by_me:
+            # control by me
+            # if _p < 0:
+            _reason = 0
+            #     # price is below 0
+            if not self.ev_charging:
+                _reason = 1
+                # IDLE unless price < 0
+
+        self.log_status(caller=f"--{caller} {_reason}")
 
     def set_mode(self):
         pass
