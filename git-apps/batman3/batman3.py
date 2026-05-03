@@ -318,9 +318,8 @@ class BatMan3(hass.Hass):
         _strategy = {}
         _setpoint = {}
         for _bat in self.bat_ctrl:
-            #_strategy[_bat] = self.bat_ctrl[_bat]["api"].get_strategy()
-            #_setpoint[_bat] = self.bat_ctrl[_bat]["api"].set_setpoint()
-            pass
+            _strategy[_bat] = self.bat_ctrl[_bat]["api"].get_strategy()
+            _setpoint[_bat] = self.bat_ctrl[_bat]["api"].get_setpoint()
 
         # wait for one minute then reset the states
         self.run_in(
