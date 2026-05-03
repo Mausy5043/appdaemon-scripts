@@ -318,9 +318,9 @@ class BatMan3(hass.Hass):
         _strategy = {}
         _setpoint = {}
         for _bat in self.bat_ctrl:
-            _strategy[_bat] = self.bat_ctrl[_bat]["api"].get_strategy()
-            _setpoint[_bat] = self.bat_ctrl[_bat]["api"].set_setpoint()
-
+            #_strategy[_bat] = self.bat_ctrl[_bat]["api"].get_strategy()
+            #_setpoint[_bat] = self.bat_ctrl[_bat]["api"].set_setpoint()
+            pass
 
         # wait for one minute then reset the states
         self.run_in(
@@ -333,8 +333,9 @@ class BatMan3(hass.Hass):
     def switcheroo_cb(self, strategy: dict, setpoint: dict):
         """Return to previous state before self.switcheroo was called"""
         for _bat in self.bat_ctrl:
-            self.bat_ctrl[_bat]["api"].set_strategy(strategy[_bat])
-            self.bat_ctrl[_bat]["api"].set_setpoint(setpoint[_bat])
+            # self.bat_ctrl[_bat]["api"].set_strategy(strategy[_bat])
+            # self.bat_ctrl[_bat]["api"].set_setpoint(setpoint[_bat])
+            pass
 
 
     # SECRETS
