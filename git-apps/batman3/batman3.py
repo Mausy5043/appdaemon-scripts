@@ -270,14 +270,21 @@ class BatMan3(hass.Hass):
             _reason = "000" # control by me, no action
             #     # price is below 0
             if not self.ev_charging:
-                _reason = "100" # EV not charging, XOM = 0
+                _reason = "010" # EV not charging, XOM = 0
                 if self.low_pv:
-                    _reason = "101" # Low PV, XOM = -200
-                if self.tibber.quarter_now in self.tibber.disch_greed:
-                    _reason = "102" # High price, request discharge
+                    _reason = "111" # Low PV
+                    # XOM = -200
+                if self.tibber.quarter_now in self.tibber.disch_cheap:
+                    _reason = "011" # Low price (<q1),
+                    # NOM
+                elif self.tibber.quarter_now in self.tibber.disch_greed:
+                    _reason = "013" # High price (>HH), request discharge
                     # XOM = calculate discharge speed
+                elif self.tibber.quarter_now in self.tibber.disch_expen:
+                    _reason = "012" # High price (>q3),
+                    # NOM
             if self.tibber.quarter_now in self.tibber.charge_greed:
-                _reason = "200" # Low price, charge always, ignore EV state
+                _reason = "200" # Low price (< LL), charge always, ignore EV state
                 # XOM = 8888
 
         self.log_status(caller=f"--{caller}({_reason})")
