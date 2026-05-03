@@ -272,25 +272,36 @@ class BatMan3(hass.Hass):
             _reason = "000" # control by me, no action
             if not self.ev_charging:
                 _reason = "010" # EV not charging, XOM = 0
+                _strategy = cs.NOM
+                _setpoint = cs.DEFAULT_SETPOINT
                 if self.low_pv:
                     _reason = "111" # Low PV
-                    # XOM=-200
+                    _strategy = cs.NOM
+                    _setpoint = cs.DEFAULT_SETPOINT
                 if self.tibber.quarter_now in self.tibber.charge_cheap:
-                    _reason = "011" # Low price (<q1),
-                    # XOM=0
+                    _reason = "011" # Low price (<q1)
+                    _strategy = cs.NOM
+                    _setpoint = cs.DEFAULT_SETPOINT
                 elif self.tibber.quarter_now in self.tibber.disch_greed:
                     _reason = "013" # High price (>HH), request discharge
-                    # XOM = calculate discharge speed
+                    _strategy = cs.NOM
+                    _setpoint = self.calc_setpoint()
                 elif self.tibber.quarter_now in self.tibber.disch_expen:
-                    _reason = "012" # High price (>q3),
-                    # XOM=0
+                    _reason = "012" # High price (>q3)
+                    _strategy = cs.NOM
+                    _setpoint = cs.DEFAULT_SETPOINT
+            else:
+                _strategy = cs.IDLE
             if self.tibber.quarter_now in self.tibber.charge_greed:
                 _reason = "200" # Low price (< LL), charge always, ignore EV state
-                # XOM=8888
-            # set_strategy = NOM
-            # set set_point = ___
+                _strategy = cs.NOM
+                _setpoint = cs.MAX_P1_ABS
         self.set_mode(strategy=_strategy, setpoint=_setpoint)
+        self.switcheroo()
         self.log_status(caller=f"--{caller}({_reason} {_strategy} {_setpoint})")
+
+    def calc_setpoint(self):
+        return 0
 
     def set_mode(self, strategy: str, setpoint: int) -> None:
         """Set the strategy and setpoint for each battery."""
@@ -299,6 +310,31 @@ class BatMan3(hass.Hass):
         #     self.bat_ctrl[_bat]["api"].set_strategy(strategy)
         #     self.bat_ctrl[_bat]["api"].set_setpoint(setpoint)
         pass
+
+    def switcheroo(self) -> None:
+        """Keep SoC of batteries close together."""
+        # if difference in SoC of batteries is greater than XX set one battery to IDLE
+        _cb_delay: int = 60
+        _strategy = {}
+        _setpoint = {}
+        for _bat in self.bat_ctrl:
+            _strategy[_bat] = self.bat_ctrl[_bat]["api"].get_strategy()
+            _setpoint[_bat] = self.bat_ctrl[_bat]["api"].set_setpoint()
+
+
+        # wait for one minute then reset the states
+        self.run_in(
+                self.switcheroo_cb,
+                delay=_cb_delay,
+                strategy=_strategy,
+                setpoint=_setpoint,
+            )
+
+    def switcheroo_cb(self, strategy: dict, setpoint: dict):
+        """Return to previous state before self.switcheroo was called"""
+        for _bat in self.bat_ctrl:
+            self.bat_ctrl[_bat]["api"].set_strategy(strategy[_bat])
+            self.bat_ctrl[_bat]["api"].set_setpoint(setpoint[_bat])
 
 
     # SECRETS
