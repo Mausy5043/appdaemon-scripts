@@ -69,12 +69,14 @@ BATTALK: dict[str, Any] = {
     "bat_stances": __long2short_strategy,
 }
 
+# Maximum power at P1. Allow for consumers to kick in, so don't take up the full 35A
+MAX_P1_ABS: int = int(35 * 230 * 0.9)
 # maximum/minimum rates per battery
-MAX_CHARGE = -2200  # W
-MIN_CHARGE = -160  # W
-MAX_DISCHARGE = 1700  # W
-MIN_DISCHARGE = 160  # W
-BAT_CAPACITY = 5000  # Wh
+MAX_CHARGE: int = -2200  # W
+MIN_CHARGE: int = -160  # W
+MAX_DISCHARGE: int = 1700  # W
+MIN_DISCHARGE: int = 160  # W
+BAT_CAPACITY: int = 5000  # Wh
 # Average round-trip efficiency is not read from HA because is hardly changes:
 AVG_RTE = 0.8
 # Number of quarters needed to fully charge a battery
@@ -85,8 +87,8 @@ DISCHG_TIME = BAT_CAPACITY / MAX_DISCHARGE * AVG_RTE
 DISCHG_SLOTS = int(DISCHG_TIME * 4 * _F)  # quarters needed to fully discharge the batteries (must be (+)-ve!)
 
 # stances  (Sessy calls this 'strategy')
-NOM: str = "NOM"
-IDLE: str = "IDLE"  # no power setting
+NOM: str = "nom"
+IDLE: str = "idl"  # no power setting
 DEFAULT_STANCE: str = NOM
 DEFAULT_SETPOINT: int = 0
 
