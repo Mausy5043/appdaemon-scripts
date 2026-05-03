@@ -297,15 +297,15 @@ class BatMan3(hass.Hass):
                 _reason = "200" # Low price (< LL), charge always, ignore EV state
                 _strategy = cs.NOM
                 _setpoint = cs.MAX_P1_ABS
-        self.set_mode(strategy=_strategy, setpoint=_setpoint)
-        # self.switcheroo()
+        self.set_mode(strategy=_strategy, grid_target=_setpoint)
+        self.switcheroo() # check battery SoC before we leave
         self.log_status(caller=f"--{caller}({_reason} {_strategy} {_setpoint})")
 
     def calc_setpoint(self):
         return 0
 
-    def set_mode(self, strategy: str, setpoint: int) -> None:
-        """Set the strategy and setpoint for each battery."""
+    def set_mode(self, strategy: str, grid_target: int) -> None:
+        """Set the strategy for each battery and the gridtarget."""
         # when enabling this code, disable batman2 FIRST
         # for _bat in self.bat_ctrl:
         #     self.bat_ctrl[_bat]["api"].set_strategy(strategy)
@@ -317,10 +317,11 @@ class BatMan3(hass.Hass):
         # if difference in SoC of batteries is greater than XX set one battery to IDLE
         _cb_delay: int = 60
         _strategy = {}
-        _setpoint = {}
+        _gridtgt = {}
+        _big_diff = False
         for _bat in self.bat_ctrl:
             _strategy[_bat] = self.bat_ctrl[_bat]["api"].get_strategy()
-            _setpoint[_bat] = self.bat_ctrl[_bat]["api"].get_setpoint()
+        _gridtgt["p1"] = 0 # self.bat_ctrl["p1"]["api"].get_
 
         # wait for one minute then reset the states
         self.run_in(
