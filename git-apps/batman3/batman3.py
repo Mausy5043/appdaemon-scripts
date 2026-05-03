@@ -266,31 +266,40 @@ class BatMan3(hass.Hass):
     def controller_cb(self, caller, **kwargs):
         """Controller callback."""
         _reason: str = " -1"   # no action
+        _strategy: str = cs.DEFAULT_STANCE
+        _setpoint: int = cs.DEFAULT_SETPOINT
         if self.ctrl_by_me:
             _reason = "000" # control by me, no action
-            #     # price is below 0
             if not self.ev_charging:
                 _reason = "010" # EV not charging, XOM = 0
                 if self.low_pv:
                     _reason = "111" # Low PV
-                    # XOM = -200
+                    # XOM=-200
                 if self.tibber.quarter_now in self.tibber.disch_cheap:
                     _reason = "011" # Low price (<q1),
-                    # NOM
+                    # XOM=0
                 elif self.tibber.quarter_now in self.tibber.disch_greed:
                     _reason = "013" # High price (>HH), request discharge
                     # XOM = calculate discharge speed
                 elif self.tibber.quarter_now in self.tibber.disch_expen:
                     _reason = "012" # High price (>q3),
-                    # NOM
+                    # XOM=0
             if self.tibber.quarter_now in self.tibber.charge_greed:
                 _reason = "200" # Low price (< LL), charge always, ignore EV state
-                # XOM = 8888
+                # XOM=8888
+            # set_strategy = NOM
+            # set set_point = ___
+        self.set_mode(strategy=_strategy, setpoint=_setpoint)
+        self.log_status(caller=f"--{caller}({_reason} {_strategy} {_setpoint})")
 
-        self.log_status(caller=f"--{caller}({_reason})")
-
-    def set_mode(self):
+    def set_mode(self, strategy: str, setpoint: int) -> None:
+        """Set the strategy and setpoint for each battery."""
+        # when enabling this code, disable batman2 FIRST
+        # for _bat in self.bat_ctrl:
+        #     self.bat_ctrl[_bat]["api"].set_strategy(strategy)
+        #     self.bat_ctrl[_bat]["api"].set_setpoint(setpoint)
         pass
+
 
     # SECRETS
 
