@@ -328,7 +328,7 @@ class BatMan3(hass.Hass):
                 self.switcheroo_cb,
                 delay=_cb_delay,
                 strategy=_strategy,
-                setpoint=_setpoint,
+                setpoint=_gridtgt,
             )
 
     def switcheroo_cb(self, kwargs: dict):
