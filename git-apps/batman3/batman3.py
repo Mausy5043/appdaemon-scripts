@@ -265,36 +265,36 @@ class BatMan3(hass.Hass):
 
     def controller_cb(self, caller, **kwargs):
         """Controller callback."""
-        _reason: str = " -1"   # no action
+        _reason: str = "nix"   # no action
         _strategy: str = cs.DEFAULT_STANCE
         _setpoint: int = cs.DEFAULT_SETPOINT
         if self.ctrl_by_me:
-            _reason = "000" # control by me, no action
+            _reason = "ctl" # control by me, no action
             if not self.ev_charging:
-                _reason = "010" # EV not charging, XOM = 0
+                _reason = "x0m" # EV not charging, XOM = 0
                 _strategy = cs.NOM
                 _setpoint = cs.DEFAULT_SETPOINT
                 if self.low_pv:
-                    _reason = "111" # Low PV
+                    _reason = "lpv" # Low PV
                     _strategy = cs.NOM
                     _setpoint = -200
                 if self.tibber.quarter_now in self.tibber.charge_cheap:
-                    _reason = "011" # Low price (<q1)
+                    _reason = "cq1" # Low price (<q1)
                     _strategy = cs.NOM
                     # _setpoint = cs.DEFAULT_SETPOINT; dont overrule setpoint from previous `if`
                 elif self.tibber.quarter_now in self.tibber.disch_greed:
-                    _reason = "013" # High price (>HH), request discharge
+                    _reason = "gHH" # High price (>HH), request discharge
                     _strategy = cs.NOM
                     _setpoint = self.calc_setpoint()
                 elif self.tibber.quarter_now in self.tibber.disch_expen:
-                    _reason = "012" # High price (>q3)
+                    _reason = "dq3" # High price (>q3)
                     _strategy = cs.NOM
                     # _setpoint = cs.DEFAULT_SETPOINT; dont overrule setpoint from previous `if`
             else:
-                _reason = "020" # EV charging, IDLE
+                _reason = "evc" # EV charging, IDLE
                 _strategy = cs.IDLE
             if self.tibber.quarter_now in self.tibber.charge_greed:
-                _reason = "200" # Low price (< LL), charge always, ignore EV state
+                _reason = "gLL" # Low price (< LL), charge always, ignore EV state
                 _strategy = cs.NOM
                 _setpoint = cs.MAX_P1_ABS
         self.set_mode(strategy=_strategy, grid_target=_setpoint)
