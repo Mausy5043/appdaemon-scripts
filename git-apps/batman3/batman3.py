@@ -57,7 +57,7 @@ class BatMan3(hass.Hass):
         self.bats_min_soc: float = 0.0  # [%]
         self.ctrl_by_me: bool = False  # whether the app is allowed to control the batteries
         self.ev_charging: bool = True  # whether the EV is charging
-        self.low_pv: bool = False  # wether solarpanels or batteries are supplying electricity
+        self.low_pv: bool = False  # whether solarpanels or batteries are supplying enough electricity
         # These are for the overcurrent detection:
         self.pv_current: float = 0.0  # [A]; used to monitor PV overcurrent
         self.pv_power: int = 0  # [W]; used to control PV power
@@ -233,30 +233,33 @@ class BatMan3(hass.Hass):
         self.callback_time = dt.datetime.now()
         # watchdog changes are not immediate, so we callback watchdog_runin_cb() after:
         _cb_delay = 2  # [s]  to allow the system to stabilize
-        # low PV is a special case, because it needs different actions
-        if entity == cs.LOW_PV:
-            self.run_in(self.lowpv_runin_cb, delay=_cb_delay) #, entity=entity, new=new)
-        else:
-            self.run_in(
+        self.run_in(
                 self.watchdog_runin_cb,
                 delay=_cb_delay,
-                entity=entity,
+                entity=str(entity),
                 attribute=attribute,
                 old=old,
                 new=new,
             )
 
-    def watchdog_runin_cb(self, entity, attribute, old, new, **kwargs):
+    def watchdog_runin_cb(self, entity:str, attribute, old, new, **kwargs):
         """Delayed callback for watchdogs."""
-        # self.callback_time = dt.datetime.now()
         self.get_monitor_states()
+        # low PV may need different actions
+        if entity == cs.LOW_PV:
+            self.lowpv_handler(state=str(new))
         self.run_in(self.controller_cb, delay=1, caller="watchdog")
 
-    def lowpv_runin_cb(self, **kwargs): # entity, new, **kwargs):
+    def lowpv_handler(self, state: str):
         """Handle low PV condition changes."""
-        # self.callback_time = dt.datetime.now()
-        self.get_monitor_states()
-        self.run_in(self.controller_cb, delay=1, caller="lowpv")
+        match state:
+            case "on" | "off":
+                # Only update if state actually changes
+                new_state = state == "on"
+                if self.low_pv != new_state:
+                    self.low_pv = new_state
+            case _:
+                self.log(msg=f"*** Invalid value for LowPV: {state}. No action taken.", level="ERROR")
 
     # CONTROL LOGIC
 
