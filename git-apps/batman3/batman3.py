@@ -277,11 +277,11 @@ class BatMan3(hass.Hass):
                 if self.low_pv:
                     _reason = "111" # Low PV
                     _strategy = cs.NOM
-                    _setpoint = cs.DEFAULT_SETPOINT
+                    _setpoint = -200
                 if self.tibber.quarter_now in self.tibber.charge_cheap:
                     _reason = "011" # Low price (<q1)
                     _strategy = cs.NOM
-                    _setpoint = cs.DEFAULT_SETPOINT
+                    # _setpoint = cs.DEFAULT_SETPOINT; dont overrule setpoint from previous `if`
                 elif self.tibber.quarter_now in self.tibber.disch_greed:
                     _reason = "013" # High price (>HH), request discharge
                     _strategy = cs.NOM
@@ -289,7 +289,7 @@ class BatMan3(hass.Hass):
                 elif self.tibber.quarter_now in self.tibber.disch_expen:
                     _reason = "012" # High price (>q3)
                     _strategy = cs.NOM
-                    _setpoint = cs.DEFAULT_SETPOINT
+                    # _setpoint = cs.DEFAULT_SETPOINT; dont overrule setpoint from previous `if`
             else:
                 _reason = "020" # EV charging, IDLE
                 _strategy = cs.IDLE
