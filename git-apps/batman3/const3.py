@@ -49,7 +49,7 @@ PV_CURRENT_MAX: float = 23.5  # [A(abs)] maximum current setting
 # ### BATTERIES SETTINGS ### #
 # create translation table between battery strategies and battalk stances
 __short2long_strategy: dict[str, str] = {
-    "idle": "POWER_STRATEGY_IDLE",
+    "idl": "POWER_STRATEGY_IDLE",
     "api": "POWER_STRATEGY_API",
     "nom": "POWER_STRATEGY_NOM",
 }
