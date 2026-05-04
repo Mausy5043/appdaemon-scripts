@@ -351,9 +351,9 @@ class BatMan3(hass.Hass):
             if _idx0 and len(_idx0) == 1:   # only one of the batteries is busy
                 _sp = _pwr[_idx0[0]]    # setpoint of active battery
                 _sc = _soc[_idx0[0]]    # SoC of active battery
-                # if the active battery has highest SOC and is charging
+                # if the active battery has highest SOC AND is charging
                 # OR
-                # if the active battery has lowest SOC and is discharging, we put it in IDLE
+                # if the active battery has lowest SOC AND is discharging, we put it in IDLE
                 if (_sc == max(_soc) and _sp < 0) or (_sc == min(_soc) and _sp > 0):
                     idx = _idx0[0]+1
                 # wait for one minute then reset the states
@@ -364,6 +364,7 @@ class BatMan3(hass.Hass):
                     setpoint=_pwr,
                     idx=idx
                 )
+        self.log_status(caller=f"-snoo {self.soc_diff};{_pwr};{idx}")
 
     def switcheroo_cb(self, kwargs: dict):
         """Return to previous state before self.switcheroo was called"""
