@@ -61,13 +61,15 @@ class Sessy:
 
     def get_setpoint(self) -> str:
         """Get current battery setpoint"""
-        _url = f"{self.bat_ip}/{self.api_call['status']}"
-        response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
-        response.raise_for_status()
-        ret: str = response.json()["sessy"]["power_setpoint"]
+        ret = "unsupported"
+        if self.taip == "p1":
+            _url = f"{self.bat_ip}/{self.api_call['status']}"
+            response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
+            response.raise_for_status()
+            ret: str = response.json()["sessy"]["power_setpoint"]
         return ret
 
-    def update_setpoint(self, setpoint: int) -> dict:
+    def update_setpoint(self) -> None:
         """Update the API setpoint on the battery."""
         self.pwr_sp = self.get_setpoint()
 
