@@ -62,7 +62,7 @@ class Sessy:
     def get_setpoint(self) -> str:
         """Get current battery setpoint"""
         ret = "unsupported"
-        if self.taip == "p1":
+        if self.taip == "bat":
             _url = f"{self.bat_ip}/{self.api_call['status']}"
             response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
             response.raise_for_status()
