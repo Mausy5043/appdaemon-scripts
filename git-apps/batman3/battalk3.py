@@ -46,7 +46,7 @@ class Sessy:
             ret: str = response.json()["strategy"]
         return ret
 
-    def update_strategy(self):
+    def update_strategy(self) -> None:
         """Update strategy of battery"""
         self.strategy = self.get_strategy()
 
@@ -107,6 +107,6 @@ class Sessy:
         self.update_strategy()
         return ret
 
-    def update_status(self):
+    def update_status(self) -> None:
         """Update status of battery"""
         self.status = self.get_status()
