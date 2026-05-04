@@ -14,6 +14,7 @@ class Sessy:
 
     def __init__(self, url: str, username, password, taip: str) -> None:
         """Initialize the Sessy class."""
+        self.taip = taip
         self.session = requests.Session()
         self.session.auth = (username, password)
         self.bat_ip: str = url
@@ -22,7 +23,6 @@ class Sessy:
         self.headers: dict[str, str] = {"accept": "application/json"}
         self.status: dict[str, Any] = self.get_status()
         self.strategy: str = self.get_strategy()
-        self.taip = taip
 
     def set_strategy(self, stance: str) -> dict:
         """Set strategy on battery"""
