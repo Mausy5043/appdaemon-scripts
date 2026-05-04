@@ -497,7 +497,7 @@ class BatMan3(hass.Hass):
         _bsp: int = 0
         for _b in self.bat_ctrl:
             _bp = int(round(self.bat_ctrl[_b]["api"].status["sessy"]["state_of_charge"] * 100, 0))
-            _bs = self.bat_ctrl[_b]["api"].strategy
+            _bs = cs.BATTALK["bat_stances"][self.bat_ctrl[_b]["api"].strategy]
             _bsp = int(self.bat_ctrl[_b]["api"].pwr_sp)
             _strl = [f"[{_bp:03d}]"]
             if _bsp >= 0:
