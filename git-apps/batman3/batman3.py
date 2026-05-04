@@ -343,7 +343,7 @@ class BatMan3(hass.Hass):
             _soc.append(_bp)
             _strategy[_bat] = self.bat_ctrl[_bat]["api"].strategy
         _gridtgt["p1"] = 0  # self.p1_ctrl["p1"]["api"].get_xom_setpoint()
-        self.soc_diff= _soc[0] - _soc[1]    # (+)-ve value : bat1 > bat2
+        self.soc_diff = _soc[0] - _soc[1]  # (+)-ve value : bat1 > bat2
         if abs(self.soc_diff) > cs.SWITCHEROO_DIFF:
             #
             # * when charging put battery with highest SOC in IDLE
