@@ -271,7 +271,7 @@ class BatMan3(hass.Hass):
         if self.ctrl_by_me:
             _reason = "ctl" # control by me, no action
             if not self.ev_charging:
-                _reason = "x0m" # EV not charging, XOM = 0
+                _reason = "x0m" # EV not charging, XOM = 0, Q2
                 _strategy = cs.NOM
                 _setpoint = cs.DEFAULT_SETPOINT
                 if self.low_pv:
