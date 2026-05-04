@@ -103,6 +103,8 @@ class Sessy:
         response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
         response.raise_for_status()
         ret: dict[str, Any] = response.json()
+        self.update_setpoint()
+        self.update_strategy()
         return ret
 
     def update_status(self):
