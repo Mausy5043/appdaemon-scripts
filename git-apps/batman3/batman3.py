@@ -498,12 +498,12 @@ class BatMan3(hass.Hass):
         _q = f"{_p} @{_qn:02d}/{_qn / 4:05.2f}"
 
         _bp: int = 0
-        _bs: str = ""
+        _bs: list = []
         _str: list = []
         _bsp: int = 0
         for _b in self.bat_ctrl:
             _bp = int(round(self.bat_ctrl[_b]["api"].status["sessy"]["state_of_charge"] * 100, 0))
-            _bs = cs.BATTALK["bat_stances"][self.bat_ctrl[_b]["api"].strategy]
+            _bs.append(cs.BATTALK["bat_stances"][self.bat_ctrl[_b]["api"].strategy])
             _bsp = int(self.bat_ctrl[_b]["api"].pwr_sp)
             _strl = [f"[{_bp:03d}]"]
             if _bsp >= 0:
@@ -511,7 +511,7 @@ class BatMan3(hass.Hass):
             else:
                 _strl.insert(0, f"{abs(_bsp):4d}")
             _str.append(">".join(_strl))
-        _bts = f" |{_str[0]}:{_bs}|{_str[1]}:{_bs}|d={self.soc_diff}"
+        _bts = f" |{_str[0]}:{_bs[0]}|{_str[1]}:{_bs[1]}|d={self.soc_diff}"
 
         _time = (dt.datetime.now() - self.callback_time).total_seconds()
         self.status = "".join([_O, _C, _E, _L, _S, _q, _bts, f" <{caller}@{_time:.3f}"])
