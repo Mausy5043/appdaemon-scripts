@@ -12,7 +12,7 @@ requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
 class Sessy:
     """Class to interact with the Sessy Battery API."""
 
-    def __init__(self, url: str, username, password, type: str) -> None:
+    def __init__(self, url: str, username, password, taip: str) -> None:
         """Initialize the Sessy class."""
         self.session = requests.Session()
         self.session.auth = (username, password)
@@ -22,7 +22,7 @@ class Sessy:
         self.headers: dict[str, str] = {"accept": "application/json"}
         self.status: dict[str, Any] = self.get_status()
         self.strategy: str = self.get_strategy()
-        self.type = type
+        self.taip = taip
 
     def set_strategy(self, stance: str) -> dict:
         """Set strategy on battery"""
@@ -69,7 +69,7 @@ class Sessy:
     def set_xom_setpoint(self, setpoint: int) -> dict:
         """Set XOM setpoint on the P1 meter"""
         ret = {}
-        if self.type == "p1":
+        if self.taip == "p1":
             _url = f"{self.bat_ip}/{self.api_call['grid_target']}"
             _cmd = {"grid_target": setpoint}
             response = self.session.post(_url, headers=self.headers, json=_cmd, auth=self.session.auth)
@@ -80,7 +80,7 @@ class Sessy:
     def get_xom_setpoint(self) -> int:
         """Set XOM setpoint on the P1 meter"""
         ret: int = -1
-        if self.type == "p1":
+        if self.taip == "p1":
             _url = f"{self.bat_ip}/{self.api_call['grid_target']}"
             response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
             response.raise_for_status()
@@ -89,7 +89,7 @@ class Sessy:
 
     def get_status(self) -> dict[str, Any]:
         """Get current battery status"""
-        if self.type == "bat":
+        if self.taip == "bat":
             _url = f"{self.bat_ip}/{self.api_call['status']}"
         else:
             _url = f"{self.bat_ip}/{self.api_call['details']}"
