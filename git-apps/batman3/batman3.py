@@ -62,6 +62,7 @@ class BatMan3(hass.Hass):
                 taip="p1",
             )
         self.xom_sp = 0
+        self.soc_diff = 0
         self.get_cts_status()
 
         # Initialize various monitors with safe defaults ...
@@ -311,7 +312,7 @@ class BatMan3(hass.Hass):
                 _setpoint = cs.MAX_P1_ABS
         self.set_mode(strategy=_strategy, grid_target=_setpoint)
         self.switcheroo()  # check battery SoC before we leave
-        self.log_status(caller=f"--{caller}({_reason} {_strategy} {_setpoint})")
+        self.log_status(caller=f"-{caller}({_reason} {_strategy} {_setpoint})")
 
     def calc_setpoint(self) -> int:
         """Calculate the setpoint for the grid target based on
@@ -333,11 +334,16 @@ class BatMan3(hass.Hass):
         """Keep SoC of batteries close together."""
         # if difference in SoC of batteries is greater than XX set one battery to IDLE
         _cb_delay: int = 60
+        _soc: list = []
         _strategy = {}
         _gridtgt = {}
         _big_diff = False
         for _bat in self.bat_ctrl:
-            _strategy[_bat] = self.bat_ctrl[_bat]["api"].get_strategy()
+            _bp = int(round(self.bat_ctrl[_bat]["api"].status["sessy"]["state_of_charge"] * 100, 0))
+            _soc.append(_bp)
+            _strategy[_bat] = self.bat_ctrl[_bat]["api"].strategy
+        self.soc_diff= _soc[0] - _soc[1]    # (+)-ve value : bat1 > bat2
+
         _gridtgt["p1"] = 0  # self.p1_ctrl["p1"]["api"].get_xom_setpoint()
 
         # wait for one minute then reset the states
@@ -491,16 +497,15 @@ class BatMan3(hass.Hass):
         _bsp: int = 0
         for _b in self.bat_ctrl:
             _bp = int(round(self.bat_ctrl[_b]["api"].status["sessy"]["state_of_charge"] * 100, 0))
-            _bs = self.bat_ctrl[_b]["strategy"]
-            # _bst = _bs.removeprefix("SYSTEM_STATE_")
-            _bsp = int(self.bat_ctrl[_b]["api"].status["sessy"]["power_setpoint"])
+            _bs = self.bat_ctrl[_b]["api"].strategy
+            _bsp = int(self.bat_ctrl[_b]["api"].pwr_sp)
             _strl = [f"[{_bp:03d}]"]
             if _bsp >= 0:
                 _strl.append(f"{_bsp:4d}")
             else:
                 _strl.insert(0, f"{abs(_bsp):4d}")
             _str.append(">".join(_strl))
-        _bts = f" | 1:{_str[0]}:{_bs}| 2:{_str[1]}:{_bs}"
+        _bts = f" |{_str[0]}:{_bs}|{_str[1]}:{_bs}|d={self.soc_diff}"
 
         _time = (dt.datetime.now() - self.callback_time).total_seconds()
         self.status = "".join([_O, _C, _E, _L, _S, _q, _bts, f" <{caller}@{_time:.3f}"])
