@@ -26,8 +26,8 @@ class Sessy:
 
     def set_strategy(self, stance: str) -> dict:
         """Set strategy on battery"""
-        ret = "unsupported"
-        if self.type == "bat":
+        ret = {}
+        if self.taip == "bat":
             _url = f"{self.bat_ip}/{self.api_call['strategy']}"
             _cmd = {"strategy": self.strat[stance]}
             response = self.session.post(_url, headers=self.headers, json=_cmd, auth=self.session.auth)
@@ -38,7 +38,7 @@ class Sessy:
     def get_strategy(self) -> str:
         """Get current battery strategy"""
         ret = "unsupported"
-        if self.type == "bat":
+        if self.taip == "bat":
             _url = f"{self.bat_ip}/{self.api_call['strategy']}"
             response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
             response.raise_for_status()
