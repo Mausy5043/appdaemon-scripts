@@ -62,7 +62,7 @@ class BatMan3(hass.Hass):
                 taip="p1",
             )
         self.xom_sp = 0
-        self.soc_diff = 0
+        self.soc_diff: int = 0
         self.get_cts_status()
 
         # Initialize various monitors with safe defaults ...
@@ -331,43 +331,51 @@ class BatMan3(hass.Hass):
         pass
 
     def switcheroo(self) -> None:
-        """Keep SoC of batteries close together."""
-        # if difference in SoC of batteries is greater than XX set one battery to IDLE
+        """Keep SoC of batteries close together.
+
+        If difference in SoC of batteries is greater than XX, set one battery to IDLE
+        """
         _cb_delay: int = 60
         _soc: list = []
-        _strategy = {}
-        _gridtgt = {}
-        _big_diff = False
+        _pwr: list = []
         for _bat in self.bat_ctrl:
             _bp = int(round(self.bat_ctrl[_bat]["api"].status["sessy"]["state_of_charge"] * 100, 0))
             _soc.append(_bp)
-            _strategy[_bat] = self.bat_ctrl[_bat]["api"].strategy
-        _gridtgt["p1"] = 0  # self.p1_ctrl["p1"]["api"].get_xom_setpoint()
+            _pwr.append(int(self.bat_ctrl[_bat].pwr_sp))
         self.soc_diff = _soc[0] - _soc[1]  # (+)-ve value : bat1 > bat2
-        if abs(self.soc_diff) > cs.SWITCHEROO_DIFF:
-            #
-            # * when charging put battery with highest SOC in IDLE
-            # * when discharging put battery with lowest SOC in IDLE
-            # wait for one minute then reset the states
-            self.run_in(
-                self.switcheroo_cb,
-                delay=_cb_delay,
-                strategy=_strategy,
-                setpoint=_gridtgt,
-            )
+        _big_diff: bool = abs(self.soc_diff) > cs.SWITCHEROO_DIFF
+        if _big_diff:   # difference in SoC is too big
+            # 1 battery must be busy
+            _idx0 = [i for i, v in enumerate(_pwr) if v != 0]
+            if _idx0 and len(_idx0) == 1:   # only one of the batteries is busy
+                _sp = _pwr[_idx0[0]]    # setpoint of active battery
+                _sc = _soc[_idx0[0]]    # SoC of active battery
+                # if the active battery has highest SOC and is charging
+                # OR
+                # if the active battery has lowest SOC and is discharging, we put it in IDLE
+                if (_sc == max(_soc) and _sp < 0) or (_sc == min(_soc) and _sp > 0):
+                    idx = _idx0[0]+1
+                # wait for one minute then reset the states
+                self.run_in(
+                    self.switcheroo_cb,
+                    delay=_cb_delay,
+                    soc=_soc,
+                    setpoint=_pwr,
+                    idx=idx
+                )
 
     def switcheroo_cb(self, kwargs: dict):
         """Return to previous state before self.switcheroo was called"""
-        strategy = kwargs.get("strategy")
+        soc = kwargs.get("soc")
         setpoint = kwargs.get("setpoint")
+        idx = kwargs.get("idx")
         for _bat in self.bat_ctrl:
             # self.bat_ctrl[_bat]["api"].set_strategy(strategy[_bat])
             pass
         for _p1ct in self.p1_ctrl:
             # self.p1_ctrl[_p1ct]["api"].set_xom_setpoint(setpoint)
             pass
-
-        self.log_status(caller=f"-swoo {strategy} {setpoint}")
+        self.log_status(caller=f"-swoo {soc} {setpoint} {idx}")
 
     # SECRETS
 
