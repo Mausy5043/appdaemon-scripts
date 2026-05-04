@@ -21,9 +21,13 @@ class Sessy:
         self.api_call: dict[str, str] = cs.BATTALK["api_calls"]
         self.strat: dict[str, str] = cs.BATTALK["api_strats"]
         self.headers: dict[str, str] = {"accept": "application/json"}
+
         self.status: dict[str, Any] = self.get_status()
         self.strategy: str = self.get_strategy()
-        self.pwr_sp: str = self.get_setpoint()
+        if taip == "bat":
+            self.pwr_sp: str = self.get_setpoint()
+        if taip == "p1":
+            self.pwr_sp: str = self.get_xom_setpoint()
 
     def set_strategy(self, stance: str) -> dict:
         """Set strategy on battery"""
@@ -71,7 +75,10 @@ class Sessy:
 
     def update_setpoint(self) -> None:
         """Update the API setpoint on the battery."""
-        self.pwr_sp = self.get_setpoint()
+        if self.taip == "bat":
+            self.pwr_sp: str = self.get_setpoint()
+        if self.taip == "p1":
+            self.pwr_sp: str = self.get_xom_setpoint()
 
     def set_xom_setpoint(self, setpoint: int) -> dict:
         """Set XOM setpoint on the P1 meter"""
