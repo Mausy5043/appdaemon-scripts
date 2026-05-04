@@ -407,7 +407,7 @@ class BatMan3(hass.Hass):
               }
             }
             """
-            _strat: str = self.bat_ctrl[_b]["api"]["strategy"]
+            _strat: str = self.bat_ctrl[_b]["api"].strategy
             # translate strategy
             try:
                 self.bat_ctrl[_b]["strategy"] = cs.BATTALK["bat_stances"][_strat]
