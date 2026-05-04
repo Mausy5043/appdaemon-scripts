@@ -342,17 +342,19 @@ class BatMan3(hass.Hass):
             _bp = int(round(self.bat_ctrl[_bat]["api"].status["sessy"]["state_of_charge"] * 100, 0))
             _soc.append(_bp)
             _strategy[_bat] = self.bat_ctrl[_bat]["api"].strategy
-        self.soc_diff= _soc[0] - _soc[1]    # (+)-ve value : bat1 > bat2
-
         _gridtgt["p1"] = 0  # self.p1_ctrl["p1"]["api"].get_xom_setpoint()
-
-        # wait for one minute then reset the states
-        self.run_in(
-            self.switcheroo_cb,
-            delay=_cb_delay,
-            strategy=_strategy,
-            setpoint=_gridtgt,
-        )
+        self.soc_diff= _soc[0] - _soc[1]    # (+)-ve value : bat1 > bat2
+        if abs(self.soc_diff) > cs.SWITCHEROO_DIFF:
+            #
+            # * when charging put battery with highest SOC in IDLE
+            # * when discharging put battery with lowest SOC in IDLE
+            # wait for one minute then reset the states
+            self.run_in(
+                self.switcheroo_cb,
+                delay=_cb_delay,
+                strategy=_strategy,
+                setpoint=_gridtgt,
+            )
 
     def switcheroo_cb(self, kwargs: dict):
         """Return to previous state before self.switcheroo was called"""
@@ -360,8 +362,12 @@ class BatMan3(hass.Hass):
         setpoint = kwargs.get("setpoint")
         for _bat in self.bat_ctrl:
             # self.bat_ctrl[_bat]["api"].set_strategy(strategy[_bat])
-            # self.bat_ctrl[_bat]["api"].set_setpoint(setpoint[_bat])
             pass
+        for _p1ct in self.p1_ctrl:
+            # self.p1_ctrl[_p1ct]["api"].set_xom_setpoint(setpoint)
+            pass
+
+        self.log_status(caller=f"-swoo {strategy} {setpoint}")
 
     # SECRETS
 
