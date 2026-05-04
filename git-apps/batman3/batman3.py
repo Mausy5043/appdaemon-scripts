@@ -489,12 +489,11 @@ class BatMan3(hass.Hass):
         _bs: str = ""
         _str: list = []
         _bsp: int = 0
-        self.log(self.bat_ctrl["bat1"]["api"], level="INFO")
         for _b in self.bat_ctrl:
-            _bp = int(round(self.bat_ctrl[_b]["api"]["status"]["sessy"]["state_of_charge"] * 100, 0))
+            _bp = int(round(self.bat_ctrl[_b]["api"].status["sessy"]["state_of_charge"] * 100, 0))
             _bs = self.bat_ctrl[_b]["strategy"]
             # _bst = _bs.removeprefix("SYSTEM_STATE_")
-            _bsp = int(self.bat_ctrl[_b]["api"]["status"]["sessy"]["power_setpoint"])
+            _bsp = int(self.bat_ctrl[_b]["api"].status["sessy"]["power_setpoint"])
             _strl = [f"[{_bp:03d}]"]
             if _bsp >= 0:
                 _strl.append(f"{_bsp:4d}")
