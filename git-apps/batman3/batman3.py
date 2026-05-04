@@ -471,7 +471,7 @@ class BatMan3(hass.Hass):
                   "gas_meter_value": 0
                 }
             """
-            self.xom_sp = self.p1_ctrl[_c]["api"].get_xom_setpoint()
+            self.xom_sp = self.p1_ctrl[_c]["api"].pwr_sp
             """
                 {
                   "status": "ok",
