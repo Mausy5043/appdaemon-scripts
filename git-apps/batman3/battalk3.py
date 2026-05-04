@@ -23,6 +23,7 @@ class Sessy:
         self.headers: dict[str, str] = {"accept": "application/json"}
         self.status: dict[str, Any] = self.get_status()
         self.strategy: str = self.get_strategy()
+        self.pwr_sp: str = self.get_setpoint()
 
     def set_strategy(self, stance: str) -> dict:
         """Set strategy on battery"""
@@ -49,22 +50,26 @@ class Sessy:
         """Update strategy of battery"""
         self.strategy = self.get_strategy()
 
-    # def set_setpoint(self, setpoint: int) -> dict:
-    #     """Set API setpoint on the battery"""
-    #     _url = f"{self.bat_ip}/{self.api_call['setpoint']}"
-    #     _cmd = {"setpoint": setpoint}
-    #     response = self.session.post(_url, headers=self.headers, json=_cmd, auth=self.session.auth)
-    #     response.raise_for_status()
-    #     ret: dict = response.json()
-    #     return ret
-    #
-    # def get_setpoint(self) -> str:
-    #     """Get current battery setpoint"""
-    #     _url = f"{self.bat_ip}/{self.api_call['status']}"
-    #     response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
-    #     response.raise_for_status()
-    #     ret: str = response.json()["sessy"]["power_setpoint"]
-    #     return ret
+    def set_setpoint(self, setpoint: int) -> dict:
+        """Set API setpoint on the battery"""
+        _url = f"{self.bat_ip}/{self.api_call['setpoint']}"
+        _cmd = {"setpoint": setpoint}
+        response = self.session.post(_url, headers=self.headers, json=_cmd, auth=self.session.auth)
+        response.raise_for_status()
+        ret: dict = response.json()
+        return ret
+
+    def get_setpoint(self) -> str:
+        """Get current battery setpoint"""
+        _url = f"{self.bat_ip}/{self.api_call['status']}"
+        response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
+        response.raise_for_status()
+        ret: str = response.json()["sessy"]["power_setpoint"]
+        return ret
+
+    def update_setpoint(self, setpoint: int) -> dict:
+        """Update the API setpoint on the battery."""
+        self.pwr_sp = self.get_setpoint()
 
     def set_xom_setpoint(self, setpoint: int) -> dict:
         """Set XOM setpoint on the P1 meter"""
