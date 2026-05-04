@@ -50,7 +50,7 @@ class BatMan3(hass.Hass):
                 url=self.bat_ctrl[_b]["url"],
                 username=self.bat_ctrl[_b]["username"],
                 password=self.bat_ctrl[_b]["password"],
-                type="bat",
+                taip="bat",
             )
         self.get_bats_status()
         self.p1_ctrl: dict[str, Any] = self.get_cts(devices=cs.BATTALK["cts"])
@@ -59,7 +59,7 @@ class BatMan3(hass.Hass):
                 url=self.bat_ctrl[_c]["url"],
                 username=self.bat_ctrl[_c]["username"],
                 password=self.bat_ctrl[_c]["password"],
-                type="p1",
+                taip="p1",
             )
         self.xom_sp = 0
         self.get_cts_status()
