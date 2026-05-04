@@ -89,7 +89,7 @@ CHARGE_TIME = BAT_CAPACITY / MAX_CHARGE  # hours
 CHARGE_SLOTS = int(CHARGE_TIME * 4 * _F)  # quarters needed to fully charge the batteries (must be (-)-ve!)
 DISCHG_TIME = BAT_CAPACITY / MAX_DISCHARGE * AVG_RTE
 DISCHG_SLOTS = int(DISCHG_TIME * 4 * _F)  # quarters needed to fully discharge the batteries (must be (+)-ve!)
-SWITCHEROO_DIFF = 5     # difference in SoC between batteries when to call the switcheroo
+SWITCHEROO_DIFF = 5  # difference in SoC between batteries when to call the switcheroo
 
 # Supported battery stances  (Sessy calls this 'strategy')
 NOM: str = "nom"
