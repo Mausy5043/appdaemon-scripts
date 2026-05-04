@@ -338,6 +338,7 @@ class BatMan3(hass.Hass):
         _cb_delay: int = 60
         _soc: list = []
         _pwr: list = []
+        idx=-1
         for _bat in self.bat_ctrl:
             _bp = int(round(self.bat_ctrl[_bat]["api"].status["sessy"]["state_of_charge"] * 100, 0))
             _soc.append(_bp)
