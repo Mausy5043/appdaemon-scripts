@@ -338,7 +338,7 @@ class BatMan3(hass.Hass):
         _big_diff = False
         for _bat in self.bat_ctrl:
             _strategy[_bat] = self.bat_ctrl[_bat]["api"].get_strategy()
-        _gridtgt["p1"] = 0  # self.bat_ctrl["p1"]["api"].get_
+        _gridtgt["p1"] = 0  # self.p1_ctrl["p1"]["api"].get_xom_setpoint()
 
         # wait for one minute then reset the states
         self.run_in(
@@ -506,7 +506,7 @@ class BatMan3(hass.Hass):
         self.status = "".join([_O, _C, _E, _L, _S, _q, _bts, f" <{caller}@{_time:.3f}"])
         self.log(self.status, level="INFO")
 
-    def log_pricelist(self, _len=10):
+    def log_pricelist(self, _len: int = 10):
         self.log(f"*** {len(self.tibber.prices)} TIBBER prices available ***")
         # convert to a list of formatted strings
         _fstrl = [f"{i:+06.2f}" for i in self.tibber.pricelist]
