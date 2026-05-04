@@ -311,7 +311,8 @@ class BatMan3(hass.Hass):
                 _strategy = cs.NOM
                 _setpoint = cs.MAX_P1_ABS
         self.set_mode(strategy=_strategy, grid_target=_setpoint)
-        self.switcheroo()  # check battery SoC before we leave
+        if _reason not in ["gLL", "gHH"]:
+            self.switcheroo()  # check battery SoC before we leave
         self.log_status(caller=f"-{caller}({_reason} {_strategy} {_setpoint})")
 
     def calc_setpoint(self) -> int:
@@ -377,7 +378,7 @@ class BatMan3(hass.Hass):
         for _p1ct in self.p1_ctrl:
             # self.p1_ctrl[_p1ct]["api"].set_xom_setpoint(setpoint)
             pass
-        self.log_status(caller=f"-swoo {soc} {setpoint} {idx}")
+        self.log_status(caller=f"-swoo {self.soc_diff}{setpoint};{idx}")
 
     # SECRETS
 
