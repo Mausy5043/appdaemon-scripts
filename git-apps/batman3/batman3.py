@@ -341,7 +341,7 @@ class BatMan3(hass.Hass):
         for _bat in self.bat_ctrl:
             _bp = int(round(self.bat_ctrl[_bat]["api"].status["sessy"]["state_of_charge"] * 100, 0))
             _soc.append(_bp)
-            _pwr.append(int(self.bat_ctrl[_bat].pwr_sp))
+            _pwr.append(int(self.bat_ctrl[_bat]["api"].pwr_sp))
         self.soc_diff = _soc[0] - _soc[1]  # (+)-ve value : bat1 > bat2
         _big_diff: bool = abs(self.soc_diff) > cs.SWITCHEROO_DIFF
         if _big_diff:   # difference in SoC is too big
