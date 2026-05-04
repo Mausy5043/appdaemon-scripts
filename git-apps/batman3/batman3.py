@@ -386,7 +386,7 @@ class BatMan3(hass.Hass):
         """Get the battery status."""
         for _b in self.bat_ctrl:
             self.bat_ctrl[_b]["api"].update_status()
-            self.bat_ctrl[_b]["api"].update_strategy()
+            # self.bat_ctrl[_b]["api"].update_strategy()
             """example: >
             {
               "status": "ok",
