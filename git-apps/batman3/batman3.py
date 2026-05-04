@@ -56,9 +56,9 @@ class BatMan3(hass.Hass):
         self.p1_ctrl: dict[str, Any] = self.get_cts(devices=cs.BATTALK["cts"])
         for _c in self.p1_ctrl:
             self.p1_ctrl[_c]["api"] = bt3.Sessy(
-                url=self.bat_ctrl[_c]["url"],
-                username=self.bat_ctrl[_c]["username"],
-                password=self.bat_ctrl[_c]["password"],
+                url=self.p1_ctrl[_c]["url"],
+                username=self.p1_ctrl[_c]["username"],
+                password=self.p1_ctrl[_c]["password"],
                 taip="p1",
             )
         self.xom_sp = 0
