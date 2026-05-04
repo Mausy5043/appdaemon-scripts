@@ -326,7 +326,7 @@ class BatMan3(hass.Hass):
         # for _bat in self.bat_ctrl:
         #     self.bat_ctrl[_bat]["api"].set_strategy(strategy)
         # for _ct in self.p1_ctrl:
-        #     self.bat_ctrl[_ct]["api"].set_xom_setpoint(grid_target)
+        #     self.p1_ctrl[_ct]["api"].set_xom_setpoint(grid_target)
         pass
 
     def switcheroo(self) -> None:
@@ -417,7 +417,7 @@ class BatMan3(hass.Hass):
     def get_cts_status(self) -> None:
         """Get the CT status."""
         for _c in self.p1_ctrl:
-            self.bat_ctrl[_c]["api"].update_status()
+            self.p1_ctrl[_c]["api"].update_status()
             """example: >
                 {
                   "status": "ok",
@@ -459,7 +459,7 @@ class BatMan3(hass.Hass):
                   "gas_meter_value": 0
                 }
             """
-            self.xom_sp = self.bat_ctrl[_c]["api"].get_xom_setpoint()
+            self.xom_sp = self.p1_ctrl[_c]["api"].get_xom_setpoint()
             """
                 {
                   "status": "ok",
