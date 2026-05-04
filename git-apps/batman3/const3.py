@@ -59,11 +59,13 @@ for _k, _v in __short2long_strategy.items():
 # ### Talking to the batteries directly because HA/AP doesn't ###
 BATTALK: dict[str, Any] = {
     "bats": ["bat1", "bat2"],
+    "cts": ["p1"],
     "api_calls": {
-        "strategy": "api/v1/power/active_strategy",
-        "status": "api/v1/power/status",
-        "setpoint": "api/v1/power/setpoint",
-        "grid_target": "api/v1/meter/grid_target",
+        "strategy": "api/v1/power/active_strategy",  # bats(get/post)
+        "status": "api/v1/power/status",  # bats(get)
+        "setpoint": "api/v1/power/setpoint",  # bats(post)
+        "grid_target": "api/v1/meter/grid_target",  # cts(get/post)
+        "details": "api/v2/p1/details",  # cts(get)
     },
     "api_strats": __short2long_strategy,
     "bat_stances": __long2short_strategy,
@@ -77,8 +79,10 @@ MIN_CHARGE: int = -160  # W
 MAX_DISCHARGE: int = 1700  # W
 MIN_DISCHARGE: int = 160  # W
 BAT_CAPACITY: int = 5000  # Wh
+
 # Average round-trip efficiency is not read from HA because is hardly changes:
 AVG_RTE = 0.8
+
 # Number of quarters needed to fully charge a battery
 _F = 1.4  # compensation factor to allow for variations in actual wattages used.
 CHARGE_TIME = BAT_CAPACITY / MAX_CHARGE  # hours
@@ -86,16 +90,12 @@ CHARGE_SLOTS = int(CHARGE_TIME * 4 * _F)  # quarters needed to fully charge the 
 DISCHG_TIME = BAT_CAPACITY / MAX_DISCHARGE * AVG_RTE
 DISCHG_SLOTS = int(DISCHG_TIME * 4 * _F)  # quarters needed to fully discharge the batteries (must be (+)-ve!)
 
-# stances  (Sessy calls this 'strategy')
+# Supported battery stances  (Sessy calls this 'strategy')
 NOM: str = "nom"
 IDLE: str = "idl"  # no power setting
 DEFAULT_STANCE: str = NOM
+# Grid target default
 DEFAULT_SETPOINT: int = 0
-
-# # EV assist
-# # when True, the app will assist the EV charging, notably when prices are high (>Q3)
-# # when False, the app will not assist the EV charging
-# EV_ASSIST = False
 
 # BATTERIES = ["sensor.bat1_state_of_charge", "sensor.bat2_state_of_charge"]
 # SETPOINTS = ["number.bat1_power_setpoint", "number.bat2_power_setpoint"]

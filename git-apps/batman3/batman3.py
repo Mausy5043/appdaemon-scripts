@@ -17,7 +17,7 @@ class BatMan3(hass.Hass):
     def initialize(self):
         """Initialize the app."""
         self.debug: bool = cs.DEBUG
-        self.log(f"===================================== BatMan3 v{cs.VERSION} ====", level="INFO")
+        self.log(msg=f"===================================== BatMan3 v{cs.VERSION} ====", level="INFO")
         # Keep track of active callbacks
         self.starting = True
         self.callback_handles: list[Any] = []
@@ -25,7 +25,7 @@ class BatMan3(hass.Hass):
 
         # create internal references
         self.secrets = self.get_app("scrts")
-        self.battalk = self.get_app("battalk")
+        # self.battalk = self.get_app("battalk")
 
         # initialize date/time info
         self.datum: dict = ut.get_these_days()
@@ -50,8 +50,19 @@ class BatMan3(hass.Hass):
                 url=self.bat_ctrl[_b]["url"],
                 username=self.bat_ctrl[_b]["username"],
                 password=self.bat_ctrl[_b]["password"],
+                type="bat",
             )
         self.get_bats_status()
+        self.p1_ctrl: dict[str, Any] = self.get_cts(devices=cs.BATTALK["cts"])
+        for _c in self.p1_ctrl:
+            self.bat_ctrl[_c]["api"] = bt3.Sessy(
+                url=self.bat_ctrl[_c]["url"],
+                username=self.bat_ctrl[_c]["username"],
+                password=self.bat_ctrl[_c]["password"],
+                type="p1",
+            )
+        self.xom_sp = 0
+        self.get_cts_status()
 
         # Initialize various monitors with safe defaults ...
         self.bats_min_soc: float = 0.0  # [%]
@@ -67,7 +78,7 @@ class BatMan3(hass.Hass):
         # ... then get their actual state
         self.get_monitor_states()
 
-        self.log("BatMan3 is running...", level="INFO")
+        self.log(msg="BatMan3 is running...", level="INFO")
         self.log_pricelist()
         self.log_status(caller="INIT")
 
@@ -164,6 +175,7 @@ class BatMan3(hass.Hass):
             self.log("*** PV meter state update failed")
 
         self.get_bats_status()
+        self.get_cts_status()
 
     def set_call_backs(self) -> None:
         """Set-up callbacks for price changes and watchdogs."""
@@ -234,15 +246,15 @@ class BatMan3(hass.Hass):
         # watchdog changes are not immediate, so we callback watchdog_runin_cb() after:
         _cb_delay = 2  # [s]  to allow the system to stabilize
         self.run_in(
-                self.watchdog_runin_cb,
-                delay=_cb_delay,
-                entity=str(entity),
-                attribute=attribute,
-                old=old,
-                new=new,
-            )
+            self.watchdog_runin_cb,
+            delay=_cb_delay,
+            entity=str(entity),
+            attribute=attribute,
+            old=old,
+            new=new,
+        )
 
-    def watchdog_runin_cb(self, entity:str, attribute, old, new, **kwargs):
+    def watchdog_runin_cb(self, entity: str, attribute, old, new, **kwargs):
         """Delayed callback for watchdogs."""
         self.get_monitor_states()
         # low PV may need different actions
@@ -265,40 +277,40 @@ class BatMan3(hass.Hass):
 
     def controller_cb(self, caller, **kwargs):
         """Controller callback."""
-        _reason: str = "nix"   # no action
+        _reason: str = "nix"  # no action
         _strategy: str = cs.DEFAULT_STANCE
         _setpoint: int = cs.DEFAULT_SETPOINT
         if self.ctrl_by_me:
-            _reason = "ctl" # control by me, no action
+            _reason = "ctl"  # control by me, no action
             if not self.ev_charging:
-                _reason = "x0m" # EV not charging, XOM = 0, Q2
+                _reason = "x0m"  # EV not charging, XOM = 0, Q2
                 _strategy = cs.NOM
                 _setpoint = cs.DEFAULT_SETPOINT
                 if self.low_pv:
-                    _reason = "lpv" # Low PV
+                    _reason = "lpv"  # Low PV
                     _strategy = cs.NOM
                     _setpoint = -200
                 if self.tibber.quarter_now in self.tibber.charge_cheap:
-                    _reason = "cq1" # Low price (<q1)
+                    _reason = "cq1"  # Low price (<q1)
                     _strategy = cs.NOM
                     # _setpoint = cs.DEFAULT_SETPOINT; dont overrule setpoint from previous `if`
                 elif self.tibber.quarter_now in self.tibber.disch_greed:
-                    _reason = "gHH" # High price (>HH), request discharge
+                    _reason = "gHH"  # High price (>HH), request discharge
                     _strategy = cs.NOM
                     _setpoint = self.calc_setpoint()
                 elif self.tibber.quarter_now in self.tibber.disch_expen:
-                    _reason = "dq3" # High price (>q3)
+                    _reason = "dq3"  # High price (>q3)
                     _strategy = cs.NOM
                     # _setpoint = cs.DEFAULT_SETPOINT; dont overrule setpoint from previous `if`
             else:
-                _reason = "evc" # EV charging, IDLE
+                _reason = "evc"  # EV charging, IDLE
                 _strategy = cs.IDLE
             if self.tibber.quarter_now in self.tibber.charge_greed:
-                _reason = "gLL" # Low price (< LL), charge always, ignore EV state
+                _reason = "gLL"  # Low price (< LL), charge always, ignore EV state
                 _strategy = cs.NOM
                 _setpoint = cs.MAX_P1_ABS
         self.set_mode(strategy=_strategy, grid_target=_setpoint)
-        self.switcheroo() # check battery SoC before we leave
+        self.switcheroo()  # check battery SoC before we leave
         self.log_status(caller=f"--{caller}({_reason} {_strategy} {_setpoint})")
 
     def calc_setpoint(self) -> int:
@@ -313,7 +325,8 @@ class BatMan3(hass.Hass):
         # when enabling this code, disable batman2 FIRST
         # for _bat in self.bat_ctrl:
         #     self.bat_ctrl[_bat]["api"].set_strategy(strategy)
-        #     self.bat_ctrl[_bat]["api"].set_setpoint(setpoint)
+        # for _ct in self.p1_ctrl:
+        #     self.bat_ctrl[_ct]["api"].set_xom_setpoint(grid_target)
         pass
 
     def switcheroo(self) -> None:
@@ -325,15 +338,15 @@ class BatMan3(hass.Hass):
         _big_diff = False
         for _bat in self.bat_ctrl:
             _strategy[_bat] = self.bat_ctrl[_bat]["api"].get_strategy()
-        _gridtgt["p1"] = 0 # self.bat_ctrl["p1"]["api"].get_
+        _gridtgt["p1"] = 0  # self.bat_ctrl["p1"]["api"].get_
 
         # wait for one minute then reset the states
         self.run_in(
-                self.switcheroo_cb,
-                delay=_cb_delay,
-                strategy=_strategy,
-                setpoint=_gridtgt,
-            )
+            self.switcheroo_cb,
+            delay=_cb_delay,
+            strategy=_strategy,
+            setpoint=_gridtgt,
+        )
 
     def switcheroo_cb(self, kwargs: dict):
         """Return to previous state before self.switcheroo was called"""
@@ -346,17 +359,22 @@ class BatMan3(hass.Hass):
 
     # SECRETS
 
-    def get_bats(self, devices) -> dict:
+    def get_bats(self, devices: list[str]) -> dict:
         """Get the battery credentials from the secrets."""
         _auth_dict = {}
         for _b in devices:
             _auth_dict[_b] = self.secrets.get_sessy_secrets(_b)  # type: ignore[attr-defined]
         return _auth_dict
 
+    def get_cts(self, devices: list[str]) -> dict:
+        """Get the P1 credentials from the secrets."""
+        return self.get_bats(devices)
+
     def get_bats_status(self) -> None:
         """Get the battery status."""
         for _b in self.bat_ctrl:
-            self.bat_ctrl[_b]["state"] = self.bat_ctrl[_b]["api"].get_status()
+            self.bat_ctrl[_b]["api"].update_status()
+            self.bat_ctrl[_b]["api"].update_strategy()
             """example: >
             {
               "status": "ok",
@@ -389,12 +407,65 @@ class BatMan3(hass.Hass):
               }
             }
             """
-            _strat: str = self.bat_ctrl[_b]["api"].get_strategy()
+            _strat: str = self.bat_ctrl[_b]["api"]["strategy"]
             # translate strategy
             try:
                 self.bat_ctrl[_b]["strategy"] = cs.BATTALK["bat_stances"][_strat]
             except KeyError:
                 self.bat_ctrl[_b]["strategy"] = "UNK"
+
+    def get_cts_status(self) -> None:
+        """Get the CT status."""
+        for _c in self.p1_ctrl:
+            self.bat_ctrl[_c]["api"].update_status()
+            """example: >
+                {
+                  "status": "ok",
+                  "state": "P1_OK",
+                  "dsmr_version": 20,
+                  "header_info": "KMP5 KA6U00censored",
+                  "equipment_identifier": "censored",
+                  "date_time": "",
+                  "power_consumed_tariff1": 29417906,
+                  "power_produced_tariff1": 3793024,
+                  "power_consumed_tariff2": 16284334,
+                  "power_produced_tariff2": 9394014,
+                  "tariff_indicator": 2,
+                  "power_consumed": 0,
+                  "power_produced": 0,
+                  "power_total": 0,
+                  "power_failure_any_phase": 0,
+                  "long_power_failure_any_phase": 0,
+                  "voltage_sag_count_l1": 0,
+                  "voltage_sag_count_l2": 0,
+                  "voltage_sag_count_l3": 0,
+                  "voltage_swell_count_l1": 0,
+                  "voltage_swell_count_l2": 0,
+                  "voltage_swell_count_l3": 0,
+                  "voltage_l1": 0,
+                  "voltage_l2": 0,
+                  "voltage_l3": 0,
+                  "current_l1": 0,
+                  "current_l2": 0,
+                  "current_l3": 0,
+                  "power_consumed_l1": 0,
+                  "power_consumed_l2": 0,
+                  "power_consumed_l3": 0,
+                  "power_produced_l1": 0,
+                  "power_produced_l2": 0,
+                  "power_produced_l3": 0,
+                  "gas_meter_equipment_identifier": "",
+                  "gas_meter_value_time": "",
+                  "gas_meter_value": 0
+                }
+            """
+            self.xom_sp = self.bat_ctrl[_c]["api"].get_xom_setpoint()
+            """
+                {
+                  "status": "ok",
+                  "grid_target": 0      <<<
+                }
+            """
 
     def log_status(self, caller: str):
         """Construct a status message and log it."""
@@ -419,10 +490,10 @@ class BatMan3(hass.Hass):
         _str: list = []
         _bsp: int = 0
         for _b in self.bat_ctrl:
-            _bp = int(round(self.bat_ctrl[_b]["state"]["sessy"]["state_of_charge"] * 100, 0))
+            _bp = int(round(self.bat_ctrl[_b]["api"]["status"]["sessy"]["state_of_charge"] * 100, 0))
             _bs = self.bat_ctrl[_b]["strategy"]
             # _bst = _bs.removeprefix("SYSTEM_STATE_")
-            _bsp = int(self.bat_ctrl[_b]["state"]["sessy"]["power_setpoint"])
+            _bsp = int(self.bat_ctrl[_b]["api"]["status"]["sessy"]["power_setpoint"])
             _strl = [f"[{_bp:03d}]"]
             if _bsp >= 0:
                 _strl.append(f"{_bsp:4d}")

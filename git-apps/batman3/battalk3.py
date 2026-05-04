@@ -12,7 +12,7 @@ requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
 class Sessy:
     """Class to interact with the Sessy Battery API."""
 
-    def __init__(self, url: str, username, password) -> None:
+    def __init__(self, url: str, username, password, type: str) -> None:
         """Initialize the Sessy class."""
         self.session = requests.Session()
         self.session.auth = (username, password)
@@ -21,23 +21,33 @@ class Sessy:
         self.strat: dict[str, str] = cs.BATTALK["api_strats"]
         self.headers: dict[str, str] = {"accept": "application/json"}
         self.status: dict[str, Any] = self.get_status()
+        self.strategy: str = self.get_strategy()
+        self.type = type
 
     def set_strategy(self, stance: str) -> dict:
         """Set strategy on battery"""
-        _url = f"{self.bat_ip}/{self.api_call['strategy']}"
-        _cmd = {"strategy": self.strat[stance]}
-        response = self.session.post(_url, headers=self.headers, json=_cmd, auth=self.session.auth)
-        response.raise_for_status()
-        ret: dict = response.json()
+        ret = "unsupported"
+        if self.type == "bat":
+            _url = f"{self.bat_ip}/{self.api_call['strategy']}"
+            _cmd = {"strategy": self.strat[stance]}
+            response = self.session.post(_url, headers=self.headers, json=_cmd, auth=self.session.auth)
+            response.raise_for_status()
+            ret: dict = response.json()
         return ret
 
     def get_strategy(self) -> str:
         """Get current battery strategy"""
-        _url = f"{self.bat_ip}/{self.api_call['strategy']}"
-        response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
-        response.raise_for_status()
-        ret: str = response.json()["strategy"]
+        ret = "unsupported"
+        if self.type == "bat":
+            _url = f"{self.bat_ip}/{self.api_call['strategy']}"
+            response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
+            response.raise_for_status()
+            ret: str = response.json()["strategy"]
         return ret
+
+    def update_strategy(self):
+        """Update strategy of battery"""
+        self.strategy = self.get_strategy()
 
     # def set_setpoint(self, setpoint: int) -> dict:
     #     """Set API setpoint on the battery"""
@@ -58,25 +68,36 @@ class Sessy:
 
     def set_xom_setpoint(self, setpoint: int) -> dict:
         """Set XOM setpoint on the P1 meter"""
-        _url = f"{self.bat_ip}/{self.api_call['grid_target']}"
-        _cmd = {"grid_target": setpoint}
-        response = self.session.post(_url, headers=self.headers, json=_cmd, auth=self.session.auth)
-        response.raise_for_status()
-        ret: dict = response.json()
+        ret = {}
+        if self.type == "p1":
+            _url = f"{self.bat_ip}/{self.api_call['grid_target']}"
+            _cmd = {"grid_target": setpoint}
+            response = self.session.post(_url, headers=self.headers, json=_cmd, auth=self.session.auth)
+            response.raise_for_status()
+            ret: dict = response.json()
         return ret
 
-    def get_xom_setpoint(self) -> str:
+    def get_xom_setpoint(self) -> int:
         """Set XOM setpoint on the P1 meter"""
-        _url = f"{self.bat_ip}/{self.api_call['grid_target']}"
-        response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
-        response.raise_for_status()
-        ret: str = response.json()["grid_target"]
+        ret: int = -1
+        if self.type == "p1":
+            _url = f"{self.bat_ip}/{self.api_call['grid_target']}"
+            response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
+            response.raise_for_status()
+            ret = int(response.json()["grid_target"])
         return ret
 
     def get_status(self) -> dict[str, Any]:
         """Get current battery status"""
-        _url = f"{self.bat_ip}/{self.api_call['status']}"
+        if self.type == "bat":
+            _url = f"{self.bat_ip}/{self.api_call['status']}"
+        else:
+            _url = f"{self.bat_ip}/{self.api_call['details']}"
         response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
         response.raise_for_status()
         ret: dict[str, Any] = response.json()
         return ret
+
+    def update_status(self):
+        """Update status of battery"""
+        self.status = self.get_status()
