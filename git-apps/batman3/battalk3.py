@@ -27,27 +27,27 @@ class Sessy:
         if taip == "bat":
             self.pwr_sp: int = self.get_setpoint()
         if taip == "p1":
-            self.pwr_sp: int = self.get_xom_setpoint()
+            self.pwr_sp = self.get_xom_setpoint()
 
     def set_strategy(self, stance: str) -> dict:
         """Set strategy on battery"""
-        ret = {}
+        ret: dict = {}
         if self.taip == "bat":
             _url = f"{self.bat_ip}/{self.api_call['strategy']}"
             _cmd = {"strategy": self.strat[stance]}
             response = self.session.post(_url, headers=self.headers, json=_cmd, auth=self.session.auth)
             response.raise_for_status()
-            ret: dict = response.json()
+            ret = response.json()
         return ret
 
     def get_strategy(self) -> str:
         """Get current battery strategy"""
-        ret = "unsupported"
+        ret: str = "unsupported"
         if self.taip == "bat":
             _url = f"{self.bat_ip}/{self.api_call['strategy']}"
             response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
             response.raise_for_status()
-            ret: str = response.json()["strategy"]
+            ret = response.json()["strategy"]
         return ret
 
     def update_strategy(self) -> None:
@@ -82,13 +82,13 @@ class Sessy:
 
     def set_xom_setpoint(self, setpoint: int) -> dict:
         """Set XOM setpoint on the P1 meter"""
-        ret = {}
+        ret: dict = {}
         if self.taip == "p1":
             _url = f"{self.bat_ip}/{self.api_call['grid_target']}"
             _cmd = {"grid_target": setpoint}
             response = self.session.post(_url, headers=self.headers, json=_cmd, auth=self.session.auth)
             response.raise_for_status()
-            ret: dict = response.json()
+            ret = response.json()
         return ret
 
     def get_xom_setpoint(self) -> int:
