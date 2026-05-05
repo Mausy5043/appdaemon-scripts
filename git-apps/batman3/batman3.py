@@ -346,10 +346,10 @@ class BatMan3(hass.Hass):
     def set_mode(self, strategy: str, grid_target: int) -> None:
         """Set the strategy for each battery and the gridtarget."""
         # when enabling this code, disable batman2 FIRST
-        # for _bat in self.bat_ctrl:
-        #     self.bat_ctrl[_bat]["api"].set_strategy(strategy)
-        # for _ct in self.p1_ctrl:
-        #     self.p1_ctrl[_ct]["api"].set_xom_setpoint(grid_target)
+        for _bat in self.bat_ctrl:
+            self.bat_ctrl[_bat]["api"].set_strategy(strategy)
+        for _ct in self.p1_ctrl:
+            self.p1_ctrl[_ct]["api"].set_xom_setpoint(grid_target)
         pass
 
     def switcheroo(self) -> None:
