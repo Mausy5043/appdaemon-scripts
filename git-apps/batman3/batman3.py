@@ -297,16 +297,18 @@ class BatMan3(hass.Hass):
                     _strategy = cs.NOM
                     if not self.datum["sunny"] or (self.datum["sunny"] and self.sw_override):
                         _reason = "Wq1"
-                        _strategy = cs.NOM
                         _setpoint = cs.MAX_CHARGE * -2  # XOM requires inverted sign; TODO: use cs.MAX_P1_ABS ?
                 elif self.tibber.quarter_now in self.tibber.disch_greed:
                     _reason = "gHH"  # High price (>HH), request discharge
                     _strategy = cs.NOM
-                    _setpoint = self.calc_setpoint()
+                    _setpoint = self.calc_setpoint(max=cs.MAX_DISCHARGE)
                 elif self.tibber.quarter_now in self.tibber.disch_expen:
                     _reason = "dq3"  # High price (>q3)
                     _strategy = cs.NOM
-                    # _setpoint = cs.DEFAULT_SETPOINT; dont overrule setpoint from previous `if`
+                    if self.sw_override:
+                        _reason = "Zq3"
+                        # _setpoint = self.calc_setpoint(max=cs.MAX_CHARGE) # dont overrule setpoint from previous `if
+                        _ = self.calc_setpoint(max=cs.MAX_DISCHARGE)
             else:
                 _reason = "evc"  # EV charging, IDLE
                 _strategy = cs.IDLE
@@ -314,13 +316,13 @@ class BatMan3(hass.Hass):
                 _reason = "gLL"  # Low price (< LL), charge always, ignore EV state
                 _strategy = cs.NOM
                 _setpoint = cs.MAX_P1_ABS
-        _ = self.calc_setpoint()  # for debugging
+        # _ = self.calc_setpoint()  # for debugging
         self.set_mode(strategy=_strategy, grid_target=_setpoint)
         if _reason not in ["gLL", "gHH"]:
             self.switcheroo()  # check battery SoC before we leave
         self.log_status(caller=f"-{caller}({_reason} {_strategy} {_setpoint})")
 
-    def calc_setpoint(self) -> int:
+    def calc_setpoint(self, max: int) -> int:
         """Calculate the setpoint for the grid target based on
         the current system state and assuming we want to discharge.
         """
@@ -334,13 +336,13 @@ class BatMan3(hass.Hass):
         # max discharging = (2*1700W) -34%/h; -8.5%/qrtr
         # if _distance > (1.5*8.5=)12.75 we can discharge at maximum speed.
         #    Below that we have 1.5 quarters left
-        _distance_limit = (2 * cs.MAX_DISCHARGE) / (4 * 100) * 1.5  # = 12.75
+        _distance_limit = (2 * max) / (4 * 100) * 1.5  # = 12.75
         if _distance < _distance_limit:
-            _setpoint = -1 * (2 * cs.MAX_DISCHARGE) * (_distance / _distance_limit)  # / 4 # TODO: evaluate
+            _setpoint = -1 * (2 * max) * (_distance / _distance_limit)  # / 4
         if _distance < 0:
+            # don't discharge when under bats_min_soc
             _setpoint = 0
-            # return _setpoint
-        self.log(msg=f"{_soc} {_avg_soc} {_distance} {int(_setpoint)}")
+        self.log(msg=f"*** Calculated SP : {int(_setpoint)}")
         return int(_setpoint)
 
     def set_mode(self, strategy: str, grid_target: int) -> None:
