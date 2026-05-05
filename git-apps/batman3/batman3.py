@@ -320,6 +320,17 @@ class BatMan3(hass.Hass):
         the current system state and assuming we want to discharge.
         """
         _setpoint = cs.MAX_P1_ABS
+        _soc: list = []
+        for _bat in self.bat_ctrl:
+            _bp = int(round(self.bat_ctrl[_bat]["api"].status["sessy"]["state_of_charge"] * 100, 0))
+            _soc.append(_bp)
+        _avg_soc = sum(_soc) / len(_soc)
+        _distance = _avg_soc - self.bats_min_soc
+
+        if _distance < 0:
+            _setpoint = 0
+            # return _setpoint
+        self.log(msg=f"{_soc} {_avg_soc} {_distance} {_setpoint}")
         return _setpoint
 
     def set_mode(self, strategy: str, grid_target: int) -> None:
