@@ -298,7 +298,7 @@ class BatMan3(hass.Hass):
                     if not self.datum["sunny"] or (self.datum["sunny"] and self.sw_override):
                         _reason = "Wq1"
                         _strategy = cs.NOM
-                        _setpoint = cs.MAX_CHARGE * -2 # XOM requires inverted sign; TODO: use cs.MAX_P1_ABS ?
+                        _setpoint = cs.MAX_CHARGE * -2  # XOM requires inverted sign; TODO: use cs.MAX_P1_ABS ?
                 elif self.tibber.quarter_now in self.tibber.disch_greed:
                     _reason = "gHH"  # High price (>HH), request discharge
                     _strategy = cs.NOM
