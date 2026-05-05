@@ -356,7 +356,7 @@ class BatMan3(hass.Hass):
         _cb_delay: int = 60
         _soc: list = []
         _pwr: list = []
-        bat_to_stop: str = ""
+        bat_to_stop: str = "-"
         idx = -1
         for _bat in self.bat_ctrl:
             _bp = int(round(self.bat_ctrl[_bat]["api"].status["sessy"]["state_of_charge"] * 100, 0))
@@ -382,13 +382,13 @@ class BatMan3(hass.Hass):
                             # always make sure the other battery is in NOM
                             self.bat_ctrl[_bat]["api"].set_strategy(cs.NOM)
                         self.bat_ctrl[_bat]["api"].update_strategy()
-                # wait for one minute then reset the states
-                self.run_in(
-                    self.switcheroo_cb,
-                    delay=_cb_delay,
-                    bat_to_stop=bat_to_stop,
-                )
-                self.log_status(caller=f"-swoo {bat_to_stop} OFF")
+                    # wait for one minute then reset the states
+                    self.run_in(
+                        self.switcheroo_cb,
+                        delay=_cb_delay,
+                        bat_to_stop=bat_to_stop,
+                    )
+                    self.log_status(caller=f"-swoo {bat_to_stop} OFF")
 
     def switcheroo_cb(self, kwargs: dict):
         """Return to previous state before self.switcheroo was called"""
