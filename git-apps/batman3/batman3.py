@@ -310,7 +310,7 @@ class BatMan3(hass.Hass):
                 _reason = "gLL"  # Low price (< LL), charge always, ignore EV state
                 _strategy = cs.NOM
                 _setpoint = cs.MAX_P1_ABS
-        _ = self.calc_setpoint() # for debugging
+        _ = self.calc_setpoint()  # for debugging
         self.set_mode(strategy=_strategy, grid_target=_setpoint)
         if _reason not in ["gLL", "gHH"]:
             self.switcheroo()  # check battery SoC before we leave
@@ -327,12 +327,17 @@ class BatMan3(hass.Hass):
             _soc.append(_bp)
         _avg_soc = sum(_soc) / len(_soc)
         _distance = _avg_soc - self.bats_min_soc
-
+        # max discharging = (2*1700W) -34%/h; -8.5%/qrtr
+        # if _distance > (1.5*8.5=)12.75 we can discharge at maximum speed.
+        #    Below that we have 1.5 quarters left
+        _distance_limit = (2 * cs.MAX_DISCHARGE) / (4 * 100) * 1.5  # = 12.75
+        if _distance < _distance_limit:
+            _setpoint = (2 * cs.MAX_DISCHARGE) * (_distance / _distance_limit)  # / 4 # TODO: evaluate
         if _distance < 0:
             _setpoint = 0
             # return _setpoint
-        self.log(msg=f"{_soc} {_avg_soc} {_distance} {_setpoint}")
-        return _setpoint
+        self.log(msg=f"{_soc} {_avg_soc} {_distance} {int(_setpoint)}")
+        return int(_setpoint)
 
     def set_mode(self, strategy: str, grid_target: int) -> None:
         """Set the strategy for each battery and the gridtarget."""
@@ -352,24 +357,24 @@ class BatMan3(hass.Hass):
         _soc: list = []
         _pwr: list = []
         bat_to_stop: str = ""
-        idx=-1
+        idx = -1
         for _bat in self.bat_ctrl:
             _bp = int(round(self.bat_ctrl[_bat]["api"].status["sessy"]["state_of_charge"] * 100, 0))
             _soc.append(_bp)
             _pwr.append(int(self.bat_ctrl[_bat]["api"].pwr_sp))
         self.soc_diff = _soc[0] - _soc[1]  # (+)-ve value : bat1 > bat2
         _big_diff: bool = abs(self.soc_diff) > cs.SWITCHEROO_DIFF
-        if _big_diff:   # difference in SoC is too big
+        if _big_diff:  # difference in SoC is too big
             # 1 battery must be busy
             _idx0 = [i for i, v in enumerate(_pwr) if v != 0]
-            if _idx0 and len(_idx0) == 1:   # only one of the batteries is busy
-                _sp = _pwr[_idx0[0]]    # setpoint of active battery
-                _sc = _soc[_idx0[0]]    # SoC of active battery
+            if _idx0 and len(_idx0) == 1:  # only one of the batteries is busy
+                _sp = _pwr[_idx0[0]]  # setpoint of active battery
+                _sc = _soc[_idx0[0]]  # SoC of active battery
                 # if the active battery has highest SOC AND is charging
                 # OR
                 # if the active battery has lowest SOC AND is discharging, we put it in IDLE:
                 if (_sc == max(_soc) and _sp < 0) or (_sc == min(_soc) and _sp > 0):
-                    bat_to_stop: str = f"bat{int(_idx0[0]+1)}"
+                    bat_to_stop: str = f"bat{int(_idx0[0] + 1)}"
                     for _bat in self.bat_ctrl:
                         if _bat == bat_to_stop:
                             self.bat_ctrl[_bat]["api"].set_strategy(cs.IDLE)
