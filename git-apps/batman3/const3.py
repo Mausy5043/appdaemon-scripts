@@ -51,6 +51,10 @@ PV_CURRENT_MAX: float = 23.5  # [A(abs)] maximum current setting
 __short2long_strategy: dict[str, str] = {
     "idl": "POWER_STRATEGY_IDLE",
     "nom": "POWER_STRATEGY_NOM",
+    "api": "POWER_STRATEGY_API",
+    "dyn": "POWER_STRATEGY_ROI",
+    "eco": "POWER_STRATEGY_ECO",
+    "ext": "POWER_STRATEGY_SESSY_CONNECT"
 }
 __long2short_strategy: dict[str, str] = {}
 for _k, _v in __short2long_strategy.items():
