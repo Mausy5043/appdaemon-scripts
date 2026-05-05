@@ -292,9 +292,13 @@ class BatMan3(hass.Hass):
                     _strategy = cs.NOM
                     _setpoint = -200
                 if self.tibber.quarter_now in self.tibber.charge_cheap:
+                    # in winter we charge during low price quarters
                     _reason = "cq1"  # Low price (<q1)
                     _strategy = cs.NOM
-                    # _setpoint = cs.DEFAULT_SETPOINT; dont overrule setpoint from previous `if`
+                    if not self.datum["sunny"]:
+                        _reason = "Wq1"
+                        _strategy = cs.NOM
+                        _setpoint = cs.MAX_CHARGE * -2 # XOM requires inverted sign
                 elif self.tibber.quarter_now in self.tibber.disch_greed:
                     _reason = "gHH"  # High price (>HH), request discharge
                     _strategy = cs.NOM
