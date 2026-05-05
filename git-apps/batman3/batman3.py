@@ -332,7 +332,7 @@ class BatMan3(hass.Hass):
         #    Below that we have 1.5 quarters left
         _distance_limit = (2 * cs.MAX_DISCHARGE) / (4 * 100) * 1.5  # = 12.75
         if _distance < _distance_limit:
-            _setpoint = (2 * cs.MAX_DISCHARGE) * (_distance / _distance_limit)  # / 4 # TODO: evaluate
+            _setpoint = -1 * (2 * cs.MAX_DISCHARGE) * (_distance / _distance_limit)  # / 4 # TODO: evaluate
         if _distance < 0:
             _setpoint = 0
             # return _setpoint
