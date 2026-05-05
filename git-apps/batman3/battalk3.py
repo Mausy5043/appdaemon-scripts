@@ -25,9 +25,9 @@ class Sessy:
         self.status: dict[str, Any] = self.get_status()
         self.strategy: str = self.get_strategy()
         if taip == "bat":
-            self.pwr_sp: str = self.get_setpoint()
+            self.pwr_sp: int = self.get_setpoint()
         if taip == "p1":
-            self.pwr_sp: str = self.get_xom_setpoint()
+            self.pwr_sp: int = self.get_xom_setpoint()
 
     def set_strategy(self, stance: str) -> dict:
         """Set strategy on battery"""
@@ -63,22 +63,22 @@ class Sessy:
         ret: dict = response.json()
         return ret
 
-    def get_setpoint(self) -> str:
+    def get_setpoint(self) -> int:
         """Get current battery setpoint"""
-        ret = "unsupported"
+        ret: int = -1
         if self.taip == "bat":
             _url = f"{self.bat_ip}/{self.api_call['status']}"
             response = self.session.get(_url, headers=self.headers, auth=self.session.auth)
             response.raise_for_status()
-            ret: str = response.json()["sessy"]["power_setpoint"]
+            ret = int(response.json()["sessy"]["power_setpoint"])
         return ret
 
     def update_setpoint(self) -> None:
         """Update the API setpoint on the battery."""
         if self.taip == "bat":
-            self.pwr_sp: str = self.get_setpoint()
+            self.pwr_sp = self.get_setpoint()
         if self.taip == "p1":
-            self.pwr_sp: str = self.get_xom_setpoint()
+            self.pwr_sp = self.get_xom_setpoint()
 
     def set_xom_setpoint(self, setpoint: int) -> dict:
         """Set XOM setpoint on the P1 meter"""
@@ -92,7 +92,7 @@ class Sessy:
         return ret
 
     def get_xom_setpoint(self) -> int:
-        """Set XOM setpoint on the P1 meter"""
+        """Get XOM setpoint on the P1 meter"""
         ret: int = -1
         if self.taip == "p1":
             _url = f"{self.bat_ip}/{self.api_call['grid_target']}"
