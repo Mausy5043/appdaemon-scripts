@@ -364,6 +364,7 @@ class BatMan3(hass.Hass):
                         else:
                             # always make sure the other battery is in NOM
                             self.bat_ctrl[_bat]["api"].set_strategy("nom")
+                        self.bat_ctrl[_bat]["api"].update_strategy()
                 # wait for one minute then reset the states
                 self.run_in(
                     self.switcheroo_cb,
