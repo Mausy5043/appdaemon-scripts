@@ -360,10 +360,10 @@ class BatMan3(hass.Hass):
                     bat_to_stop: str = f"bat{int(_idx0[0]+1)}"
                     for _bat in self.bat_ctrl:
                         if _bat == bat_to_stop:
-                            self.bat_ctrl[_bat]["api"].set_strategy("idl")
+                            self.bat_ctrl[_bat]["api"].set_strategy(cs.IDLE)
                         else:
                             # always make sure the other battery is in NOM
-                            self.bat_ctrl[_bat]["api"].set_strategy("nom")
+                            self.bat_ctrl[_bat]["api"].set_strategy(cs.NOM)
                         self.bat_ctrl[_bat]["api"].update_strategy()
                 # wait for one minute then reset the states
                 self.run_in(
@@ -377,7 +377,7 @@ class BatMan3(hass.Hass):
         """Return to previous state before self.switcheroo was called"""
         _arg = kwargs.get("bat_to_stop")
         for _bat in self.bat_ctrl:
-            self.bat_ctrl[_bat]["api"].set_strategy("nom")
+            self.bat_ctrl[_bat]["api"].set_strategy(cs.NOM)
 
         self.get_monitor_states()
         self.log_status(caller=f"-swoo {_arg} ON")
