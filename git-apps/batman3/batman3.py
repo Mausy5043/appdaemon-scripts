@@ -149,7 +149,7 @@ class BatMan3(hass.Hass):
             self.log("*** LOW_PV state update failed")
 
         try:
-            # check if PV/BAT is delivering electricity
+            # check if zomer/winter override is active
             _swo: Any = self.get_state(cs.ZOMWIN_OVERRIDE)
             self.sw_override = str(_swo) == "on"
         except BaseException:
@@ -295,7 +295,7 @@ class BatMan3(hass.Hass):
                     # in winter we charge during low price quarters
                     _reason = "cq1"  # Low price (<q1)
                     _strategy = cs.NOM
-                    if not self.datum["sunny"]:
+                    if not self.datum["sunny"] or (self.datum["sunny"] and self.sw_override):
                         _reason = "Wq1"
                         _strategy = cs.NOM
                         _setpoint = cs.MAX_CHARGE * -2 # XOM requires inverted sign
