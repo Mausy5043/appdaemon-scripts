@@ -355,35 +355,31 @@ class BatMan3(hass.Hass):
                 _sc = _soc[_idx0[0]]    # SoC of active battery
                 # if the active battery has highest SOC AND is charging
                 # OR
-                # if the active battery has lowest SOC AND is discharging, we put it in IDLE
+                # if the active battery has lowest SOC AND is discharging, we put it in IDLE:
                 if (_sc == max(_soc) and _sp < 0) or (_sc == min(_soc) and _sp > 0):
                     bat_to_stop: str = f"bat{int(_idx0[0]+1)}"
                     for _bat in self.bat_ctrl:
                         if _bat == bat_to_stop:
                             self.bat_ctrl[_bat]["api"].set_strategy("idl")
-                            pass
                         else:
+                            # always make sure the other battery is in NOM
                             self.bat_ctrl[_bat]["api"].set_strategy("nom")
-                            pass
                 # wait for one minute then reset the states
                 self.run_in(
                     self.switcheroo_cb,
                     delay=_cb_delay,
-                    setpoint=_pwr,
+                    bat_to_stop=bat_to_stop,
                 )
-        self.log_status(caller=f"-snoo {self.soc_diff};{_pwr};{bat_to_stop}")
+                self.log_status(caller=f"-swoo {bat_to_stop} OFF")
 
     def switcheroo_cb(self, kwargs: dict):
         """Return to previous state before self.switcheroo was called"""
-        setpoint = kwargs.get("setpoint")
+        _arg = kwargs.get("bat_to_stop")
         for _bat in self.bat_ctrl:
             self.bat_ctrl[_bat]["api"].set_strategy("nom")
-            pass
 
-        # for _p1ct in self.p1_ctrl:
-        #     # self.p1_ctrl[_p1ct]["api"].set_xom_setpoint(setpoint)
-        #     pass
-        self.log_status(caller=f"-swoo {self.soc_diff};{setpoint}")
+        self.get_monitor_states()
+        self.log_status(caller=f"-swoo {_arg} ON")
 
     # SECRETS
 
