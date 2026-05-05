@@ -377,7 +377,7 @@ class BatMan3(hass.Hass):
                 # OR
                 # if the active battery has lowest SOC AND is discharging, we put it in IDLE:
                 if (_sc == max(_soc) and _sp < 0) or (_sc == min(_soc) and _sp > 0):
-                    bat_to_stop: str = f"bat{int(_idx0[0] + 1)}"
+                    bat_to_stop = f"bat{int(_idx0[0] + 1)}"
                     for _bat in self.bat_ctrl:
                         if _bat == bat_to_stop:
                             self.bat_ctrl[_bat]["api"].set_strategy(cs.IDLE)
