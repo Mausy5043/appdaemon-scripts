@@ -310,6 +310,7 @@ class BatMan3(hass.Hass):
                 _reason = "gLL"  # Low price (< LL), charge always, ignore EV state
                 _strategy = cs.NOM
                 _setpoint = cs.MAX_P1_ABS
+        _ = self.calc_setpoint()
         self.set_mode(strategy=_strategy, grid_target=_setpoint)
         if _reason not in ["gLL", "gHH"]:
             self.switcheroo()  # check battery SoC before we leave
