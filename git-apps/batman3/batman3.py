@@ -62,7 +62,7 @@ class BatMan3(hass.Hass):
                 taip="p1",
             )
         self.xom_sp = 0
-        self.soc_diff: int = 0
+        self.soc_diff: float = 0.0
         self.get_cts_status()
 
         # Initialize various monitors with safe defaults ...
@@ -364,7 +364,7 @@ class BatMan3(hass.Hass):
         _pwr: list = []
         bat_to_stop: str = "-"
         for _bat in self.bat_ctrl:
-            _bp = int(round(self.bat_ctrl[_bat]["api"].status["sessy"]["state_of_charge"] * 100, 0))
+            _bp: float = round(self.bat_ctrl[_bat]["api"].status["sessy"]["state_of_charge"] * 100, 1)
             _soc.append(_bp)
             _pwr.append(int(self.bat_ctrl[_bat]["api"].pwr_sp))
         self.soc_diff = _soc[0] - _soc[1]  # (+)-ve value : bat1 > bat2
