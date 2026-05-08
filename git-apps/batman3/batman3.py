@@ -393,10 +393,11 @@ class BatMan3(hass.Hass):
                         delay=_cb_delay,
                         bat_to_stop=bat_to_stop,
                     )
-                    self.log_status(caller=f"-swoo {bat_to_stop} OFF")
+                    # self.log_status(caller=f"-swoo {bat_to_stop} OFF")
 
     def switcheroo_cb(self, kwargs: dict):
         """Return to previous state before self.switcheroo was called"""
+        self.callback_time = dt.datetime.now()
         _arg = kwargs.get("bat_to_stop")
         for _bat in self.bat_ctrl:
             self.bat_ctrl[_bat]["api"].set_strategy(cs.NOM)
