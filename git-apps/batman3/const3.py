@@ -54,7 +54,7 @@ __short2long_strategy: dict[str, str] = {
     "api": "POWER_STRATEGY_API",
     "dyn": "POWER_STRATEGY_ROI",
     "eco": "POWER_STRATEGY_ECO",
-    "ext": "POWER_STRATEGY_SESSY_CONNECT"
+    "ext": "POWER_STRATEGY_SESSY_CONNECT",
 }
 __long2short_strategy: dict[str, str] = {}
 for _k, _v in __short2long_strategy.items():
@@ -92,7 +92,8 @@ _F = 1.4  # compensation factor to allow for variations in actual wattages used.
 CHARGE_TIME: float = BAT_CAPACITY / MAX_CHARGE  # hours
 CHARGE_SLOTS: int = int(CHARGE_TIME * 4 * _F)  # quarters needed to fully charge the batteries (must be (-)-ve!)
 DISCHG_TIME: float = BAT_CAPACITY / MAX_DISCHARGE * AVG_RTE
-DISCHG_SLOTS: int = int(DISCHG_TIME * 4 * _F)  # quarters needed to fully discharge the batteries (must be (+)-ve!)
+# quarters needed to fully discharge the batteries (must be (+)-ve!)
+DISCHG_SLOTS: int = int(DISCHG_TIME * 4 * _F)
 SWITCHEROO_DIFF: float = 2.5  # difference in SoC between batteries when to call the switcheroo
 
 # Supported battery stances  (Sessy calls this 'strategy')
