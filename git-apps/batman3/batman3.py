@@ -341,7 +341,7 @@ class BatMan3(hass.Hass):
         if _distance < 0:
             # don't discharge when under bats_min_soc
             _setpoint = 0
-        self.log(msg=f"*** Calculated SP : {int(_setpoint)}")
+        self.log(msg=f"*** Calculated SP : {int(_setpoint)} {max} {_distance} < {_distance_limit} ***", level="INFO")
         return int(_setpoint)
 
     def set_mode(self, strategy: str, grid_target: int) -> None:
