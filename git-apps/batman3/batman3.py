@@ -458,7 +458,7 @@ class BatMan3(hass.Hass):
             except KeyError:
                 self.bat_ctrl[_b]["strategy"] = "UNK"
         self.soc_avg = sum(_soc_lst) / len(_soc_lst)
-        self.soc_diff = _soc_lst[0] - _soc_lst[1]  # (+)-ve value : bat1 > bat2
+        self.soc_diff = (_soc_lst[0] - _soc_lst[1]) * 100  # (+)-ve value : bat1 > bat2
 
     def get_cts_status(self) -> None:
         """Get the CT status."""
