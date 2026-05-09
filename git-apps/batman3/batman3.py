@@ -337,7 +337,7 @@ class BatMan3(hass.Hass):
         #    Below that we have 1.5 quarters left
         _distance_limit = (2 * max) / (4 * 100) * 1.5  # = 12.75
         if _distance < _distance_limit:
-            _setpoint = -1 * (2 * max) * (_distance / _distance_limit)  # / 4
+            _setpoint = (2 * max) * (_distance / _distance_limit)  # / 4
         if _distance < 0:
             # don't discharge when under bats_min_soc
             _setpoint = 0
