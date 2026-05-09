@@ -335,7 +335,7 @@ class BatMan3(hass.Hass):
         # max discharging = (2*1700W) -34%/h; -8.5%/qrtr
         # if _distance > (1.5*8.5=)12.75 we can discharge at maximum speed.
         #    Below that we have 1.5 quarters left
-        _distance_limit = max / (4 * 100) * 1.5  # = 12.75
+        _distance_limit = -1 * max / (4 * 100) * 1.5  # = 12.75
         if _distance < _distance_limit:
             _setpoint = max * (_distance / _distance_limit)  # / 4
         if _distance < 0:
