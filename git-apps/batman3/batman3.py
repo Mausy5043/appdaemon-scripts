@@ -361,10 +361,7 @@ class BatMan3(hass.Hass):
         _pwr: list = []
         bat_to_stop: str = "-"
         for _bat in self.bat_ctrl:
-            _bp: float = round(self.bat_ctrl[_bat]["api"].status["sessy"]["state_of_charge"] * 100, 1)
-            _soc.append(_bp)
             _pwr.append(int(self.bat_ctrl[_bat]["api"].pwr_sp))
-        self.soc_diff = _soc[0] - _soc[1]  # (+)-ve value : bat1 > bat2
         _big_diff: bool = abs(self.soc_diff) > cs.SWITCHEROO_DIFF
         if _big_diff:  # difference in SoC is too big
             # 1 battery must be busy
