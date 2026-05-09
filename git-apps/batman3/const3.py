@@ -78,10 +78,10 @@ BATTALK: dict[str, Any] = {
 # Maximum power at P1. Allow for consumers to kick in, so don't take up the full 35A
 MAX_P1_ABS: int = int(35 * 230 * 0.9)
 # maximum/minimum rates per battery
-MAX_CHARGE: int = 2200  # W
-MIN_CHARGE: int = 160  # W
-MAX_DISCHARGE: int = -1700  # W
-MIN_DISCHARGE: int = -160  # W
+MAX_CHARGE: int = -2200  # W
+MIN_CHARGE: int = -160  # W
+MAX_DISCHARGE: int = 1700  # W
+MIN_DISCHARGE: int = 160  # W
 BAT_CAPACITY: int = 5000  # Wh
 
 # Average round-trip efficiency is not read from HA because is hardly changes:
