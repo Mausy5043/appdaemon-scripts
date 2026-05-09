@@ -324,7 +324,7 @@ class BatMan3(hass.Hass):
         if _reason not in ["gLL", "gHH"]:
             self.switcheroo()  # check battery SoC before we leave
         self.log_status(caller=f"-{caller}({_reason} {_strategy} {_setpoint})")
-        self.log(msg=f"{self.soc_avg} > {self.bats_min_soc} = {_soc_gt_min}")
+        # self.log(msg=f"{self.soc_avg} > {self.bats_min_soc} = {_soc_gt_min}")
 
     def calc_setpoint(self, max: int) -> int:
         """Calculate the setpoint for the grid target based on
@@ -458,7 +458,7 @@ class BatMan3(hass.Hass):
                 self.bat_ctrl[_b]["strategy"] = cs.BATTALK["bat_stances"][_strat]
             except KeyError:
                 self.bat_ctrl[_b]["strategy"] = "UNK"
-        self.soc_avg = sum(_soc_lst) / len(_soc_lst)
+        self.soc_avg = (sum(_soc_lst) / len(_soc_lst)) * 100 # %
         self.soc_diff = (_soc_lst[0] - _soc_lst[1]) * 100  # (+)-ve value : bat1 > bat2
 
     def get_cts_status(self) -> None:
