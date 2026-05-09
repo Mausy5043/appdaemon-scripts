@@ -52,6 +52,8 @@ class BatMan3(hass.Hass):
                 password=self.bat_ctrl[_b]["password"],
                 taip="bat",
             )
+        self.soc_avg: float = 0.0
+        self.soc_diff: float = 0.0
         self.get_bats_status()
         self.p1_ctrl: dict[str, Any] = self.get_cts(devices=cs.BATTALK["cts"])
         for _c in self.p1_ctrl:
@@ -62,7 +64,6 @@ class BatMan3(hass.Hass):
                 taip="p1",
             )
         self.xom_sp = 0
-        self.soc_diff: float = 0.0
         self.get_cts_status()
 
         # Initialize various monitors with safe defaults ...
@@ -281,6 +282,7 @@ class BatMan3(hass.Hass):
         _reason: str = "nix"  # no action
         _strategy: str = cs.DEFAULT_STANCE
         _setpoint: int = cs.DEFAULT_SETPOINT
+        _soc_gt_min: bool = self.soc_avg > self.bats_min_soc  # Avg SoC is above the lower limit line
         if self.ctrl_by_me:
             _reason = "ctl"  # control by me, no action
             if not self.ev_charging:
@@ -291,23 +293,24 @@ class BatMan3(hass.Hass):
                     _reason = "lpv"  # Low PV
                     _strategy = cs.NOM
                     _setpoint = -200
-                if self.tibber.quarter_now in self.tibber.charge_cheap:
-                    # in winter we charge during low price quarters
+                if self.tibber.quarter_now in self.tibber.charge_cheap and not _soc_gt_min:
+                    # in winter we charge during low price quarters upto the minimum SoC.
                     _reason = "cq1"  # Low price (<q1)
                     _strategy = cs.NOM
                     if not self.datum["sunny"] or (self.datum["sunny"] and self.sw_override):
                         _reason = "Wq1"
                         _setpoint = cs.MAX_CHARGE * -2  # XOM requires inverted sign; TODO: use cs.MAX_P1_ABS ?
-                elif self.tibber.quarter_now in self.tibber.disch_greed:
+                elif (self.tibber.quarter_now in self.tibber.disch_greed) and _soc_gt_min:
                     _reason = "gHH"  # High price (>HH), request discharge
                     _strategy = cs.NOM
                     _setpoint = self.calc_setpoint(max=cs.MAX_DISCHARGE)
-                elif self.tibber.quarter_now in self.tibber.disch_expen:
+                elif self.tibber.quarter_now in self.tibber.disch_expen and _soc_gt_min:
                     _reason = "dq3"  # High price (>q3)
                     _strategy = cs.NOM
                     if self.sw_override:
                         _reason = "Zq3"
-                        # _setpoint = self.calc_setpoint(max=cs.MAX_CHARGE) # dont overrule setpoint from previous `if
+                        # _setpoint = self.calc_setpoint(max=cs.MAX_CHARGE) # dont overrule
+                        # setpoint from previous `if
                         _ = self.calc_setpoint(max=cs.MAX_DISCHARGE)
             else:
                 _reason = "evc"  # EV charging, IDLE
@@ -327,12 +330,7 @@ class BatMan3(hass.Hass):
         the current system state and assuming we want to discharge.
         """
         _setpoint = cs.MAX_P1_ABS
-        _soc: list = []
-        for _bat in self.bat_ctrl:
-            _bp = int(round(self.bat_ctrl[_bat]["api"].status["sessy"]["state_of_charge"] * 100, 0))
-            _soc.append(_bp)
-        _avg_soc = sum(_soc) / len(_soc)
-        _distance = _avg_soc - self.bats_min_soc
+        _distance = self.soc_avg - self.bats_min_soc
         # max discharging = (2*1700W) -34%/h; -8.5%/qrtr
         # if _distance > (1.5*8.5=)12.75 we can discharge at maximum speed.
         #    Below that we have 1.5 quarters left
@@ -420,6 +418,7 @@ class BatMan3(hass.Hass):
 
     def get_bats_status(self) -> None:
         """Get the battery status."""
+        _soc_lst = []
         for _b in self.bat_ctrl:
             self.bat_ctrl[_b]["api"].update_status()
             # self.bat_ctrl[_b]["api"].update_strategy()
@@ -455,12 +454,15 @@ class BatMan3(hass.Hass):
               }
             }
             """
+            _soc_lst.append(self.bat_ctrl[_b]["sessy"]["state_of_charge"])
             _strat: str = self.bat_ctrl[_b]["api"].strategy
             # translate strategy
             try:
                 self.bat_ctrl[_b]["strategy"] = cs.BATTALK["bat_stances"][_strat]
             except KeyError:
                 self.bat_ctrl[_b]["strategy"] = "UNK"
+        self.soc_avg = sum(_soc_lst) / len(_soc_lst)
+        self.soc_diff = _soc_lst[0] - _soc_lst[1]  # (+)-ve value : bat1 > bat2
 
     def get_cts_status(self) -> None:
         """Get the CT status."""
