@@ -330,7 +330,7 @@ class BatMan3(hass.Hass):
         """Calculate the setpoint for the grid target based on
         the current system state and assuming we want to discharge.
         """
-        _setpoint = cs.MAX_P1_ABS
+        _setpoint = -1 * cs.MAX_P1_ABS
         _distance = self.soc_avg - self.bats_min_soc
         # max discharging = (2*1700W) -34%/h; -8.5%/qrtr
         # if _distance > (1.5*8.5=)12.75 we can discharge at maximum speed.
