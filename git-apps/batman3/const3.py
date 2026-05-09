@@ -78,11 +78,18 @@ BATTALK: dict[str, Any] = {
 # Maximum power at P1. Allow for consumers to kick in, so don't take up the full 35A
 MAX_P1_ABS: int = int(35 * 230 * 0.9)
 # maximum/minimum rates per battery
-MAX_CHARGE: int = -2200  # W
-MIN_CHARGE: int = -160  # W
-MAX_DISCHARGE: int = 1700  # W
-MIN_DISCHARGE: int = 160  # W
+# MAX_CHARGE: int = -2200  # W
+# MIN_CHARGE: int = -160  # W
+# MAX_DISCHARGE: int = 1700  # W
+# MIN_DISCHARGE: int = 160  # W
 BAT_CAPACITY: int = 5000  # Wh
+# Grid target setpoints
+MAX_CHARGE_SP: int = 4400 # W
+MAX_DISCHARGE_SP: int = -3400  # W
+LPV_DISCHARGE_SP: int = -200 # W
+# Grid target default
+DEFAULT_XOM_SP: int = 0 # W
+
 
 # Average round-trip efficiency is not read from HA because is hardly changes:
 AVG_RTE: float = 0.8
@@ -100,8 +107,6 @@ SWITCHEROO_DIFF: float = 2.5  # difference in SoC between batteries when to call
 NOM: str = "nom"
 IDLE: str = "idl"  # no power setting
 DEFAULT_STANCE: str = NOM
-# Grid target default
-DEFAULT_SETPOINT: int = 0
 
 # BATTERIES = ["sensor.bat1_state_of_charge", "sensor.bat2_state_of_charge"]
 # SETPOINTS = ["number.bat1_power_setpoint", "number.bat2_power_setpoint"]

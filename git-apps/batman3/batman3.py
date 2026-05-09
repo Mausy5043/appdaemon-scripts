@@ -281,14 +281,14 @@ class BatMan3(hass.Hass):
         """Controller callback."""
         _reason: str = "nix"  # no action
         _strategy: str = cs.DEFAULT_STANCE
-        _setpoint: int = cs.DEFAULT_SETPOINT
+        _setpoint: int = cs.DEFAULT_XOM_SP # 0 W
         _soc_gt_min: bool = self.soc_avg > self.bats_min_soc  # Avg SoC is above the lower limit line
         if self.ctrl_by_me:
             _reason = "ctl"  # control by me, no action
             if not self.ev_charging:
                 _reason = "x0m"  # EV not charging, XOM = 0, Q2
                 _strategy = cs.NOM
-                _setpoint = cs.DEFAULT_SETPOINT
+                _setpoint = cs.DEFAULT_XOM_SP
                 if self.low_pv:
                     _reason = "lpv"  # Low PV
                     _strategy = cs.NOM
@@ -299,11 +299,11 @@ class BatMan3(hass.Hass):
                     _strategy = cs.NOM
                     if not self.datum["sunny"] or (self.datum["sunny"] and self.sw_override):
                         _reason = "Wq1"
-                        _setpoint = cs.MAX_CHARGE * -2  # XOM requires inverted sign; TODO: use cs.MAX_P1_ABS ?
+                        _setpoint = cs.MAX_CHARGE_SP  #  TODO: use cs.MAX_P1_ABS ?
                 elif (self.tibber.quarter_now in self.tibber.disch_greed) and _soc_gt_min:
                     _reason = "gHH"  # High price (>HH), request discharge
                     _strategy = cs.NOM
-                    _setpoint = self.calc_setpoint(max=cs.MAX_DISCHARGE)
+                    _setpoint = self.calc_setpoint(max=cs.MAX_DISCHARGE_SP)
                 elif self.tibber.quarter_now in self.tibber.disch_expen and _soc_gt_min:
                     _reason = "dq3"  # High price (>q3)
                     _strategy = cs.NOM
@@ -311,7 +311,7 @@ class BatMan3(hass.Hass):
                         _reason = "Zq3"
                         # _setpoint = self.calc_setpoint(max=cs.MAX_CHARGE) # dont overrule
                         # setpoint from previous `if
-                        _ = self.calc_setpoint(max=cs.MAX_DISCHARGE)
+                        _ = self.calc_setpoint(max=cs.MAX_DISCHARGE_SP)
             else:
                 _reason = "evc"  # EV charging, IDLE
                 _strategy = cs.IDLE
@@ -335,9 +335,9 @@ class BatMan3(hass.Hass):
         # max discharging = (2*1700W) -34%/h; -8.5%/qrtr
         # if _distance > (1.5*8.5=)12.75 we can discharge at maximum speed.
         #    Below that we have 1.5 quarters left
-        _distance_limit = (2 * max) / (4 * 100) * 1.5  # = 12.75
+        _distance_limit = max / (4 * 100) * 1.5  # = 12.75
         if _distance < _distance_limit:
-            _setpoint = (2 * max) * (_distance / _distance_limit)  # / 4
+            _setpoint = max * (_distance / _distance_limit)  # / 4
         if _distance < 0:
             # don't discharge when under bats_min_soc
             _setpoint = 0
