@@ -454,7 +454,7 @@ class BatMan3(hass.Hass):
               }
             }
             """
-            _soc_lst.append(self.bat_ctrl[_b]["sessy"]["state_of_charge"])
+            _soc_lst.append(self.bat_ctrl[_b]["api"].status["sessy"]["state_of_charge"])
             _strat: str = self.bat_ctrl[_b]["api"].strategy
             # translate strategy
             try:
