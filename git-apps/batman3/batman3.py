@@ -323,7 +323,8 @@ class BatMan3(hass.Hass):
         self.set_mode(strategy=_strategy, grid_target=_setpoint)
         if _reason not in ["gLL", "gHH"]:
             self.switcheroo()  # check battery SoC before we leave
-        self.log_status(caller=f"-{caller}({_reason} {_strategy} {_setpoint} {_soc_gt_min})")
+        self.log_status(caller=f"-{caller}({_reason} {_strategy} {_setpoint})")
+        self.log(msg=f"{self.soc_avg} > {self.bats_min_soc} = {_soc_gt_min}")
 
     def calc_setpoint(self, max: int) -> int:
         """Calculate the setpoint for the grid target based on
