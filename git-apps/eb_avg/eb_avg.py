@@ -20,8 +20,8 @@ class EigenBedrijf_Avg(hass.Hass):
 
         # intialise callbacks
         self.callback_handles: list = []
-        self.callback_handles.append(self.listen_state(self.collect_value, self.sensor))
-        self.run_every(self.calculate_average, "now", 60)
+        self.callback_handles.append(self.listen_state(self.collect_value_cb, self.sensor))
+        self.run_every(self.update_average_cb, "now", 60)
 
     def terminate(self):
         """Clean up app."""
@@ -32,7 +32,7 @@ class EigenBedrijf_Avg(hass.Hass):
         self.callback_handles.clear()
         self.log("__...terminated EigenBedrijf_Avg.")
 
-    def collect_value(self, entity, attribute, old, new, **kwargs):
+    def collect_value_cb(self, entity, attribute, old, new, **kwargs):
         try:
             _insert = float(new)
             _insert = max(0.0, _insert)
@@ -40,7 +40,7 @@ class EigenBedrijf_Avg(hass.Hass):
             _insert = 0.0
         self.values.append(_insert)
 
-    def calculate_average(self, **kwargs):
+    def update_average_cb(self, **kwargs):
         med_value: int = 0
         if self.values:
             med_value = int(round(stat.mean(self.values), 0))
