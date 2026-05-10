@@ -6,7 +6,7 @@ import appdaemon.plugins.hass.hassapi as hass
 
 """Calculate moving average of Eigen Bedrijf to dampen peaks."""
 
-VERSION: str = "1.4.1"
+VERSION: str = "1.5.1"
 QLEN: int = 12
 ATTR_EB: dict = {"unit_of_measurement": "W", "friendly_name": "eigen_bedrijf_avg"}
 
