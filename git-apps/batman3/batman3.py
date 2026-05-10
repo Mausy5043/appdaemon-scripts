@@ -29,6 +29,8 @@ class BatMan3(hass.Hass):
 
         # initialize date/time info
         self.datum: dict = ut.get_these_days()
+        # avoid re-entrancy of switcheroo
+        self.swoo: bool = False
 
         # initialize Tibber API
         self.tibber_exc_cb = cs.CB_DELAY
@@ -321,7 +323,7 @@ class BatMan3(hass.Hass):
                 _setpoint = cs.MAX_P1_ABS
         # _ = self.calc_setpoint()  # for debugging
         self.set_mode(strategy=_strategy, grid_target=_setpoint)
-        if _reason not in ["gLL", "gHH"]:
+        if not self.swoo and _reason not in ["gLL", "gHH"]:
             self.switcheroo()  # check battery SoC before we leave
         self.log_status(caller=f"-{caller}({_reason} {_strategy} {_setpoint})")
         # self.log(msg=f"{self.soc_avg} > {self.bats_min_soc} = {_soc_gt_min}")
@@ -389,11 +391,13 @@ class BatMan3(hass.Hass):
                         delay=_cb_delay,
                         bat_to_stop=bat_to_stop,
                     )
+                    self.swoo = True
                     # self.log_status(caller=f"-swoo {bat_to_stop} OFF")
 
     def switcheroo_cb(self, kwargs: dict):
         """Return to previous state before self.switcheroo was called"""
         self.callback_time = dt.datetime.now()
+        self.swoo = False
         _arg = kwargs.get("bat_to_stop")
         for _bat in self.bat_ctrl:
             self.bat_ctrl[_bat]["api"].set_strategy(cs.NOM)
