@@ -234,16 +234,12 @@ class Tibber:
         _q1 = self.stats["q1"]
         _q3 = self.stats["q3"]
         _q3hh = self.greed_d_limit  # discharge
+        __si = self.sorted_pricelist_idx
         # indices of prices < LL; always charge regardless of EV state.
-        self.charge_greed = [i for i in self.sorted_pricelist_idx if self.pricelist[i] < _q1ll]
+        self.charge_greed = [i for i in __si if self.pricelist[i] < _q1ll]
         # indices of prices < q1; for charging in winter; we only need the N cheapest slots
-        self.charge_cheap = [i for i in self.sorted_pricelist_idx if self.pricelist[i] < _q1][: cs.CHARGE_SLOTS]
+        self.charge_cheap = [i for i in __si if self.pricelist[i] < _q1][: cs.CHARGE_SLOTS]
         # indices of prices > q3;
-        self.disch_expen = [
-            i for i in self.sorted_pricelist_idx if self.pricelist[i] > _q3
-        ]  # TODO: >BEP iso >q3
+        self.disch_expen = [i for i in __si if self.pricelist[i] > _q3]
         # self.discharge_greed = "indices of prices > (Q1avg + HH) or (?)"
-        self.disch_greed = [i for i in self.sorted_pricelist_idx if self.pricelist[i] > _q3hh][
-            -cs.DISCHG_SLOTS :
-        ]
-        pass
+        self.disch_greed = [i for i in __si if self.pricelist[i] > _q3hh][-cs.DISCHG_SLOTS :]
