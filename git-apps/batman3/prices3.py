@@ -241,7 +241,7 @@ class Tibber:
         # indices of prices > q3;
         self.disch_expen = [i for i in __si if self.pricelist[i] > _q3]
         # indices of prices < q1; for charging in winter;
-        # we only want the N cheapest slots to only charge what we need the next 24 hours or so.
+        # we only want the N cheapest slots to only charge what we need for the next 24 hours or so.
         self.charge_cheap = [i for i in __si if self.pricelist[i] < _q1][: cs.CHARGE_SLOTS]
         # indices of prices > greed limit (_q3hh); for discharging surplus when prices are high
         # discharging stops automatically when the min. SoC is reached.
