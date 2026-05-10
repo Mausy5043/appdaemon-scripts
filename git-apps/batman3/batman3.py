@@ -291,21 +291,24 @@ class BatMan3(hass.Hass):
                 _reason = "x0m"  # EV not charging, XOM = 0, Q2
                 _strategy = cs.NOM
                 _setpoint = cs.DEFAULT_XOM_SP
+                # force battery to start-up when we have low power from PV/S
                 if self.low_pv:
                     _reason = "lpv"  # Low PV
                     _strategy = cs.NOM
                     _setpoint = -200
+                # in winter we charge during low price quarters upto the minimum SoC.
                 if self.tibber.quarter_now in self.tibber.charge_cheap and not _soc_gt_min:
-                    # in winter we charge during low price quarters upto the minimum SoC.
                     _reason = "cq1"  # Low price (<q1)
                     _strategy = cs.NOM
                     if not self.datum["sunny"] or (self.datum["sunny"] and self.sw_override):
                         _reason = "Wq1"
                         _setpoint = cs.MAX_CHARGE_SP  #  TODO: use cs.MAX_P1_ABS ?
+                # when prices are very high we discharge down to the minimum SoC
                 elif (self.tibber.quarter_now in self.tibber.disch_greed) and _soc_gt_min:
                     _reason = "gHH"  # High price (>HH), request discharge
                     _strategy = cs.NOM
                     _setpoint = self.calc_setpoint(max=cs.MAX_DISCHARGE_SP)
+                # when prices are in Q3 we do nothing.
                 elif self.tibber.quarter_now in self.tibber.disch_expen and _soc_gt_min:
                     _reason = "dq3"  # High price (>q3)
                     _strategy = cs.NOM
@@ -314,15 +317,18 @@ class BatMan3(hass.Hass):
                         # _setpoint = self.calc_setpoint(max=cs.MAX_CHARGE) # dont overrule
                         # setpoint from previous `if
                         _ = self.calc_setpoint(max=cs.MAX_DISCHARGE_SP)
+            # if EV is charging:
             else:
                 _reason = "evc"  # EV charging, IDLE
                 _strategy = cs.IDLE
+            # regardless of the EV charging state, if prices are extremely low we will charge
             if self.tibber.quarter_now in self.tibber.charge_greed:
                 _reason = "gLL"  # Low price (< LL), charge always, ignore EV state
                 _strategy = cs.NOM
                 _setpoint = cs.MAX_P1_ABS
         # _ = self.calc_setpoint()  # for debugging
         self.set_mode(strategy=_strategy, grid_target=_setpoint)
+        # switcheroo the batteries regularly when on normal duty
         if not self.swoo and _reason not in ["gLL", "gHH"]:
             self.switcheroo()  # check battery SoC before we leave
         self.log_status(caller=f"-{caller}({_reason} {_strategy} {_setpoint})")
