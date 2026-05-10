@@ -85,11 +85,11 @@ MAX_DISCHARGE: int = 1700  # W
 BAT_CAPACITY: int = 5000  # Wh
 
 # Grid target setpoints
-MAX_CHARGE_SP: int = 4400 # W
+MAX_CHARGE_SP: int = 4400  # W
 MAX_DISCHARGE_SP: int = -3400  # W
-LPV_DISCHARGE_SP: int = -200 # W
+LPV_DISCHARGE_SP: int = -200  # W
 # Grid target default
-DEFAULT_XOM_SP: int = 0 # W
+DEFAULT_XOM_SP: int = 0  # W
 
 # Average round-trip efficiency is not read from HA because is hardly changes:
 AVG_RTE: float = 0.8

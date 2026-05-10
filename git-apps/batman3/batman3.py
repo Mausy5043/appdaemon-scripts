@@ -283,7 +283,7 @@ class BatMan3(hass.Hass):
         """Controller callback."""
         _reason: str = "nix"  # no action
         _strategy: str = cs.DEFAULT_STANCE
-        _setpoint: int = cs.DEFAULT_XOM_SP # 0 W
+        _setpoint: int = cs.DEFAULT_XOM_SP  # 0 W
         _soc_gt_min: bool = self.soc_avg > self.bats_min_soc  # Avg SoC is above the lower limit line
         if self.ctrl_by_me:
             _reason = "ctl"  # control by me, no action
@@ -302,7 +302,7 @@ class BatMan3(hass.Hass):
                     _strategy = cs.NOM
                     if not self.datum["sunny"] or (self.datum["sunny"] and self.sw_override):
                         _reason = "Wq1"
-                        _setpoint = cs.MAX_CHARGE_SP  #  TODO: use cs.MAX_P1_ABS ?
+                        _setpoint = cs.MAX_CHARGE_SP  # TODO: use cs.MAX_P1_ABS ?
                 # when prices are very high we discharge down to the minimum SoC
                 elif (self.tibber.quarter_now in self.tibber.disch_greed) and _soc_gt_min:
                     _reason = "gHH"  # High price (>HH), request discharge
@@ -349,7 +349,9 @@ class BatMan3(hass.Hass):
         if _distance < 0:
             # don't discharge when under bats_min_soc
             _setpoint = 0
-        self.log(msg=f"*** Calculated SP : {int(_setpoint)} {max} {_distance} < {_distance_limit} ***", level="INFO")
+        self.log(
+            msg=f"*** Calculated SP : {int(_setpoint)} {max} {_distance} < {_distance_limit} ***", level="INFO"
+        )
         return int(_setpoint)
 
     def set_mode(self, strategy: str, grid_target: int) -> None:
@@ -469,7 +471,7 @@ class BatMan3(hass.Hass):
                 self.bat_ctrl[_b]["strategy"] = cs.BATTALK["bat_stances"][_strat]
             except KeyError:
                 self.bat_ctrl[_b]["strategy"] = "UNK"
-        self.soc_avg = (sum(_soc_lst) / len(_soc_lst)) * 100 # %
+        self.soc_avg = (sum(_soc_lst) / len(_soc_lst)) * 100  # %
         self.soc_diff = (_soc_lst[0] - _soc_lst[1]) * 100  # (+)-ve value : bat1 > bat2
 
     def get_cts_status(self) -> None:

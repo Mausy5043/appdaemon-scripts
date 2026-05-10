@@ -35,7 +35,7 @@ class EigenBedrijf_Avg(hass.Hass):
     def collect_value_cb(self, entity, attribute, old, new, **kwargs):
         try:
             _insert = float(new)
-            _insert = max(0.0, _insert) # (-)-ve values are not realistic.
+            _insert = max(0.0, _insert)  # (-)-ve values are not realistic.
         except ValueError:
             if self.values:
                 # insert the previous value
