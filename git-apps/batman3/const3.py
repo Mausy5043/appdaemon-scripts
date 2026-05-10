@@ -78,11 +78,12 @@ BATTALK: dict[str, Any] = {
 # Maximum power at P1. Allow for consumers to kick in, so don't take up the full 35A
 MAX_P1_ABS: int = int(35 * 230 * 0.9)
 # maximum/minimum rates per battery
-# MAX_CHARGE: int = -2200  # W
+MAX_CHARGE: int = 2200  # W
 # MIN_CHARGE: int = -160  # W
-# MAX_DISCHARGE: int = 1700  # W
+MAX_DISCHARGE: int = 1700  # W
 # MIN_DISCHARGE: int = 160  # W
 BAT_CAPACITY: int = 5000  # Wh
+
 # Grid target setpoints
 MAX_CHARGE_SP: int = 4400 # W
 MAX_DISCHARGE_SP: int = -3400  # W
@@ -90,14 +91,13 @@ LPV_DISCHARGE_SP: int = -200 # W
 # Grid target default
 DEFAULT_XOM_SP: int = 0 # W
 
-
 # Average round-trip efficiency is not read from HA because is hardly changes:
 AVG_RTE: float = 0.8
 
 # Number of quarters needed to fully charge a battery
 _F = 1.4  # compensation factor to allow for variations in actual wattages used.
 CHARGE_TIME: float = BAT_CAPACITY / MAX_CHARGE  # hours
-CHARGE_SLOTS: int = int(CHARGE_TIME * 4 * _F)  # quarters needed to fully charge the batteries (must be (-)-ve!)
+CHARGE_SLOTS: int = int(CHARGE_TIME * 4 * _F * -1)  # quarters needed to fully charge the batteries (must be (-)-ve!)
 DISCHG_TIME: float = BAT_CAPACITY / MAX_DISCHARGE * AVG_RTE
 # quarters needed to fully discharge the batteries (must be (+)-ve!)
 DISCHG_SLOTS: int = int(DISCHG_TIME * 4 * _F)
