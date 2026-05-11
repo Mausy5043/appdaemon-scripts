@@ -108,6 +108,7 @@ class BatMan3(hass.Hass):
             try:
                 self.tibber.update_prices()  # call the API for new prices
                 self.tibber.create_lists()
+                self.tibber.set_greed_d_limit(float(_lim))
                 self.log_pricelist()
             except Exception:
                 self.tibber_fail = True
