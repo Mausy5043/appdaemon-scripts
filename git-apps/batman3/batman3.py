@@ -339,21 +339,21 @@ class BatMan3(hass.Hass):
         """Calculate the setpoint for the grid target based on
         the current system state and assuming we want to discharge.
         """
-        _setpoint = -1 * cs.MAX_P1_ABS
-        _distance = self.soc_avg - self.bats_min_soc
+        _setpoint: int = -1 * cs.MAX_P1_ABS
+        _distance: float = self.soc_avg - self.bats_min_soc
         # max discharging = (2*1700W) -34%/h; -8.5%/qrtr
-        # if _distance > (1.5*8.5=)12.75 we can discharge at maximum speed.
-        #    Below that we have 1.5 quarters left
-        _distance_limit = -1 * max / (4 * 100) * 1.5  # = 12.75
+        # if _distance > (4*8.5=)34 we can discharge at maximum speed.
+        #    Below that we have 4 quarters (1hr) left
+        _distance_limit: float = -1 * max / (4 * 100) * 4  # = 34.0
         if _distance < _distance_limit:
-            _setpoint = max * (_distance / _distance_limit)  # / 4
+            _setpoint = int(max * (_distance / _distance_limit))  # / 4
         if _distance < 0:
             # don't discharge when under bats_min_soc
             _setpoint = 0
         self.log(
             msg=f"*** Calculated SP : {int(_setpoint)} {max} {_distance:.1f} < {_distance_limit:.1f} ***", level="INFO"
         )
-        return int(_setpoint)
+        return _setpoint
 
     def set_mode(self, strategy: str, grid_target: int) -> None:
         """Set the strategy for each battery and the gridtarget."""
