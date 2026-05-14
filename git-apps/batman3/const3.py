@@ -96,12 +96,11 @@ ADJUST_SP: float = 0.25 # multipicator for XOM SP when not greedy
 AVG_RTE: float = 0.8
 
 # Number of quarters needed to fully charge a battery
-_F = 1.4  # compensation factor to allow for variations in actual wattages used.
+_F = 1.1  # compensation factor to allow for variations in actual wattages used.
 CHARGE_TIME: float = BAT_CAPACITY / MAX_CHARGE  # hours
 CHARGE_SLOTS: int = int(CHARGE_TIME * 4 * _F)  # quarters needed to fully charge the batteries
-DISCHG_TIME: float = BAT_CAPACITY / MAX_DISCHARGE * AVG_RTE
-# quarters needed to fully discharge the batteries (must be (+)-ve!)
-DISCHG_SLOTS: int = int(DISCHG_TIME * 4 * _F)
+DISCHG_TIME: float = BAT_CAPACITY / MAX_DISCHARGE * AVG_RTE # hours
+DISCHG_SLOTS: int = int(DISCHG_TIME * 4 * _F) # quarters needed to fully discharge the batteries
 SWITCHEROO_DIFF: float = 2.5  # difference in SoC between batteries when to call the switcheroo
 
 # Supported battery stances  (Sessy calls this 'strategy')
