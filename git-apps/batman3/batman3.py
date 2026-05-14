@@ -312,7 +312,7 @@ class BatMan3(hass.Hass):
                         _reason = "Zq3"
                         _setpoint = int(self.calc_setpoint(max=cs.MAX_DISCHARGE_SP) * 0.333) # dont overrule
                         # setpoint from previous `if
-                        _ = self.calc_setpoint(max=cs.MAX_DISCHARGE_SP)
+                        # _ = self.calc_setpoint(max=cs.MAX_DISCHARGE_SP)
                 # when prices are very high we discharge down to the minimum SoC
                 elif (self.tibber.quarter_now in self.tibber.disch_greed) and _soc_gt_min:
                     _reason = "gHH"  # High price (>HH), request discharge
