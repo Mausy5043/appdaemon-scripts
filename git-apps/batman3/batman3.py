@@ -347,7 +347,7 @@ class BatMan3(hass.Hass):
         _distance_limit: float = -1 * max / (4 * 100) * 4  # = 34.0
         if _distance < _distance_limit:
             _setpoint = int(max * (_distance / _distance_limit))  # / 4
-        if _distance < 5:
+        if _distance < cs.APPROACH_LIM:
             # don't discharge when approaching bats_min_soc
             _setpoint = 0
         self.log(
