@@ -351,7 +351,7 @@ class BatMan3(hass.Hass):
             # don't discharge when under bats_min_soc
             _setpoint = 0
         self.log(
-            msg=f"*** Calculated SP : {int(_setpoint)} {max} {_distance} < {_distance_limit} ***", level="INFO"
+            msg=f"*** Calculated SP : {int(_setpoint)} {max} {_distance:.1f} < {_distance_limit:.1f} ***", level="INFO"
         )
         return int(_setpoint)
 
