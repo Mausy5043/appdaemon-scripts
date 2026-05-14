@@ -310,7 +310,7 @@ class BatMan3(hass.Hass):
                     _strategy = cs.NOM
                     if self.sw_override:
                         _reason = "Zq3"
-                        _setpoint = int(self.calc_setpoint(max=cs.MAX_DISCHARGE_SP) * 0.333) # dont overrule
+                        _setpoint = int(self.calc_setpoint(max=cs.MAX_DISCHARGE_SP) * cs.ADJUST_SP) # dont overrule
                         # setpoint from previous `if
                         # _ = self.calc_setpoint(max=cs.MAX_DISCHARGE_SP)
                 # when prices are very high we discharge down to the minimum SoC

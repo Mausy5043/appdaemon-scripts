@@ -90,6 +90,7 @@ MAX_DISCHARGE_SP: int = -3400  # W
 LPV_DISCHARGE_SP: int = -200  # W
 # Grid target default
 DEFAULT_XOM_SP: int = 0  # W
+ADJUST_SP: float = 0.333 # multipicator for XOM SP when not greedy
 
 # Average round-trip efficiency is not read from HA because is hardly changes:
 AVG_RTE: float = 0.8
