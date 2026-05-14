@@ -327,11 +327,11 @@ class BatMan3(hass.Hass):
                 _reason = "gLL"  # Low price (< LL), charge always, ignore EV state
                 _strategy = cs.NOM
                 _setpoint = cs.MAX_P1_ABS
-        # _ = self.calc_setpoint()  # for debugging
-        self.set_mode(strategy=_strategy, grid_target=_setpoint)
-        # switcheroo the batteries regularly when on normal duty
-        if not self.swoo and _reason not in ["gLL", "gHH"]:
-            self.switcheroo()  # check battery SoC before we leave
+            # _ = self.calc_setpoint()  # for debugging
+            self.set_mode(strategy=_strategy, grid_target=_setpoint)
+            # switcheroo the batteries regularly when on normal duty
+            if not self.swoo and _reason not in ["gLL", "gHH"]:
+                self.switcheroo()  # check battery SoC before we leave
         self.log_status(caller=f"-{caller}({_reason} {_strategy} {_setpoint})")
         # self.log(msg=f"{self.soc_avg} > {self.bats_min_soc} = {_soc_gt_min}")
 
