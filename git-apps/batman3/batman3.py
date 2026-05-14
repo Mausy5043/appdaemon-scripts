@@ -301,14 +301,14 @@ class BatMan3(hass.Hass):
                 if self.tibber.quarter_now in self.tibber.charge_cheap and not _soc_gt_min:
                     _reason = "cq1"  # Low price (<q1)
                     _strategy = cs.NOM
-                    if not self.datum["sunny"] or (self.datum["sunny"] and self.sw_override):
+                    if not self.datum["sunny"] or (self.sw_override and self.datum["sunny"]):
                         _reason = "Wq1"
-                        _setpoint = cs.MAX_CHARGE_SP  # TODO: use cs.MAX_P1_ABS ?
-                # when prices are in Q3 we do nothing.
+                        _setpoint = cs.MAX_CHARGE_SP
+                # in summer we discharge when prices are in Q3 down to the minimum SoC.
                 elif self.tibber.quarter_now in self.tibber.disch_expen and _soc_gt_min:
                     _reason = "dq3"  # High price (>q3)
                     _strategy = cs.NOM
-                    if self.sw_override:
+                    if self.datum["sunny"] or (self.sw_override and not self.datum["sunny"]):
                         _reason = "Zq3"
                         _setpoint = int(self.calc_setpoint(max=cs.MAX_DISCHARGE_SP) * cs.ADJUST_SP) # dont overrule
                         # setpoint from previous `if
