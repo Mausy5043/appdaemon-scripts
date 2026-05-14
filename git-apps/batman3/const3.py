@@ -90,7 +90,7 @@ MAX_DISCHARGE_SP: int = -3400  # W
 LPV_DISCHARGE_SP: int = -200  # W
 # Grid target default
 DEFAULT_XOM_SP: int = 0  # W
-ADJUST_SP: float = 0.25 # multipicator for XOM SP when not greedy
+ADJUST_SP: float = 0.25  # multipicator for XOM SP when not greedy
 APPROACH_LIM: float = 5.0
 
 # Average round-trip efficiency is not read from HA because is hardly changes:
@@ -100,8 +100,8 @@ AVG_RTE: float = 0.8
 _F = 1.1  # compensation factor to allow for variations in actual wattages used.
 CHARGE_TIME: float = BAT_CAPACITY / MAX_CHARGE  # hours
 CHARGE_SLOTS: int = int(CHARGE_TIME * 4 * _F)  # quarters needed to fully charge the batteries
-DISCHG_TIME: float = BAT_CAPACITY / MAX_DISCHARGE * AVG_RTE # hours
-DISCHG_SLOTS: int = int(DISCHG_TIME * 4 * _F) # quarters needed to fully discharge the batteries
+DISCHG_TIME: float = BAT_CAPACITY / MAX_DISCHARGE * AVG_RTE  # hours
+DISCHG_SLOTS: int = int(DISCHG_TIME * 4 * _F)  # quarters needed to fully discharge the batteries
 SWITCHEROO_DIFF: float = 2.5  # difference in SoC between batteries when to call the switcheroo
 
 # Supported battery stances  (Sessy calls this 'strategy')

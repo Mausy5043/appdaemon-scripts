@@ -310,9 +310,9 @@ class BatMan3(hass.Hass):
                     _strategy = cs.NOM
                     if self.datum["sunny"] or (self.sw_override and not self.datum["sunny"]):
                         _reason = "Zq3"
-                        _setpoint = int(self.calc_setpoint(max=cs.MAX_DISCHARGE_SP) * cs.ADJUST_SP) # dont overrule
-                        # setpoint from previous `if
-                        # _ = self.calc_setpoint(max=cs.MAX_DISCHARGE_SP)
+                        _setpoint = int(
+                            self.calc_setpoint(max=cs.MAX_DISCHARGE_SP) * cs.ADJUST_SP
+                        )  # dont overrule
                 # when prices are very high we discharge down to the minimum SoC
                 elif (self.tibber.quarter_now in self.tibber.disch_greed) and _soc_gt_min:
                     _reason = "gHH"  # High price (>HH), request discharge
@@ -351,7 +351,8 @@ class BatMan3(hass.Hass):
             # don't discharge when approaching bats_min_soc
             _setpoint = 0
         self.log(
-            msg=f"*** Calculated SP : {int(_setpoint)} {max} {_distance:.1f} < {_distance_limit:.1f} ***", level="INFO"
+            msg=f"*** Calculated SP : {int(_setpoint)} {max} {_distance:.1f} < {_distance_limit:.1f} ***",
+            level="INFO",
         )
         return _setpoint
 
