@@ -304,20 +304,19 @@ class BatMan3(hass.Hass):
                     if not self.datum["sunny"] or (self.sw_override and self.datum["sunny"]):
                         _reason = "Wq1"
                         _setpoint = cs.MAX_CHARGE_SP
+                # when prices are very high we discharge down to the minimum SoC
+                # first check if we're greedy, then check if price > q3
+                elif (self.tibber.quarter_now in self.tibber.disch_greed) and _soc_gt_min:
+                    _reason = "gHH"  # High price (>HH), request discharge
+                    _strategy = cs.NOM
+                    _setpoint = self.calc_setpoint(max=cs.MAX_DISCHARGE_SP)
                 # in summer we discharge when prices are in Q3 down to the minimum SoC.
                 elif self.tibber.quarter_now in self.tibber.disch_expen and _soc_gt_min:
                     _reason = "dq3"  # High price (>q3)
                     _strategy = cs.NOM
                     if self.datum["sunny"] or (self.sw_override and not self.datum["sunny"]):
                         _reason = "Zq3"
-                        _setpoint = int(
-                            self.calc_setpoint(max=cs.MAX_DISCHARGE_SP) * cs.ADJUST_SP
-                        )  # dont overrule
-                # when prices are very high we discharge down to the minimum SoC
-                elif (self.tibber.quarter_now in self.tibber.disch_greed) and _soc_gt_min:
-                    _reason = "gHH"  # High price (>HH), request discharge
-                    _strategy = cs.NOM
-                    _setpoint = self.calc_setpoint(max=cs.MAX_DISCHARGE_SP)
+                        _setpoint = int(self.calc_setpoint(max=cs.MAX_DISCHARGE_SP) * cs.ADJUST_SP)
             # if EV is charging:
             else:
                 _reason = "evc"  # EV charging, IDLE
