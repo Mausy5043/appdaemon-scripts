@@ -282,10 +282,37 @@ class BatMan3(hass.Hass):
 
     def controller_cb(self, caller, **kwargs):
         """Controller callback."""
+        # fmt: off
         _reason: str = "nix"  # no action
         _strategy: str = cs.DEFAULT_STANCE
         _setpoint: int = cs.DEFAULT_XOM_SP  # 0 W
         _soc_gt_min: bool = self.soc_avg > self.bats_min_soc  # Avg SoC is above the lower limit line
+
+        #  low prices should no do anything...
+        _cq1: bool = (self.tibber.quarter_now in self.tibber.charge_cheap
+                      and not _soc_gt_min
+                      )
+        # ...unless we're in winter, when we charge during low price quarters upto the minimum SoC.
+        _Wq1: bool = (not self.datum["sunny"]
+                      or (self.sw_override and self.datum["sunny"])
+                      )
+
+        # high prices should not do anything...
+        _dq3: bool = (self.tibber.quarter_now in self.tibber.disch_expen
+                and _soc_gt_min
+                )
+        # ...unless we're in summer, when we discharge down to the minimum SoC.
+        _Zq3: bool = (self.datum["sunny"]
+                or (self.sw_override and not self.datum["sunny"])
+                )
+
+        # when prices are very high we discharge down to the minimum SoC
+        _gHH: bool = (self.tibber.quarter_now in self.tibber.disch_greed
+                and _soc_gt_min
+                )
+
+        _gLL = self.tibber.quarter_now in self.tibber.charge_greed
+
         if self.ctrl_by_me:
             _reason = "ctl"  # control by me, no action
             if not self.ev_charging:
@@ -297,35 +324,38 @@ class BatMan3(hass.Hass):
                     _reason = "lpv"  # Low PV
                     _strategy = cs.NOM
                     _setpoint = -200
-                # in winter we charge during low price quarters upto the minimum SoC.
-                if self.tibber.quarter_now in self.tibber.charge_cheap and not _soc_gt_min:
+
+                # _cq1 & _Wq1
+                if _cq1:
                     _reason = "cq1"  # Low price (<q1)
                     _strategy = cs.NOM
-                    if not self.datum["sunny"] or (self.sw_override and self.datum["sunny"]):
+                    if _Wq1:
                         _reason = "Wq1"
                         _setpoint = cs.MAX_CHARGE_SP
-                # when prices are very high we discharge down to the minimum SoC
+
                 # first check if we're greedy, then check if price > q3
-                elif (self.tibber.quarter_now in self.tibber.disch_greed) and _soc_gt_min:
+                elif _gHH:
                     _reason = "gHH"  # High price (>HH), request discharge
                     _strategy = cs.NOM
                     _setpoint = self.calc_setpoint(max=cs.MAX_DISCHARGE_SP)
-                # in summer we discharge when prices are in Q3 down to the minimum SoC.
-                elif self.tibber.quarter_now in self.tibber.disch_expen and _soc_gt_min:
+
+                elif _dq3:
                     _reason = "dq3"  # High price (>q3)
                     _strategy = cs.NOM
-                    if self.datum["sunny"] or (self.sw_override and not self.datum["sunny"]):
+                    if _Zq3:
                         _reason = "Zq3"
                         _setpoint = int(self.calc_setpoint(max=cs.MAX_DISCHARGE_SP) * cs.ADJUST_SP)
             # if EV is charging:
             else:
                 _reason = "evc"  # EV charging, IDLE
                 _strategy = cs.IDLE
+
             # regardless of the EV charging state, if prices are extremely low we will charge
-            if self.tibber.quarter_now in self.tibber.charge_greed:
+            if _gLL:
                 _reason = "gLL"  # Low price (< LL), charge always, ignore EV state
                 _strategy = cs.NOM
                 _setpoint = cs.MAX_P1_ABS
+
             # _ = self.calc_setpoint()  # for debugging
             self.set_mode(strategy=_strategy, grid_target=_setpoint)
             # switcheroo the batteries regularly when on normal duty
@@ -333,6 +363,7 @@ class BatMan3(hass.Hass):
                 self.switcheroo()  # check battery SoC before we leave
         self.log_status(caller=f"-{caller}({_reason} {_strategy} {_setpoint})")
         # self.log(msg=f"{self.soc_avg} > {self.bats_min_soc} = {_soc_gt_min}")
+        # fmt:on
 
     def calc_setpoint(self, max: int) -> int:
         """Calculate the setpoint for the grid target based on
