@@ -293,7 +293,7 @@ class BatMan3(hass.Hass):
         _setpoint: int = cs.DEFAULT_XOM_SP  # 0 W
         _soc_gt_min: bool = self.soc_avg > self.bats_min_soc  # Avg SoC is above the lower limit line
 
-        #  low prices should no do anything...
+        #  low prices should not do anything...
         _cq1: bool = (self.tibber.quarter_now in self.tibber.charge_cheap
                       and not _soc_gt_min
                       )
@@ -349,7 +349,8 @@ class BatMan3(hass.Hass):
                     _strategy = cs.NOM
                     if _Zq3:
                         _reason = "Zq3"
-                        _setpoint = int(self.calc_setpoint(max=cs.MAX_DISCHARGE_SP) * cs.ADJUST_SP)
+                        # TODO: discharge only if price is high enough
+                        # _setpoint = int(self.calc_setpoint(max=cs.MAX_DISCHARGE_SP) * cs.ADJUST_SP)
 
             # if EV is charging:
             else:
