@@ -296,6 +296,8 @@ class BatMan3(hass.Hass):
         _Wq1: bool = (not self.datum["sunny"]
                       or (self.sw_override and self.datum["sunny"])
                       )
+        # when prices are very low we charge completely
+        _gLL = self.tibber.quarter_now in self.tibber.charge_greed
 
         # high prices should not do anything...
         _dq3: bool = (self.tibber.quarter_now in self.tibber.disch_expen
@@ -305,13 +307,10 @@ class BatMan3(hass.Hass):
         _Zq3: bool = (self.datum["sunny"]
                 or (self.sw_override and not self.datum["sunny"])
                 )
-
         # when prices are very high we discharge down to the minimum SoC
         _gHH: bool = (self.tibber.quarter_now in self.tibber.disch_greed
                 and _soc_gt_min
                 )
-
-        _gLL = self.tibber.quarter_now in self.tibber.charge_greed
 
         if self.ctrl_by_me:
             _reason = "ctl"  # control by me, no action
@@ -339,12 +338,14 @@ class BatMan3(hass.Hass):
                     _strategy = cs.NOM
                     _setpoint = self.calc_setpoint(max=cs.MAX_DISCHARGE_SP)
 
+                # _dq3 & _Zq3
                 elif _dq3:
                     _reason = "dq3"  # High price (>q3)
                     _strategy = cs.NOM
                     if _Zq3:
                         _reason = "Zq3"
                         _setpoint = int(self.calc_setpoint(max=cs.MAX_DISCHARGE_SP) * cs.ADJUST_SP)
+
             # if EV is charging:
             else:
                 _reason = "evc"  # EV charging, IDLE
