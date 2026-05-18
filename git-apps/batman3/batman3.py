@@ -78,6 +78,7 @@ class BatMan3(hass.Hass):
         self.pv_power: int = 0  # [W]; used to control PV power
         self.pv_volt: float = 0.0  # [V]; used to control PV current
         # ... and make sure we get updates when these change ...
+        self.watchdog_active: bool = True  # avoid callback while starting
         self.set_call_backs()
         # ... then get their actual state
         self.get_monitor_states()
@@ -86,6 +87,7 @@ class BatMan3(hass.Hass):
         self.log_pricelist()
         self.log_status(caller="INIT")
 
+        self.watchdog_active = False  # allow callbacks
         self.starting = False
 
     def terminate(self):
@@ -247,17 +249,19 @@ class BatMan3(hass.Hass):
 
     def watchdog_cb(self, entity, attribute, old, new, **kwargs):
         """Callback for changes to monitored automations."""
-        self.callback_time = dt.datetime.now()
-        # watchdog changes are not immediate, so we callback watchdog_runin_cb() after:
-        _cb_delay = 2  # [s]  to allow the system to stabilize
-        self.run_in(
-            self.watchdog_runin_cb,
-            delay=_cb_delay,
-            entity=str(entity),
-            attribute=attribute,
-            old=old,
-            new=new,
-        )
+        if not self.watchdog_active:
+            self.callback_time = dt.datetime.now()
+            self.watchdog_active = True
+            # watchdog changes are not immediate, so we callback watchdog_runin_cb() after:
+            _cb_delay = 2  # [s]  to allow the system to stabilize
+            self.run_in(
+                self.watchdog_runin_cb,
+                delay=_cb_delay,
+                entity=str(entity),
+                attribute=attribute,
+                old=old,
+                new=new,
+            )
 
     def watchdog_runin_cb(self, entity: str, attribute, old, new, **kwargs):
         """Delayed callback for watchdogs."""
@@ -266,6 +270,7 @@ class BatMan3(hass.Hass):
         if entity == cs.LOW_PV:
             self.lowpv_handler(state=str(new))
         self.run_in(self.controller_cb, delay=1, caller="wdog")
+        self.watchdog_active = False
 
     def lowpv_handler(self, state: str):
         """Handle low PV condition changes."""
