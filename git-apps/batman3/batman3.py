@@ -78,7 +78,7 @@ class BatMan3(hass.Hass):
         self.pv_power: int = 0  # [W]; used to control PV power
         self.pv_volt: float = 0.0  # [V]; used to control PV current
         # ... and make sure we get updates when these change ...
-        self.watchdog_active: bool = True  # avoid callback while starting
+        self.watchdog_active: str = "starting"  # avoid callback while starting
         self.set_call_backs()
         # ... then get their actual state
         self.get_monitor_states()
@@ -87,7 +87,7 @@ class BatMan3(hass.Hass):
         self.log_pricelist()
         self.log_status(caller="INIT")
 
-        self.watchdog_active = False  # allow callbacks
+        self.watchdog_active: str = ""  # allow callbacks
         self.starting = False
 
     def terminate(self):
@@ -251,7 +251,7 @@ class BatMan3(hass.Hass):
         """Callback for changes to monitored automations."""
         if not self.watchdog_active:
             self.callback_time = dt.datetime.now()
-            self.watchdog_active = True
+            self.watchdog_active = entity.split(".")[-1]
             # watchdog changes are not immediate, so we callback watchdog_runin_cb() after:
             _cb_delay = 2  # [s]  to allow the system to stabilize
             self.run_in(
@@ -269,7 +269,7 @@ class BatMan3(hass.Hass):
         # low PV may need different actions
         if entity == cs.LOW_PV:
             self.lowpv_handler(state=str(new))
-        self.watchdog_active = False
+        self.watchdog_active = ""
         self.run_in(self.controller_cb, delay=1, caller="wdog")
 
     def lowpv_handler(self, state: str):
@@ -598,9 +598,9 @@ class BatMan3(hass.Hass):
                 _strl.insert(0, f"{abs(_bsp):4d}")
             _str.append(">".join(_strl))
         _bts = f" |{_str[0]}:{_bs[0]}|{_str[1]}:{_bs[1]}|d={self.soc_diff:.1f}"
-
+        _wd: str = self.watchdog_active
         _time = (dt.datetime.now() - self.callback_time).total_seconds()
-        self.status = "".join([_O, _C, _E, _L, _S, _q, _bts, f" <{caller}@{_time:.3f}"])
+        self.status = "".join([_O, _C, _E, _L, _S, _q, _bts, f" <{caller}@{_time:.3f} {_wd}"])
         self.log(self.status, level="INFO")
 
     def log_pricelist(self, _len: int = 10):
