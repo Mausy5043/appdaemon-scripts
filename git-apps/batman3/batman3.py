@@ -366,10 +366,9 @@ class BatMan3(hass.Hass):
             # _ = self.calc_setpoint()  # for debugging
             self.set_mode(strategy=_strategy, grid_target=_setpoint)
             # switcheroo the batteries regularly when on normal duty
-            if not self.swoo and _reason not in ["gLL", "gHH"]:
+            if not self.swoo: # and _reason not in ["gLL", "gHH"]:
                 self.switcheroo()  # check battery SoC before we leave
         self.log_status(caller=f"-{caller}({_reason} {_strategy} {_setpoint})")
-        # self.log(msg=f"{self.soc_avg} > {self.bats_min_soc} = {_soc_gt_min}")
         # fmt:on
 
     def calc_setpoint(self, max: int) -> int:
