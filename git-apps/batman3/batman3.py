@@ -269,7 +269,7 @@ class BatMan3(hass.Hass):
         # low PV may need different actions
         if entity == cs.LOW_PV:
             self.lowpv_handler(state=str(new))
-        self.watchdog_active = ""
+
         self.run_in(self.controller_cb, delay=1, caller="wdog")
 
     def lowpv_handler(self, state: str):
@@ -369,6 +369,7 @@ class BatMan3(hass.Hass):
             if not self.swoo: # and _reason not in ["gLL", "gHH"]:
                 self.switcheroo()  # check battery SoC before we leave
         self.log_status(caller=f"-{caller}({_reason} {_strategy} {_setpoint})")
+        self.watchdog_active = ""
         # fmt:on
 
     def calc_setpoint(self, max: int) -> int:
