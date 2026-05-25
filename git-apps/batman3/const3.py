@@ -91,7 +91,7 @@ LPV_DISCHARGE_SP: int = -200  # W
 # Grid target default
 DEFAULT_XOM_SP: int = 0  # W
 ADJUST_SP: float = 0.333  # multipicator for XOM SP when not greedy
-APPROACH_LIM: float = 0.0
+APPROACH_LIM: float = 0.0  # number of Watts to approach towards bats minimum limit
 
 # Average round-trip efficiency is not read from HA because is hardly changes:
 AVG_RTE: float = 0.8
