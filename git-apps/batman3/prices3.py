@@ -245,4 +245,4 @@ class Tibber:
         self.charge_cheap = [i for i in __si if self.pricelist[i] < _q1][: cs.CHARGE_SLOTS]
         # indices of prices > greed limit (_q3hh); for discharging surplus when prices are high
         # discharging stops automatically when the min. SoC is reached.
-        self.disch_greed = [i for i in __si if self.pricelist[i] > _q3hh]
+        self.disch_greed = [i for i in __si if self.pricelist[i] > _q3hh][-1 * cs.DISCHG_SLOTS :]
