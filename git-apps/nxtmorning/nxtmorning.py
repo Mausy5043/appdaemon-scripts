@@ -96,7 +96,7 @@ class NextMorning(hass.Hass):
         # number of seconds until target time is reached:
         _t_sec: float = max(0.0, (_target - _now).total_seconds())  # avoid negative _t_sec in edge-cases
         self.next_sun_on_panels: float = max(EPS, abs(round(_t_sec / 3600, 2)))
-        if self.starting or _t_sec < 360:
+        if self.starting or _t_sec < 90:
             self.log(f"Time until next sun_on_panels : {self.next_sun_on_panels:.2f} hours")
 
         # Update the prediction in HA
