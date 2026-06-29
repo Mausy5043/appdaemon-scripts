@@ -97,11 +97,12 @@ APPROACH_LIM: float = 0.0  # number of Watts to approach towards bats minimum li
 AVG_RTE: float = 0.8
 
 # Number of quarters needed to fully charge a battery
-_F = 1.1  # compensation factor to allow for variations in actual wattages used.
+_Fc = 1.1  # compensation factor to allow for variations in actual wattages used.
+_Fd = 1.0
 CHARGE_TIME: float = BAT_CAPACITY / MAX_CHARGE  # hours
-CHARGE_SLOTS: int = int(CHARGE_TIME * 4 * _F)  # quarters needed to fully charge the batteries
+CHARGE_SLOTS: int = int(CHARGE_TIME * 4 * _Fc)  # quarters needed to fully charge the batteries
 DISCHG_TIME: float = BAT_CAPACITY / MAX_DISCHARGE * AVG_RTE  # hours
-DISCHG_SLOTS: int = int(DISCHG_TIME * 4 / _F)  # quarters needed to discharge the batteries
+DISCHG_SLOTS: int = int(DISCHG_TIME * 4 / _Fd)  # quarters needed to discharge the batteries
 SWITCHEROO_DIFF: float = 2.5  # difference in SoC between batteries when to call the switcheroo
 
 # Supported battery stances  (Sessy calls this 'strategy')
