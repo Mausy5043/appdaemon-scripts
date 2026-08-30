@@ -136,3 +136,23 @@ pythonVersion = "3.12"
 reportAttributeAccessIssue = "none"
 reportAssignmentType = "none"
 typeCheckingMode = "basic"
+
+[dependency-groups]
+dev = [
+    "autopep8>=2.3.2",
+    "bandit>=1.9.4",
+    "black>=26.5.1",
+    "flake8>=7.3.0",
+    "flake8-pyproject>=1.2.4",
+    "isort>=9.0.1",
+    "mypy>=2.3.1",
+    "pydocstyle>=6.3.0",
+    "ruff>=0.16.5",
+    "shellcheck-py>=0.11.0.1",
+    "types-gunicorn>=26.2.0.20260827",
+    "types-pysocks>=1.7.1.20260518",
+    "types-python-dateutil>=2.9.0.20260807",
+    "types-pytz>=2026.3.1.20260727",
+    "types-pyyaml>=6.0.12.20260815",
+    "types-requests>=2.33.0.20260712",
+]
