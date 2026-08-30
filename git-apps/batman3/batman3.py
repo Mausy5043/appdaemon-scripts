@@ -87,7 +87,7 @@ class BatMan3(hass.Hass):
         self.log_pricelist()
         self.log_status(caller="INIT")
 
-        self.watchdog_active: str = ""  # allow callbacks
+        self.watchdog_active = ""  # allow callbacks
         self.starting = False
 
     def terminate(self):
@@ -306,16 +306,16 @@ class BatMan3(hass.Hass):
 
         # high prices should not do anything...
         _dq3: bool = (self.tibber.quarter_now in self.tibber.disch_expen
-                and _soc_gt_min
-                )
+                      and _soc_gt_min
+                      )
         # ...unless we're in summer, when we discharge down to the minimum SoC.
         _Zq3: bool = (self.datum["sunny"]
-                or (self.sw_override and not self.datum["sunny"])
-                )
+                      or (self.sw_override and not self.datum["sunny"])
+                      )
         # when prices are very high we discharge down to the minimum SoC
         _gHH: bool = (self.tibber.quarter_now in self.tibber.disch_greed
-                and _soc_gt_min
-                )
+                      and _soc_gt_min
+                      )
 
         if self.ctrl_by_me:
             _reason = "ctl"  # control by me, no action
