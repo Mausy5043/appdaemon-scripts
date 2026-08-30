@@ -9,12 +9,11 @@ description = "AppDaemon scripts for Home Assistant"
 dependencies = [
     "astral",
     "appdaemon",
-    "pip",
-    ]
+]
 license = {file = "LICENSE"}
 authors = [
-  { name="Mausy5043" },
-  ]
+    {name = "Mausy5043"},
+]
 readme = "README.md"
 requires-python = ">=3.12"
 
@@ -30,12 +29,14 @@ ignore = [
 
 [tool.bandit]
 exclude = ['*.py']
+skips = ["B101"]
 
 [tool.black]
 line-length = 112
 target-version = ["py312"]
 exclude = '''
 /(
+    \.venv/|
     legacy/|
     \.local/
 )
@@ -60,14 +61,16 @@ ignore = [
     "E722",
     # line break before binary: is against policy.
     "W503",
-    ]
+]
 exclude = [
+    ".venv/",
     "legacy/",
     ".local/"
 ]
 
 [tool.mypy]
 exclude = [
+    ".venv/",
     "legacy/",
     ".local/"
 ]
@@ -98,6 +101,7 @@ line-length = 112
 output-format = "concise"
 include = ["pyproject.toml", "git-apps/**/*.py"]
 exclude = [
+    ".venv/",
     "legacy/",
     ".local/",
 ]
@@ -123,7 +127,7 @@ unfixable = []
 
 
 [tool.pyright]
-reportAttributeAccessIssue="none"
+pythonVersion = "3.12"
+reportAttributeAccessIssue = "none"
 reportAssignmentType = "none"
-python.analysis.typeCheckingMode = "basic"
-# python.analysis.selfType = "true"
+typeCheckingMode = "basic"
