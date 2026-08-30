@@ -37,12 +37,9 @@ class EigenBedrijf_Avg(hass.Hass):
             _insert = float(new)
             _insert = max(0.0, _insert)  # (-)-ve values are not realistic.
         except ValueError:
-            if self.values:
-                # insert the previous value
-                _insert = float(self.values[-1])
-            else:
-                # only insert 0 if nothing is available
-                _insert = 0.0
+            # insert the previous value
+            # only insert 0 if nothing is available
+            _insert = float(self.values[-1]) if self.values else 0.0
         self.values.append(_insert)
 
     def update_average_cb(self, **kwargs):
