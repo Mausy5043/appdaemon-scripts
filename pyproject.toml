@@ -30,6 +30,11 @@ ignore = [
 [tool.bandit]
 exclude = ['*.py']
 skips = ["B101"]
+exclude_dirs = [
+    ".venv/",
+    "legacy/",
+    ".local/"
+]
 
 [tool.black]
 line-length = 112
